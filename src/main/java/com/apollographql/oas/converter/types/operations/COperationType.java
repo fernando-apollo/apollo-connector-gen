@@ -17,11 +17,7 @@ public class COperationType extends CType {
   private String resultType;
   private List<? extends CType> parameters = Collections.emptyList();
   private String originalPath;
-
-  public COperationType(String name, String resultType) {
-    super(name, null, CTypeKind.OPERATION, true);
-    this.resultType = resultType;
-  }
+  private String summary;
 
   public COperationType(String name, String resultType, List<? extends CType> parameters) {
     super(name, null, CTypeKind.OPERATION, true);
@@ -42,13 +38,21 @@ public class COperationType extends CType {
     System.out.println(String.format("->[operationType] -> begin: %s", this.getName()));
 
     final StringBuilder builder = new StringBuilder();
-    builder.append("  ");
+    if (getSummary() != null || getOriginalPath() != null) {
+      builder.append("  \"\"\"\n").append("  ");
 
-    if (getOriginalPath() != null) {
-      builder.append("# ").append(getOriginalPath()).append("\n").append("  ");
+      if (getSummary() != null) {
+        builder.append(getSummary()).append(" ");
+      }
+
+      if (getOriginalPath() != null) {
+        builder.append("(").append(getOriginalPath()).append(")");
+      }
+
+      builder.append("\n  \"\"\"\n");
     }
 
-    builder.append(getName());
+    builder.append("  ").append(getName());
 
     // gen parameters
     generateParameters(context, builder);
@@ -132,5 +136,13 @@ public class COperationType extends CType {
 
   public String getOriginalPath() {
     return originalPath;
+  }
+
+  public void setSummary(String summary) {
+    this.summary = summary;
+  }
+
+  public String getSummary() {
+    return summary;
   }
 }

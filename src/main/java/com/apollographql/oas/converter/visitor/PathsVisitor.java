@@ -42,7 +42,7 @@ public class PathsVisitor extends Visitor {
 
   @Override
   public void visit() {
-    Trace.print(indent, "[visit]", "---------------------------- Operations --------------------------");
+    print(indent, "[visit]", "---------------------------- Operations --------------------------");
     paths.entrySet().stream()
       .filter(entry -> entry.getValue().getGet() != null)
       .forEach(entry -> visitPath(entry.getKey(), entry.getValue()));
@@ -54,7 +54,7 @@ public class PathsVisitor extends Visitor {
       return;
     }
 
-    Trace.print(indent, "[generate]", "---------------------------- Operations --------------------------");
+    print(indent, "[generate]", "---------------------------- Operations --------------------------");
     writer.write("type Query {\n");
 
     for (Map.Entry<String, CType> entry : context.getOperations().entrySet()) {
@@ -65,118 +65,126 @@ public class PathsVisitor extends Visitor {
   }
 
   private void visitPath(String path, final PathItem item) {
-    Trace.print(indent, "->[visitPath]", "analyzing path: " + path);
+    print(indent, "->[visitPath]", "analyzing path: " + path);
     final Operation getOp = item.getGet();
-
-    if (getOp == null) {
-      Trace.warn(indent, "  [visitPath]", "No GET operation found, skipping");
-      return;
-    }
+    final String summary = getOp.getSummary();
 
     // this is actually a synthetic name for our GraphQL response
-    Trace.print(indent, "  [visitPath]", "operationId: " + getOp.getOperationId());
+    print(indent, "  [visitPath]", "operationId: " + getOp.getOperationId());
 
-    List<? extends CType> parameters = visitParameters(getOp);
+    final List<? extends CType> parameters = visitParameters(getOp);
 
-    getOp.getResponses().entrySet().stream()
-      .filter(e -> e.getKey().equals("200")) // only 200 for now
-      .forEach(e -> {
-        indent++;
-        final ApiResponse response = e.getValue();
+    // only 200 for now
+    for (Map.Entry<String, ApiResponse> e : getOp.getResponses().entrySet()) {
+      if (!e.getKey().equals("200")) {
+        Trace.warn(indent, "  [visitPath]", "Ignoring response '" + e.getKey() + "'");
+        continue;
+      }
 
-        // check ref first
-        final String responseRef = response.get$ref();
-        if (responseRef != null) {
-          final COperationType resultType = visitResponseRef(path, getOp, responseRef, parameters);
-          context.putOperation(resultType);
-        } else {
-          final Content content = response.getContent();
+      indent++;
+      final ApiResponse response = e.getValue();
 
-          Optional<Map.Entry<String, MediaType>> first = content.entrySet().stream()
-            .filter(entry -> entry.getKey().contains("application/json"))
-            .findFirst();
+      // check ref first
+      final String responseRef = response.get$ref();
+      if (responseRef != null) {
+        final COperationType resultType = visitResponseRef(path, getOp, responseRef, parameters);
+        resultType.setSummary(summary);
 
-          final String name = e.getKey();
-          if (first.isEmpty()) { // bail
-            indent--;
-            warn(indent, "  [" + name + "]", "no mediaType found for content application/json, bailing out!");
-            return;
+        context.putOperation(resultType);
+      }
+
+      else {
+        final Content content = response.getContent();
+
+        Optional<Map.Entry<String, MediaType>> first = content.entrySet().stream()
+          .filter(entry -> entry.getKey().contains("application/json"))
+          .findFirst();
+
+        final String name = e.getKey();
+        if (first.isEmpty()) { // bail
+          indent--;
+          warn(indent, "  [" + name + "]", "no mediaType found for content application/json, bailing out!");
+          continue;
+        }
+
+        // this is inline content - as in not using a ref for the response, which means we'll
+        // have to parse it here instead - and 'walk' it. Also means we'll have to 'store' the content in the
+        // responses section and synthesize a return value for it - best way to do it I guess?
+        final String operation = NameUtils.genOperationName(path, getOp);
+
+        final Schema schema = first.get().getValue().getSchema();
+        final String schemaRef = schema.get$ref();
+
+        if (schemaRef != null) {
+          final CType cType = lookupRef(schemaRef);
+          if (cType == null) {
+            throw new IllegalStateException("Could not find schemaRef '" + schema + "'");
           }
 
-          // this is inline content - as in not using a ref for the response, which means we'll
-          // have to parse it here instead - and 'walk' it. Also means we'll have to 'store' the content in the
-          // responses section and synthesize a return value for it - best way to do it I guess?
-          final String operation = NameUtils.genOperationName(path, getOp);
+          final String resultType = NameUtils.genResponseType(path, getOp);
+          store(new CResponseObjectType(resultType, schemaRef));
 
-          final Schema schema = first.get().getValue().getSchema();
-          final String schemaRef = schema.get$ref();
+          final COperationType opType = new COperationType(operation, NameUtils.getRefName(schemaRef), parameters);
+          opType.setOriginalPath(path);
+          opType.setSummary(summary);
 
-          if (schemaRef != null) {
-            final CType cType = lookupRef(schemaRef);
-            if (cType == null) {
-              throw new IllegalStateException("Could not find schemaRef '" + schema + "'");
-            }
+          context.putOperation(opType);
+        }
+        // now let's check the ApiResponse
+        else if (schema instanceof ObjectSchema) {
+          print(indent, "  [" + name + "]", "schema is ObjectSchema");
+          throw new IllegalStateException("Cannot handle ObjectSchema yet for " + schema);
+        } else if (schema instanceof ArraySchema) {
+          indent++;
+          CResponseArrayType returnType = (CResponseArrayType) visitArraySchema(name, (ArraySchema) schema);
+          store(returnType);
 
-            final String resultType = NameUtils.genResponseType(path, getOp);
-            store(new CResponseObjectType(resultType, schemaRef));
+          final COperationType opType = new COperationType(
+            operation,
+            "[" + NameUtils.getRefName(returnType.getItemsRef()) + "]",
+            parameters
+          );
+          opType.setSummary(summary);
+          opType.setOriginalPath(path);
 
-            final COperationType opType = new COperationType(operation, NameUtils.getRefName(schemaRef), parameters);
-            opType.setOriginalPath(path);
-            context.putOperation(opType);
-          }
-          // now let's check the ApiResponse
-          else if (schema instanceof ObjectSchema) {
-            print(indent, "  [" + name + "]", "schema is ObjectSchema");
-            throw new IllegalStateException("Cannot handle ObjectSchema yet for " + schema);
-          } else if (schema instanceof ArraySchema) {
-            indent++;
-            CResponseArrayType returnType = (CResponseArrayType) visitArraySchema(name, (ArraySchema) schema);
-            store(returnType);
-
-            final COperationType opType = new COperationType(
-              operation,
-              "[" + NameUtils.getRefName(returnType.getItemsRef()) + "]",
-              parameters
-            );
-            opType.setOriginalPath(path);
-
-            context.putOperation(opType);
-            indent--;
-          } else if (schema instanceof MapSchema) {
-            indent++;
+          context.putOperation(opType);
+          indent--;
+        } else if (schema instanceof MapSchema) {
+          indent++;
             /*type Query {
                 getWhateverMap: [SyntheticKeyValue]
               } */
 //            final CType syntheticType = visitMapSchema(NameUtils.genSyntheticType(name), (MapSchema) schema);
 //            store(syntheticType);
 
-            // this is a work-around, and an easy one at that. we can potentially have 3 scenarios here:
-            // 1. we return a JSON which is dynamic - but that means that types will need to be defined manually
-            // 2. we find the additional property and create a synthetic object, then use it as the op result
-            // 3. the key is NOT a scalar, then we need to create the synthetic type (again) and use it as the
-            //    key in the map
+          // this is a work-around, and an easy one at that. we can potentially have 3 scenarios here:
+          // 1. we return a JSON which is dynamic - but that means that types will need to be defined manually
+          // 2. we find the additional property and create a synthetic object, then use it as the op result
+          // 3. the key is NOT a scalar, then we need to create the synthetic type (again) and use it as the
+          //    key in the map
 
-            final COperationType opType = new COperationType(operation, "JSON", parameters);
-            opType.setOriginalPath(path);
+          final COperationType opType = new COperationType(operation, "JSON", parameters);
+          opType.setOriginalPath(path);
 
-            context.putOperation(opType);
-            indent--;
-          } else if (schema instanceof StringSchema) {
-            // response is actually a scalar type, in this case String
-            final COperationType opType = new COperationType(operation, GqlUtils.getGQLScalarType(schema), parameters);
-            opType.setOriginalPath(path);
+          context.putOperation(opType);
+          indent--;
+        } else if (schema instanceof StringSchema) {
+          // response is actually a scalar type, in this case String
+          final COperationType opType = new COperationType(operation, GqlUtils.getGQLScalarType(schema), parameters);
+          opType.setSummary(summary);
+          opType.setOriginalPath(path);
 
-            context.putOperation(opType);
-          } else {
-            throw new IllegalStateException("Can't handle " + schema.getClass().getSimpleName());
-          }
-
-          print(indent, "<-[visitPath]", "end: " + path);
+          context.putOperation(opType);
+        } else {
+          throw new IllegalStateException("Can't handle " + schema.getClass().getSimpleName());
         }
-        indent--;
-      });
 
-    Trace.print(indent, "<-[visitPath]", "end: " + path);
+        print(indent, "<-[visitPath]", "end: " + path);
+      }
+      indent--;
+    }
+
+    print(indent, "<-[visitPath]", "end: " + path);
   }
 
   private List<? extends CType> visitParameters(Operation getOp) {
@@ -222,8 +230,7 @@ public class PathsVisitor extends Visitor {
 
       // now we need a lookup just to check the value is actually there:
       resultType = "[" + GqlUtils.getGQLScalarType(itemsSchema) + "]";
-    }
-    else { // let's try scalar
+    } else { // let's try scalar
       resultType = GqlUtils.getGQLScalarType(schema);
     }
 
@@ -248,17 +255,17 @@ public class PathsVisitor extends Visitor {
   }
 
   private COperationType visitResponseRef(String path, Operation getOp, String responseRef, List<? extends CType> parameters) {
-    Trace.print(indent, "  [" + path + "]", "lookup responseRef: " + responseRef);
+    print(indent, "  [" + path + "]", "lookup responseRef: " + responseRef);
     CType lookup = context.lookup(responseRef);
 
     if (lookup == null) {
-      Trace.print(indent, "  [" + path + "]", "found responseRef: " + responseRef);
+      print(indent, "  [" + path + "]", "found responseRef: " + responseRef);
       throw new IllegalStateException("Nope nope nope");
     }
 
     //
     final String operation = NameUtils.genOperationName(path, getOp);
-    Trace.print(indent, "  [" + path + "]", "GQL operation: " +
+    print(indent, "  [" + path + "]", "GQL operation: " +
       operation + ": " + NameUtils.getRefName(lookup.getName()));
 
     final COperationType opType = new COperationType(operation, lookup.getName(), parameters);
@@ -294,7 +301,7 @@ public class PathsVisitor extends Visitor {
 
   @Override
   protected CType store(CType type) {
-    Trace.print(indent, "[store]", "storing " + type.getName() + " with " + type);
+    print(indent, "[store]", "storing " + type.getName() + " with " + type);
     context.putResponse(type);
     return type;
   }

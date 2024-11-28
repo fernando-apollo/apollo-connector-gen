@@ -40,7 +40,7 @@ public class ParserTest {
     final Walker walker = new Walker(parser);
     walker.walk();
     walker.generate(getWriter());
-    System.out.println("ParserTest.test_001_testPetStoreSchema -> " + getWriter().toString());
+    System.out.println("ParserTest.test_001_testPetStoreSchema -> \n" + getWriter().toString());
   }
 
   private static OpenAPI createParser(String source) {

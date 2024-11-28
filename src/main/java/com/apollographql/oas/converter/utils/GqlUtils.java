@@ -42,6 +42,9 @@ public class GqlUtils {
       case "boolean" -> {
         return "Boolean";
       }
+      case "object" -> {
+        return"JSON";
+      }
       default -> {
         return null;
       }

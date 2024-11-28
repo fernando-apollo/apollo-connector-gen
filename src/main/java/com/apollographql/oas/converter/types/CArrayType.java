@@ -1,7 +1,10 @@
 package com.apollographql.oas.converter.types;
 
 import com.apollographql.oas.converter.context.Context;
+import com.apollographql.oas.converter.types.props.Prop;
 import com.apollographql.oas.converter.types.props.ScalarProp;
+import com.apollographql.oas.converter.utils.GqlUtils;
+import com.apollographql.oas.converter.utils.NameUtils;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
@@ -15,7 +18,7 @@ public class CArrayType extends CType {
     this.itemType = itemType;
 
     // this should be an array
-    this.getProps().put("items", new ScalarProp("items", getName(), "array", schema));
+    this.getProps().put("items", createProp("items", schema));
   }
 
   public String getItemType() {
@@ -24,6 +27,14 @@ public class CArrayType extends CType {
 
   @Override
   public void generate(Context context, Writer writer) throws IOException {
-    super.generate(context, writer);
+    System.out.println(String.format("[array] -> type: %s", this.getName()));
+    writer.append("type ")
+      .append(NameUtils.getRefName(getName()))
+      .append("\n");
+
+    assert getProps().size() == 1 : "Should have only the 'items' property";
+    getProps().get("items").generate(context, writer);
+
+    writer.append("}\n\n");
   }
 }

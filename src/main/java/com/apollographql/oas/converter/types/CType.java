@@ -119,7 +119,7 @@ public abstract class CType {
 //      );
   }
 
-  private Prop createProp(String propertyName, Schema propertySchema) {
+  protected Prop createProp(String propertyName, Schema propertySchema) {
     final String source = getName();
     final String type = propertySchema.getType();
 
@@ -128,16 +128,20 @@ public abstract class CType {
       prop = new RefProp(propertyName, source, propertySchema, propertySchema.get$ref());
     }
     else if (type != null) {
-     if (type.equals("array")) {
+      if (type.equals("array")) {
         final Prop items = createProp("items", propertySchema.getItems());
         prop = new ArrayProp(propertyName, source, propertySchema, items);
       }
-     else if (GqlUtils.gqlScalar(type) != null) {
+      else if (GqlUtils.gqlScalar(type) != null) { // scalar includes object => JSON
         prop = new ScalarProp(propertyName, source, GqlUtils.gqlScalar(type), propertySchema);
+      }
+      else {
+        throw new IllegalArgumentException("Cannot handle property type " + type + ", schema: " + schema);
       }
     }
     else {
-      throw new IllegalArgumentException("Cannot handle property type " + type + ", schema: " + schema);
+      // we'll assume the type has no type, and we'll use the JSON scalar instead
+      prop = new ScalarProp(propertyName, source, "JSON", propertySchema);
     }
 
     return prop;
@@ -147,7 +151,8 @@ public abstract class CType {
     return props;
   }
 
-  public void generate(Context context, Writer writer) throws IOException {
+  public abstract void generate(Context context, Writer writer) throws IOException;
+  /*{
     System.out.println(String.format("[composed] -> object: %s", this.getName()));
 
     final TypeGen typeGen = new TypeGen(this, context);
@@ -155,33 +160,35 @@ public abstract class CType {
     for (Prop prop : this.getProps().values()) {
       System.out.println(String.format("[composed] \t -> property: %s (parent: %s)", prop.getName(), prop.getSource()));
 
-      final Schema schema = prop.getSchema();
-
-      if (schema.getType() == null) {
-        if (schema.get$ref() != null) {
-          String ref = schema.get$ref();
-          typeGen.addField(prop, ref, schema.getDescription(), prop.getSource().equals(this.getName()) ? null : prop.getSource());
-        }
-        else {
-          System.err.println(String.format("[warn] field '%s' has no type and no $ref - %s", prop.getName(), schema));
-          // this means we have not found a type nor a href - not sure what the default is, but we'll default it to string
-          typeGen.addField(prop, "JSON", schema.getDescription(), prop.getSource());
-        }
-        continue;
-      }
-
-      if (schema.getType().equals("array")) {
-        generateArray(context, typeGen, prop, schema);
-      } else {
-        typeGen.addScalar(prop, schema, schema.getType());
-      }
+//      final Schema schema = prop.getSchema();
+//
+//      if (schema.getType() == null) {
+//        final boolean isSameSource = prop.getSource().equals(this.getName());
+//
+//        if (schema.get$ref() != null) {
+//          final String ref = schema.get$ref();
+//          typeGen.addField(prop, ref, schema.getDescription(), isSameSource ? null : prop.getSource());
+//        }
+//        else {
+//          System.err.println(String.format("[warn] field '%s' has no type and no $ref - %s", prop.getName(), schema));
+//          // this means we have not found a type nor a href - not sure what the default is, but we'll default it to string
+//          typeGen.addField(prop, "JSON", schema.getDescription(), isSameSource ? null : prop.getSource());
+//        }
+//        continue;
+//      }
+//
+//      if (schema.getType().equals("array")) {
+//        generateArray(context, typeGen, prop, schema);
+//      } else {
+//        typeGen.addScalar(prop, schema, schema.getType());
+//      }
     }
 
     typeGen.end();
     writer.write(typeGen.toString());
-  }
+  }*/
 
-  private static void generateArray(Context context, TypeGen typeGen, Prop prop, Schema schema) {
+  /*private static void generateArray(Context context, TypeGen typeGen, Prop prop, Schema schema) {
     // these are handled differently and we need to find the type in the schema
     final Schema itemsSchema = schema.getItems();
 
@@ -205,6 +212,6 @@ public abstract class CType {
       }
       else throw new IllegalStateException("What is the type for this?" + prop.getName() + ", schema:" + schema);
     }
-  }
+  }*/
 
 }

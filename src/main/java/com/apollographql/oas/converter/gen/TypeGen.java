@@ -89,25 +89,14 @@ public class TypeGen {
     if (prop.isRequired())
       builder.append("!");
 
-    if (source != null && source.equals(NameUtils.getRefName(getType().getName())))
-      builder.append(" # ").append(source);
+    if (source != null)
+      builder.append(" # ").append(NameUtils.getRefName(source));
 
     builder.append("\n");
   }
 
   private void getPropValue(final Prop prop, String type) {
     builder.append(prop.getValue(context));
-
-//    final Schema schema = prop.getSchema();
-//
-//    if (schema instanceof ArraySchema) {
-//      final Schema itemsSchema = schema.getItems();
-//      // now we need a lookup just to check the value is actually there:
-//      assert context.lookup(itemsSchema.get$ref()) != null : "Could not find items ref: " + itemsSchema.get$ref();
-//      builder.append(" [").append(NameUtils.getRefName(itemsSchema.get$ref())).append(" ]");
-//    } else {
-//      builder.append(NameUtils.getRefName(type));
-//    }
   }
 
   public void addScalarArray(String name, Schema itemsSchema) {
@@ -115,11 +104,6 @@ public class TypeGen {
     builder.append(GqlUtils.getGQLScalarType(itemsSchema));
     builder.append("]").append("\n");
   }
-
-  //  public void addField(String name, String type) {
-//    builder.append("  ").append(name).append(": ").append(type);
-//    builder.append("\n");
-//  }
 
   @Override
   public String toString() {

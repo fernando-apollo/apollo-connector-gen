@@ -1,7 +1,11 @@
 package com.apollographql.oas.converter.types.props;
 
 import com.apollographql.oas.converter.context.Context;
+import com.apollographql.oas.converter.utils.NameUtils;
 import io.swagger.v3.oas.models.media.Schema;
+
+import java.io.IOException;
+import java.io.Writer;
 
 public abstract class Prop {
   protected final String name;
@@ -36,4 +40,31 @@ public abstract class Prop {
   }
 
   public abstract String getValue(Context context);
+
+  public void generate(Context context, Writer writer) throws IOException {
+    String description = this.getSchema().getDescription();
+
+    if (description != null) {
+      if (description.contains("\n") || description.contains("\r") || description.contains("\"")) {
+        writer.append("  \"\"\"\n").append("  ").append(description).append("\n  \"\"\"\n");
+      }
+      else {
+        writer.append("  \"").append(description).append("\"\n");
+      }
+    }
+
+    // some fields start with '@' like '@type' -- need to remove the '@' for GQL
+    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+    writer.append("  ").append(fieldName).append(": ");//.append(NameUtils.getRefName(type));
+
+    writer.append(getValue(context));
+
+    if (isRequired())
+      writer.append("!");
+
+    if (source != null)
+      writer.append(" # ").append(NameUtils.getRefName(source));
+
+    writer.append("\n");
+  }
 }
