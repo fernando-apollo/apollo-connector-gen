@@ -9,16 +9,18 @@ import com.apollographql.oas.converter.visitor.PathsVisitor;
 import com.apollographql.oas.converter.visitor.Visitor;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class Walker {
   private final OpenAPI parser;
   private final Context context = new Context();
 
-  private List<Visitor> visitors = new LinkedList<>();
+  private final List<Visitor> visitors = new LinkedList<>();
 
   public Walker(final OpenAPI parser) {
     this.parser = parser;
@@ -72,5 +74,17 @@ public class Walker {
     for (Visitor visitor : visitors) {
       visitor.generate(writer);
     }
+  }
+
+  public void generatePath(String path, Writer writer) throws IOException {
+    // everything should be in Context
+    Optional<Visitor> first = visitors.stream().filter(v -> v instanceof PathsVisitor).findFirst();
+
+    if (first.isEmpty()) {
+      throw new IllegalStateException("No PathsVisitor found -- check OAS schema for valid paths?!");
+    }
+
+    final PathsVisitor paths = (PathsVisitor) first.get();
+    paths.generatePath(path, writer);
   }
 }

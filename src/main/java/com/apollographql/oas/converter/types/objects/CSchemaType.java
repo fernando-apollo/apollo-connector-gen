@@ -10,7 +10,7 @@ import java.io.Writer;
 
 public class CSchemaType extends CType {
   public CSchemaType(Schema schema) {
-    super(null, schema, CTypeKind.OBJ_ANON, true);
+    super(null, schema, CTypeKind.OBJ_ANON);
   }
 
   @Override

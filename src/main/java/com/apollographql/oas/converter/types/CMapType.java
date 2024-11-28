@@ -9,7 +9,7 @@ import java.io.Writer;
 
 public class CMapType extends CType {
   public CMapType(String name, Schema schema, String key, String type) {
-    super(name, schema, CTypeKind.MAP, true);
+    super(name, schema, CTypeKind.MAP);
 
     getProps().put("key", new ScalarProp(name, key, "map", null));
   }

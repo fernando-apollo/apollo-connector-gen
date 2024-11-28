@@ -10,8 +10,7 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class COperationType extends CType {
   private String resultType;
@@ -20,7 +19,7 @@ public class COperationType extends CType {
   private String summary;
 
   public COperationType(String name, String resultType, List<? extends CType> parameters) {
-    super(name, null, CTypeKind.OPERATION, true);
+    super(name, null, CTypeKind.OPERATION);
     this.resultType = resultType;
     this.parameters = parameters;
   }
@@ -144,5 +143,17 @@ public class COperationType extends CType {
 
   public String getSummary() {
     return summary;
+  }
+
+  @Override
+  public Set<CType> getDependencies(Context context) {
+    final Set<CType> deps = new LinkedHashSet<>();
+
+    // our dependency is the result type
+    if (Context.isResponseType(getResultType())) {
+      deps.add(context.lookup(getResultType()));
+    }
+
+    return deps;
   }
 }

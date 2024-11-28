@@ -6,12 +6,14 @@ import com.apollographql.oas.converter.types.CType;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CResponseObjectType extends CType {
   private final String typeRef;
 
   public CResponseObjectType(String name, String typeRef) {
-    super(name, null, CTypeKind.RESPONSE_OBJECT, true);
+    super(name, null, CTypeKind.RESPONSE_OBJECT);
     this.typeRef = typeRef;
   }
 
@@ -24,5 +26,12 @@ public class CResponseObjectType extends CType {
     // do nothing
 //    super.generate(context, writer);
 //    writer.write(getTypeRef());
+  }
+
+  @Override
+  public Set<CType> getDependencies(Context context) {
+    final HashSet<CType> deps = new HashSet<>();
+    deps.add(context.lookup(getTypeRef()));
+    return deps;
   }
 }

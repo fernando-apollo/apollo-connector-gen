@@ -1,9 +1,6 @@
 package com.apollographql.oas.converter.types;
 
 import com.apollographql.oas.converter.context.Context;
-import com.apollographql.oas.converter.types.props.Prop;
-import com.apollographql.oas.converter.types.props.ScalarProp;
-import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.converter.utils.NameUtils;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -14,7 +11,7 @@ public class CArrayType extends CType {
   private final String itemType;
 
   public CArrayType(String name, Schema schema, String itemType) {
-    super(name, schema, CTypeKind.ARRAY, true);
+    super(name, schema, CTypeKind.ARRAY);
     this.itemType = itemType;
 
     // this should be an array

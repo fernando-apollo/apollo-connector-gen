@@ -7,13 +7,15 @@ import joptsimple.internal.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class CEnumType extends CType {
   private final List<String> items;
 
   public CEnumType(String name, Schema schema, List<String> items) {
-    super(name, schema, CTypeKind.ENUM, true);
+    super(name, schema, CTypeKind.ENUM);
     this.items = items;
   }
 
@@ -27,5 +29,10 @@ public class CEnumType extends CType {
     builder.append("\n}\n\n");
 
     writer.write(builder.toString());
+  }
+
+  @Override
+  public Set<CType> getDependencies(Context context) {
+    return Collections.emptySet();
   }
 }

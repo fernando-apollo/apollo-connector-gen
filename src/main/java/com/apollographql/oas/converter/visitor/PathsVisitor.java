@@ -20,10 +20,7 @@ import com.apollographql.oas.converter.utils.NameUtils;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.apollographql.oas.converter.utils.Trace.print;
 import static com.apollographql.oas.converter.utils.Trace.warn;
@@ -91,9 +88,7 @@ public class PathsVisitor extends Visitor {
         resultType.setSummary(summary);
 
         context.putOperation(resultType);
-      }
-
-      else {
+      } else {
         final Content content = response.getContent();
 
         Optional<Map.Entry<String, MediaType>> first = content.entrySet().stream()
@@ -151,18 +146,11 @@ public class PathsVisitor extends Visitor {
           indent--;
         } else if (schema instanceof MapSchema) {
           indent++;
-            /*type Query {
-                getWhateverMap: [SyntheticKeyValue]
-              } */
-//            final CType syntheticType = visitMapSchema(NameUtils.genSyntheticType(name), (MapSchema) schema);
-//            store(syntheticType);
-
           // this is a work-around, and an easy one at that. we can potentially have 3 scenarios here:
           // 1. we return a JSON which is dynamic - but that means that types will need to be defined manually
           // 2. we find the additional property and create a synthetic object, then use it as the op result
           // 3. the key is NOT a scalar, then we need to create the synthetic type (again) and use it as the
           //    key in the map
-
           final COperationType opType = new COperationType(operation, "JSON", parameters);
           opType.setOriginalPath(path);
 
@@ -304,5 +292,54 @@ public class PathsVisitor extends Visitor {
     print(indent, "[store]", "storing " + type.getName() + " with " + type);
     context.putResponse(type);
     return type;
+  }
+
+  public void generatePath(String path, Writer writer) throws IOException {
+    indent = 0;
+    if (context.getOperations().isEmpty()) {
+      return;
+    }
+
+    print(indent, "[generate]", "---------------------------- Operations --------------------------");
+    Set<String> generatedSet = new LinkedHashSet<>();
+
+    List<CType> entries = context.getOperations().values().stream()
+      .filter(e -> {
+        final COperationType operation = (COperationType) e;
+        print(indent, "[generatePath]", "checking " + operation.getOriginalPath() + " with " + path);
+        return operation.getOriginalPath().equals(path);
+      }).toList();
+
+    if (entries.size() > 1) throw new IllegalStateException("Multiple paths found");
+
+    generateSingle(writer, entries.get(0), generatedSet);
+  }
+
+  private void generateSingle(Writer writer, CType value, Set<String> generatedSet) throws IOException {
+    print(indent, "-> [generateSingle]", "checking " + value.getName()
+      + ", kind: " + value.getKind()
+      + ", class: " + value.getClass().getSimpleName());
+
+    // first dependencies
+    for (CType dep : value.getDependencies(context)) {
+      indent++;
+      generateSingle(writer, dep, generatedSet);
+      indent--;
+    }
+
+    if (indent == 0) {
+      writer.write("type Query {\n");
+    }
+
+    if (!generatedSet.contains(value.getName())) {
+      value.generate(context, writer);
+    }
+
+    if (indent == 0) {
+      writer.write("}\n\n");
+    }
+
+    generatedSet.add(value.getName());
+    print(indent, "<- [generateSingle]", "end " + value.getName());
   }
 }

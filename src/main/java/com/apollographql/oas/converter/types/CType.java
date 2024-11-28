@@ -13,23 +13,20 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public abstract class CType {
   private final String name;
   private final Schema schema;
   private final CTypeKind kind;
-  private final boolean resolved;
+  private boolean resolved;
+
   protected Map<String, Prop> props = new LinkedHashMap<>();
 
-  public CType(String name, Schema schema, CTypeKind kind, boolean resolved) {
+  public CType(String name, Schema schema, CTypeKind kind) {
     this.name = name;
     this.schema = schema;
     this.kind = kind;
-    this.resolved = resolved;
 
     if (schema != null) {
       if (schema.getProperties() != null) {
@@ -81,6 +78,10 @@ public abstract class CType {
 
   public boolean getResolved() {
     return resolved;
+  }
+
+  public void setResolved(boolean resolved) {
+    this.resolved = resolved;
   }
 
   @Override
@@ -148,4 +149,25 @@ public abstract class CType {
   }
 
   public abstract void generate(Context context, Writer writer) throws IOException;
-}
+
+  public Set<CType> getDependencies(Context context) {
+    final Set<CType> deps = new HashSet<>();
+
+    for (Prop p : getProps().values()) {
+      final CType type = getDependenciesFromProp(context, p);
+      if (type != null) deps.add(type);
+    }
+
+    return deps;
+  }
+
+  protected static CType getDependenciesFromProp(Context context, Prop p) {
+    if (p instanceof RefProp ref) {
+      return context.lookup(ref.getRef());
+    }
+    else if (p instanceof ArrayProp array) {
+      final Prop items = array.getItems();
+      return getDependenciesFromProp(context, items);
+    }
+    return null;
+  }}

@@ -32,9 +32,10 @@ public class Main {
 
     final Walker walker = new Walker(parser);
     walker.walk();
+
     try {
       final StringWriter writer = new StringWriter();
-      walker.generate(writer);
+      walker.generatePath("/customerBill/{id}", writer);
 
       System.out.println(writer);
 

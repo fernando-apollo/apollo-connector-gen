@@ -17,7 +17,7 @@ public class CParamType extends CType {
   private String resultType;
 
   public CParamType(String name, Schema schema, boolean required, Object defaultValue ) {
-    super(name, schema, CTypeKind.PARAM, true);
+    super(name, schema, CTypeKind.PARAM);
     this.required = required;
     this.defaultValue = defaultValue;
   }

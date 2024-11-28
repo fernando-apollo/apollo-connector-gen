@@ -11,7 +11,7 @@ public class CResponseArrayType extends CType {
   private final String itemsRef;
 
   public CResponseArrayType(String name, String itemsRef) {
-    super(name, null, CTypeKind.RESPONSE_ARRAY, true);
+    super(name, null, CTypeKind.RESPONSE_ARRAY);
     this.itemsRef = itemsRef;
   }
 
