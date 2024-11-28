@@ -1,18 +1,22 @@
 package com.apollographql.oas.converter.types;
 
-import com.apollographql.oas.converter.gen.TypeGen;
+import com.apollographql.oas.converter.context.Context;
 import com.apollographql.oas.converter.types.objects.CObjectType;
 import com.apollographql.oas.converter.types.objects.CSchemaType;
-import com.apollographql.oas.converter.types.props.*;
+import com.apollographql.oas.converter.types.props.ArrayProp;
 import com.apollographql.oas.converter.types.props.Prop;
+import com.apollographql.oas.converter.types.props.RefProp;
+import com.apollographql.oas.converter.types.props.ScalarProp;
 import com.apollographql.oas.converter.utils.GqlUtils;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
-import com.apollographql.oas.converter.context.Context;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public abstract class CType {
   private final String name;
@@ -109,14 +113,6 @@ public abstract class CType {
         getProps().put(propertyName, prop);
       }
     }
-
-//    this.props = properties.entrySet().stream()
-//      .map(entry -> new Prop(this.getName(), entry.getKey(), entry.getValue().getType(), entry.getValue()))
-////      .collect(Collectors.toMap(Prop::getName, prop -> prop));
-//      .collect(Collectors.toMap(Prop::getName, prop -> prop,
-//        (v1, v2) -> { throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));},
-//        TreeMap::new)
-//      );
   }
 
   protected Prop createProp(String propertyName, Schema propertySchema) {
@@ -152,66 +148,4 @@ public abstract class CType {
   }
 
   public abstract void generate(Context context, Writer writer) throws IOException;
-  /*{
-    System.out.println(String.format("[composed] -> object: %s", this.getName()));
-
-    final TypeGen typeGen = new TypeGen(this, context);
-
-    for (Prop prop : this.getProps().values()) {
-      System.out.println(String.format("[composed] \t -> property: %s (parent: %s)", prop.getName(), prop.getSource()));
-
-//      final Schema schema = prop.getSchema();
-//
-//      if (schema.getType() == null) {
-//        final boolean isSameSource = prop.getSource().equals(this.getName());
-//
-//        if (schema.get$ref() != null) {
-//          final String ref = schema.get$ref();
-//          typeGen.addField(prop, ref, schema.getDescription(), isSameSource ? null : prop.getSource());
-//        }
-//        else {
-//          System.err.println(String.format("[warn] field '%s' has no type and no $ref - %s", prop.getName(), schema));
-//          // this means we have not found a type nor a href - not sure what the default is, but we'll default it to string
-//          typeGen.addField(prop, "JSON", schema.getDescription(), isSameSource ? null : prop.getSource());
-//        }
-//        continue;
-//      }
-//
-//      if (schema.getType().equals("array")) {
-//        generateArray(context, typeGen, prop, schema);
-//      } else {
-//        typeGen.addScalar(prop, schema, schema.getType());
-//      }
-    }
-
-    typeGen.end();
-    writer.write(typeGen.toString());
-  }*/
-
-  /*private static void generateArray(Context context, TypeGen typeGen, Prop prop, Schema schema) {
-    // these are handled differently and we need to find the type in the schema
-    final Schema itemsSchema = schema.getItems();
-
-    if (itemsSchema != null) {
-//      System.out.println("CObjectType.generate array with items " + itemsSchema.getClass().getSimpleName());
-      final String ref = itemsSchema.get$ref();
-
-      if (itemsSchema.getType() == null && ref != null) {
-        final CType itemType = context.getType(ref);
-
-        if (itemType != null) {
-          typeGen.addField(prop, String.format("[ %s ]", itemType.getName()), itemsSchema.getDescription(), "array of items");
-        }
-        else {
-          throw new IllegalStateException(String.format("Could not find type %s", ref));
-        }
-      }
-      else if (itemsSchema.getType() != null) {
-//        System.out.println("CType.generateArray ---------------- here: " + schema.getType() + ", items: " + itemsSchema.getType());;
-        typeGen.addScalarArray(prop.getName(), itemsSchema);
-      }
-      else throw new IllegalStateException("What is the type for this?" + prop.getName() + ", schema:" + schema);
-    }
-  }*/
-
 }
