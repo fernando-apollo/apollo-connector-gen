@@ -1,9 +1,9 @@
 package com.apollographql.oas.converter.types.params;
 
 import com.apollographql.oas.converter.context.Context;
-import com.apollographql.oas.converter.gen.TypeGen;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.CTypeKind;
+import com.apollographql.oas.converter.utils.GqlUtils;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class CParamType extends CType {
   private String getParamType() {
     if (getResultType() != null) return getResultType();
 
-    return TypeGen.getGQLScalarType(getSchema());
+    return GqlUtils.getGQLScalarType(getSchema());
   }
 
   @Override

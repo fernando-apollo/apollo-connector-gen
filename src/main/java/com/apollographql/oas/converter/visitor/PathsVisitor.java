@@ -1,13 +1,13 @@
 package com.apollographql.oas.converter.visitor;
 
 import com.apollographql.oas.converter.context.Context;
-import com.apollographql.oas.converter.gen.TypeGen;
 import com.apollographql.oas.converter.types.CMapType;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.operations.COperationType;
 import com.apollographql.oas.converter.types.params.CParamType;
 import com.apollographql.oas.converter.types.responses.CResponseArrayType;
 import com.apollographql.oas.converter.types.responses.CResponseObjectType;
+import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.converter.utils.Trace;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -163,7 +163,7 @@ public class PathsVisitor extends Visitor {
             indent--;
           } else if (schema instanceof StringSchema) {
             // response is actually a scalar type, in this case String
-            final COperationType opType = new COperationType(operation, TypeGen.getGQLScalarType(schema), parameters);
+            final COperationType opType = new COperationType(operation, GqlUtils.getGQLScalarType(schema), parameters);
             opType.setOriginalPath(path);
 
             context.putOperation(opType);
@@ -221,10 +221,10 @@ public class PathsVisitor extends Visitor {
       print(indent, "->[visitParameterType]", "found array, checking items schema " + itemsSchema.getType());
 
       // now we need a lookup just to check the value is actually there:
-      resultType = "[" + TypeGen.getGQLScalarType(itemsSchema) + "]";
+      resultType = "[" + GqlUtils.getGQLScalarType(itemsSchema) + "]";
     }
     else { // let's try scalar
-      resultType = TypeGen.getGQLScalarType(schema);
+      resultType = GqlUtils.getGQLScalarType(schema);
     }
 
     print(indent, "<-[visitParameterType]", "end: resultType = " + resultType);
@@ -240,7 +240,7 @@ public class PathsVisitor extends Visitor {
         value: Int or String, depending
       }
       */
-      final String gqlType = TypeGen.getGQLScalarType(integerSchema);
+      final String gqlType = GqlUtils.getGQLScalarType(integerSchema);
       return new CMapType("IntegerMap", integerSchema, "key", gqlType);
     } else {
       throw new IllegalStateException("Can't handle properties " + properties);

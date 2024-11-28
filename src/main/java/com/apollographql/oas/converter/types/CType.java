@@ -3,7 +3,9 @@ package com.apollographql.oas.converter.types;
 import com.apollographql.oas.converter.gen.TypeGen;
 import com.apollographql.oas.converter.types.objects.CObjectType;
 import com.apollographql.oas.converter.types.objects.CSchemaType;
-import com.apollographql.oas.converter.types.objects.Prop;
+import com.apollographql.oas.converter.types.props.*;
+import com.apollographql.oas.converter.types.props.Prop;
+import com.apollographql.oas.converter.utils.GqlUtils;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import com.apollographql.oas.converter.context.Context;
@@ -11,7 +13,6 @@ import com.apollographql.oas.converter.context.Context;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class CType {
   private final String name;
@@ -28,7 +29,7 @@ public abstract class CType {
 
     if (schema != null) {
       if (schema.getProperties() != null) {
-        addPropertiesFromSchema(schema.getProperties());
+        addProperties(schema.getProperties());
       }
 
       final List<String> required = schema.getRequired();
@@ -98,14 +99,48 @@ public abstract class CType {
     return name != null ? name : "<anonymous>";
   }
 
-  protected void addPropertiesFromSchema(Map<String, Schema> properties) {
-    this.props = properties.entrySet().stream()
-      .map(entry -> new Prop(this.getName(), entry.getKey(), entry.getValue().getType(), entry.getValue()))
-//      .collect(Collectors.toMap(Prop::getName, prop -> prop));
-      .collect(Collectors.toMap(Prop::getName, prop -> prop,
-        (v1, v2) -> { throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));},
-        TreeMap::new)
-      );
+  protected void addProperties(Map<String, Schema> properties) {
+    for (var property : properties.entrySet()) {
+      final String propertyName = property.getKey();
+      final Schema propertySchema = property.getValue();
+
+      final Prop prop = createProp(propertyName, propertySchema);
+      if (prop != null) {
+        getProps().put(propertyName, prop);
+      }
+    }
+
+//    this.props = properties.entrySet().stream()
+//      .map(entry -> new Prop(this.getName(), entry.getKey(), entry.getValue().getType(), entry.getValue()))
+////      .collect(Collectors.toMap(Prop::getName, prop -> prop));
+//      .collect(Collectors.toMap(Prop::getName, prop -> prop,
+//        (v1, v2) -> { throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));},
+//        TreeMap::new)
+//      );
+  }
+
+  private Prop createProp(String propertyName, Schema propertySchema) {
+    final String source = getName();
+    final String type = propertySchema.getType();
+
+    Prop prop = null;
+    if (type == null && propertySchema.get$ref() != null) {
+      prop = new RefProp(propertyName, source, propertySchema, propertySchema.get$ref());
+    }
+    else if (type != null) {
+     if (type.equals("array")) {
+        final Prop items = createProp("items", propertySchema.getItems());
+        prop = new ArrayProp(propertyName, source, propertySchema, items);
+      }
+     else if (GqlUtils.gqlScalar(type) != null) {
+        prop = new ScalarProp(propertyName, source, GqlUtils.gqlScalar(type), propertySchema);
+      }
+    }
+    else {
+      throw new IllegalArgumentException("Cannot handle property type " + type + ", schema: " + schema);
+    }
+
+    return prop;
   }
 
   public Map<String, Prop> getProps() {
@@ -118,19 +153,19 @@ public abstract class CType {
     final TypeGen typeGen = new TypeGen(this, context);
 
     for (Prop prop : this.getProps().values()) {
-      System.out.println(String.format("[composed] \t -> property: %s (parent: %s)", prop.getName(), prop.getEntity()));
+      System.out.println(String.format("[composed] \t -> property: %s (parent: %s)", prop.getName(), prop.getSource()));
 
       final Schema schema = prop.getSchema();
 
       if (schema.getType() == null) {
         if (schema.get$ref() != null) {
           String ref = schema.get$ref();
-          typeGen.addField(prop, ref, schema.getDescription(), prop.getEntity().equals(this.getName()) ? null : prop.getEntity());
+          typeGen.addField(prop, ref, schema.getDescription(), prop.getSource().equals(this.getName()) ? null : prop.getSource());
         }
         else {
           System.err.println(String.format("[warn] field '%s' has no type and no $ref - %s", prop.getName(), schema));
           // this means we have not found a type nor a href - not sure what the default is, but we'll default it to string
-          typeGen.addField(prop, "JSON", schema.getDescription(), prop.getEntity());
+          typeGen.addField(prop, "JSON", schema.getDescription(), prop.getSource());
         }
         continue;
       }

@@ -1,7 +1,7 @@
 package com.apollographql.oas.converter.gen;
 
-import com.apollographql.oas.converter.types.objects.Prop;
-import io.swagger.v3.oas.models.media.ArraySchema;
+import com.apollographql.oas.converter.types.props.Prop;
+import com.apollographql.oas.converter.utils.GqlUtils;
 import io.swagger.v3.oas.models.media.Schema;
 import com.apollographql.oas.converter.context.Context;
 import com.apollographql.oas.converter.types.CType;
@@ -42,7 +42,7 @@ public class TypeGen {
    */
   public void addScalar(final Prop prop, Schema schema, String type) {
     String description = schema.getDescription();
-    String entity = prop.getEntity();
+    String entity = prop.getSource();
 
     switch (type) {
       case "string", "date", "date-time" -> this.addField(prop, "String", description, entity);
@@ -96,52 +96,27 @@ public class TypeGen {
   }
 
   private void getPropValue(final Prop prop, String type) {
-    final Schema schema = prop.getSchema();
+    builder.append(prop.getValue(context));
 
-    if (schema instanceof ArraySchema) {
-      final Schema itemsSchema = schema.getItems();
-//      System.out.println("TypeGen.getPropValue ---- items href: " + itemsSchema.get$ref());
-
-      // now we need a lookup just to check the value is actually there:
-      assert context.lookup(itemsSchema.get$ref()) != null : "Could not find items ref: " + itemsSchema.get$ref();
-      builder.append(" [").append(NameUtils.getRefName(itemsSchema.get$ref())).append(" ]");
-    } else {
-//      System.out.println("TypeGen.getPropValue ---- type: " + type);
-      builder.append(NameUtils.getRefName(type));
-    }
+//    final Schema schema = prop.getSchema();
+//
+//    if (schema instanceof ArraySchema) {
+//      final Schema itemsSchema = schema.getItems();
+//      // now we need a lookup just to check the value is actually there:
+//      assert context.lookup(itemsSchema.get$ref()) != null : "Could not find items ref: " + itemsSchema.get$ref();
+//      builder.append(" [").append(NameUtils.getRefName(itemsSchema.get$ref())).append(" ]");
+//    } else {
+//      builder.append(NameUtils.getRefName(type));
+//    }
   }
 
   public void addScalarArray(String name, Schema itemsSchema) {
     builder.append("  ").append(name).append(": [");
-    builder.append(getGQLScalarType(itemsSchema));
+    builder.append(GqlUtils.getGQLScalarType(itemsSchema));
     builder.append("]").append("\n");
   }
 
-  public static String getGQLScalarType(Schema schema) {
-    switch (schema.getType()) {
-      case "string", "date", "date-time" -> {
-        return "String";
-      }
-      case "integer" -> {
-//        return schema.getFormat() != null && schema.getFormat().equals("int64") ? "String" : "Int";
-        return "Int"; // this is actually wrong, unfortunately.
-      }
-      case "number" -> {
-        return "Float";
-      }
-      case "boolean" -> {
-        return"Boolean";
-      }
-      case "object" -> {
-        return"JSON";
-      }
-      default -> {
-        throw new IllegalStateException("[getGQLScalarType] Cannot generate type = " + schema);
-      }
-    }
-  }
-
-//  public void addField(String name, String type) {
+  //  public void addField(String name, String type) {
 //    builder.append("  ").append(name).append(": ").append(type);
 //    builder.append("\n");
 //  }

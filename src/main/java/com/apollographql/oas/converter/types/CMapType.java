@@ -1,7 +1,7 @@
 package com.apollographql.oas.converter.types;
 
 import com.apollographql.oas.converter.context.Context;
-import com.apollographql.oas.converter.types.objects.Prop;
+import com.apollographql.oas.converter.types.props.ScalarProp;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
@@ -11,7 +11,7 @@ public class CMapType extends CType {
   public CMapType(String name, Schema schema, String key, String type) {
     super(name, schema, CTypeKind.MAP, true);
 
-    getProps().put("key", new Prop(name, key, "map", null));
+    getProps().put("key", new ScalarProp(name, key, "map", null));
   }
 
   @Override
