@@ -4,17 +4,21 @@ import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.visitor.ComponentResponsesVisitor;
 import com.apollographql.oas.converter.visitor.ComponentSchemasVisitor;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Context {
   private Map<String, CType> types = new TreeMap<>();
   private Map<String, CType> operations = new TreeMap<>();
 
   private Map<String, CType> responses = new TreeMap<>();
+  private Set<String> generatedSet = new LinkedHashSet<>();
 
   public static boolean isResponseType(String type) {
     return type.startsWith(ComponentResponsesVisitor.PREFIX);
+  }
+
+  public static boolean isSchemaType(String type) {
+    return type.startsWith(ComponentSchemasVisitor.PREFIX);
   }
 
   public CType putType(String name, CType value) {
@@ -65,5 +69,9 @@ public class Context {
 
   public Map<String, CType> getResponses() {
     return responses;
+  }
+
+  public Set<String> getGeneratedSet() {
+    return generatedSet;
   }
 }

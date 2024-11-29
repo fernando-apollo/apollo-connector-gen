@@ -56,21 +56,14 @@ public class Walker {
     visitors.forEach(Visitor::visit);
   }
 
+  public void reset() {
+    context.getGeneratedSet().clear();
+  }
+
   public void generate(Writer writer) throws IOException {
     System.out.println("-------------------------------- GQL ------------------------------------");
     writer.write("scalar JSON\n\n");
 
-//    if (!context.getOperations().isEmpty()) {
-//      writer.write("type Query {\n");
-//      for (Map.Entry<String, CType> entry : context.getOperations().entrySet()) {
-//        entry.getValue().generate(context, writer);
-//      }
-//      writer.write("}\n\n");
-//    }
-//
-//    for (Map.Entry<String, CType> entry : context.getTypes().entrySet()) {
-//      entry.getValue().generate(context, writer);
-//    }
     for (Visitor visitor : visitors) {
       visitor.generate(writer);
     }
@@ -78,13 +71,15 @@ public class Walker {
 
   public void generatePath(String path, Writer writer) throws IOException {
     // everything should be in Context
-    Optional<Visitor> first = visitors.stream().filter(v -> v instanceof PathsVisitor).findFirst();
+    getPathsVisitor().generatePath(path, writer);
+  }
 
+  public PathsVisitor getPathsVisitor() {
+    Optional<Visitor> first = visitors.stream().filter(v -> v instanceof PathsVisitor).findFirst();
     if (first.isEmpty()) {
       throw new IllegalStateException("No PathsVisitor found -- check OAS schema for valid paths?!");
     }
 
-    final PathsVisitor paths = (PathsVisitor) first.get();
-    paths.generatePath(path, writer);
+    return (PathsVisitor) first.get();
   }
 }

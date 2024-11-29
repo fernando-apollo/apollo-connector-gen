@@ -79,7 +79,11 @@ public class COperationType extends CType {
 
       // I think we need to inline here the response type if it has been already declared in the
       // #/components/responses/ section - so let's start with a lookup
-    } else {
+    }
+    else if (Context.isSchemaType(resultType)) {
+      builder.append(NameUtils.getRefName(getResultType()));
+    }
+    else {
       System.out.println(String.format(" [operationType] -> getResultType: %s", getResultType()));
 
       // we'll just throw the name in there and get on with it
@@ -118,16 +122,6 @@ public class COperationType extends CType {
     return parameters;
   }
 
-  @Override
-  public String toString() {
-    return "COperationType{" +
-      "name='" + getName() + '\'' +
-      ", kind=" + getKind() +
-      ", props=" + this.props.size() +
-      ", resultType='" + resultType + '\'' +
-      ", path='" + getOriginalPath() + '\'' +
-      '}';
-  }
 
   public void setOriginalPath(String originalPath) {
     this.originalPath = originalPath;
@@ -154,6 +148,21 @@ public class COperationType extends CType {
       deps.add(context.lookup(getResultType()));
     }
 
+    if (Context.isSchemaType(getResultType())) {
+      deps.add(context.lookup(getResultType()));
+    }
+
     return deps;
+  }
+
+  @Override
+  public String toString() {
+    return "COperationType{" +
+      "name='" + getName() + '\'' +
+      ", kind=" + getKind() +
+      ", props=" + this.props.size() +
+      ", resultType='" + resultType + '\'' +
+      ", path='" + getOriginalPath() + '\'' +
+      '}';
   }
 }

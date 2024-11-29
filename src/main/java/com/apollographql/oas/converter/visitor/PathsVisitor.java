@@ -119,7 +119,7 @@ public class PathsVisitor extends Visitor {
           final String resultType = NameUtils.genResponseType(path, getOp);
           store(new CResponseObjectType(resultType, schemaRef));
 
-          final COperationType opType = new COperationType(operation, NameUtils.getRefName(schemaRef), parameters);
+          final COperationType opType = new COperationType(operation, schemaRef, parameters);
           opType.setOriginalPath(path);
           opType.setSummary(summary);
 
@@ -287,6 +287,16 @@ public class PathsVisitor extends Visitor {
     return result;
   }
 
+  public List<String> getPaths() {
+    if (context.getOperations().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return context.getOperations().values().stream()
+      .map(o -> ((COperationType) o).getOriginalPath())
+      .toList();
+  }
+
   @Override
   protected CType store(CType type) {
     print(indent, "[store]", "storing " + type.getName() + " with " + type);
@@ -300,8 +310,8 @@ public class PathsVisitor extends Visitor {
       return;
     }
 
-    print(indent, "[generate]", "---------------------------- Operations --------------------------");
-    Set<String> generatedSet = new LinkedHashSet<>();
+    print(indent, "[generatePath]", "---------------------------- Operations --------------------------");
+    final Set<String> generatedSet = context.getGeneratedSet();
 
     List<CType> entries = context.getOperations().values().stream()
       .filter(e -> {
@@ -309,6 +319,11 @@ public class PathsVisitor extends Visitor {
         print(indent, "[generatePath]", "checking " + operation.getOriginalPath() + " with " + path);
         return operation.getOriginalPath().equals(path);
       }).toList();
+
+    if (entries.isEmpty()) {
+      warn(indent, "[generatePath]", "Path '" + path + "' not found - please check");
+      return;
+    }
 
     if (entries.size() > 1) throw new IllegalStateException("Multiple paths found");
 
@@ -332,7 +347,9 @@ public class PathsVisitor extends Visitor {
     }
 
     if (!generatedSet.contains(value.getName())) {
+      indent++;
       value.generate(context, writer);
+      indent--;
     }
 
     if (indent == 0) {
