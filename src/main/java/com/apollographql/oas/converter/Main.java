@@ -21,8 +21,8 @@ public class Main {
     final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
 //    final String source = String.format("%s/sample-oas/petstore.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF678-CustomerBill-v5.0.0.oas.yaml", baseURL);
-    final String source = String.format("%s/tmf-specs/TMF632-Party_Management-v5.0.0.oas.yaml", baseURL);
-//    final String source = String.format("%s/tmf-specs/TMF666-Account_Management-v5.0.0.oas.yaml", baseURL);
+//    final String source = String.format("%s/tmf-specs/TMF632-Party_Management-v5.0.0.oas.yaml", baseURL);
+    final String source = String.format("%s/tmf-specs/TMF666-Account_Management-v5.0.0.oas.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF620-ProductCatalog-v4.1.0.swagger.json", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF680-Recommendation-v4.0.0.swagger.json", baseURL);
@@ -37,13 +37,13 @@ public class Main {
     final Walker walker = new Walker(parser);
     walker.walk();
 
-    if (true) {
-      StringWriter writer = new StringWriter();
-      walker.generatePath("/individual/{id}", writer);
-      writer.flush();
-      System.out.println("Main.main -> \n" + writer);
-      return;
-    }
+//    if (true) {
+//      StringWriter writer = new StringWriter();
+//      walker.generatePath("/individual/{id}", writer);
+//      writer.flush();
+//      System.out.println("Main.main -> \n" + writer);
+//      return;
+//    }
 
     Scanner scanner = new Scanner(System.in);
     int choice = -1;
@@ -65,9 +65,11 @@ public class Main {
         final String path = items.get(choice - 1);
         System.out.println("> Chosen path: " + path);
 
-        final OutputStreamWriter writer = new OutputStreamWriter(System.out);
+//        final OutputStreamWriter writer = new OutputStreamWriter(System.out);
+        final StringWriter writer = new StringWriter();
         walker.generatePath(path, writer);
         writer.flush();
+        System.out.println(writer);
 
       } else if (choice == 2) {
         System.out.println("(!) Walker has been reset");
@@ -77,9 +79,11 @@ public class Main {
         System.out.println("> Generating full schema");
         walker.reset();
 
-        final OutputStreamWriter writer = new OutputStreamWriter(System.out);
+//        final OutputStreamWriter writer = new OutputStreamWriter(System.out);
+        final StringWriter writer = new StringWriter();
         walker.generate(writer);
         writer.flush();
+        System.out.println(writer);
       }
 
     } while (choice != 1);

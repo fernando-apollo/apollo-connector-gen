@@ -27,12 +27,36 @@ public class CUnionType extends CType {
     // when we generate this Union in GQL it will be something like
     // union MyUnion = Type1 | Type2 | Type3 -> name + "=" + types.join(' | ')
     // and then we pray that the types are defined somewhere else
-    final StringBuilder builder = new StringBuilder();
-    builder.append("union ").append(getSimpleName()).append(" = ");
-    builder.append(String.join(" | ", types.stream().map(NameUtils::getRefName).toList()));
-    builder.append("\n\n");
+    writer.append("#### NOT SUPPORTED YET BY CONNECTORS!!! union ").append(getSimpleName()).append(" = ");
+    writer.append(String.join("# | ", types.stream().map(NameUtils::getRefName).toList()));
+    writer.append("#\n\n");
 
-    writer.write(builder.toString());
+    System.out.println(String.format("[union] -> object: %s", this.getName()));
+
+    writer.append("type ")
+      .append(getSimpleName())
+      .append(" { #### replacement for Union ")
+      .append(getSimpleName())
+      .append("\n");
+
+    Set<String> generatedSet = new LinkedHashSet<>();
+
+    for (String type : types) {
+      CType lookup = context.lookup(type);
+      assert lookup != null;
+
+      for (Prop prop : lookup.getProps().values().stream().filter(p -> !generatedSet.contains(p.getName())).toList()) {
+        System.out.println(String.format("[union] \t -> property: %s (parent: %s)", prop.getName(), prop.getSource()));
+        prop.generate(context, writer);
+
+        generatedSet.add(prop.getName());
+      }
+    }
+
+    writer.append("} ### End replacement for ")
+      .append(getSimpleName())
+      .append("\n\n");
+    writer.write(writer.toString());
   }
 
   public List<String> getTypes() {
