@@ -26,7 +26,7 @@ public class CArrayType extends CType {
   public void generate(Context context, Writer writer) throws IOException {
     System.out.println(String.format("[array] -> type: %s", this.getName()));
     writer.append("type ")
-      .append(NameUtils.getRefName(getName()))
+      .append(getSimpleName())
       .append("\n");
 
     assert getProps().size() == 1 : "Should have only the 'items' property";

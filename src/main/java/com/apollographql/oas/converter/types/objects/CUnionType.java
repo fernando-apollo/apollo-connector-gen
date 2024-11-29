@@ -9,10 +9,7 @@ import com.apollographql.oas.converter.utils.NameUtils;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CUnionType extends CType {
   private List<String> types = new ArrayList<>();
@@ -31,7 +28,7 @@ public class CUnionType extends CType {
     // union MyUnion = Type1 | Type2 | Type3 -> name + "=" + types.join(' | ')
     // and then we pray that the types are defined somewhere else
     final StringBuilder builder = new StringBuilder();
-    builder.append("union ").append(NameUtils.getRefName(getName())).append(" = ");
+    builder.append("union ").append(getSimpleName()).append(" = ");
     builder.append(String.join(" | ", types.stream().map(NameUtils::getRefName).toList()));
     builder.append("\n\n");
 
@@ -52,5 +49,14 @@ public class CUnionType extends CType {
     }
 
     return deps;
+  }
+
+  @Override
+  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+    Set<CType> dependencies = getDependencies(context);
+
+    for (CType dependency : dependencies) {
+      dependency.select(context, writer, stack);
+    }
   }
 }

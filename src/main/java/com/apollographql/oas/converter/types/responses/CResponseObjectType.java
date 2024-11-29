@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
 
 public class CResponseObjectType extends CType {
   private final String typeRef;
@@ -34,4 +35,14 @@ public class CResponseObjectType extends CType {
     deps.add(context.lookup(getTypeRef()));
     return deps;
   }
+
+  @Override
+  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+    Set<CType> dependencies = getDependencies(context);
+
+    for (CType dependency : dependencies) {
+      dependency.select(context, writer, stack);
+    }
+  }
+
 }

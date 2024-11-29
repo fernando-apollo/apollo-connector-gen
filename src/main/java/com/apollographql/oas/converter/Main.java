@@ -40,8 +40,8 @@ public class Main {
     if (true) {
       StringWriter writer = new StringWriter();
       walker.generatePath("/individual/{id}", writer);
-
-      System.out.println("Main.main -> " + writer);
+      writer.flush();
+      System.out.println("Main.main -> \n" + writer);
       return;
     }
 

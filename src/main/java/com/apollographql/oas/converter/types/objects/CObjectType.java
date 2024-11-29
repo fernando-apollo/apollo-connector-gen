@@ -3,7 +3,6 @@ package com.apollographql.oas.converter.types.objects;
 import com.apollographql.oas.converter.context.Context;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.CTypeKind;
-import com.apollographql.oas.converter.types.props.ArrayProp;
 import com.apollographql.oas.converter.types.props.Prop;
 import com.apollographql.oas.converter.types.props.RefProp;
 import com.apollographql.oas.converter.utils.NameUtils;
@@ -11,9 +10,11 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
+
+import static com.apollographql.oas.converter.types.objects.CComposedType.needsBrackets;
+import static com.apollographql.oas.converter.utils.Trace.print;
 
 public class CObjectType extends CType {
   public CObjectType(String name, ObjectSchema schema) {
@@ -34,5 +35,17 @@ public class CObjectType extends CType {
     }
 
     writer.append("}\n\n");
+  }
+
+  @Override
+  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+    stack.push(this);
+    int indent = stack.size();
+
+    for (final Prop prop : this.getProps().values()) {
+      prop.select(context, writer, stack);
+    }
+
+    stack.pop();
   }
 }

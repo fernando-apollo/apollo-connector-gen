@@ -156,6 +156,15 @@ public class COperationType extends CType {
   }
 
   @Override
+  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+    Set<CType> dependencies = getDependencies(context);
+
+    for (CType dependency : dependencies) {
+      dependency.select(context, writer, stack);
+    }
+  }
+
+  @Override
   public String toString() {
     return "COperationType{" +
       "name='" + getName() + '\'' +

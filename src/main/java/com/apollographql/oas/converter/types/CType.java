@@ -8,6 +8,7 @@ import com.apollographql.oas.converter.types.props.Prop;
 import com.apollographql.oas.converter.types.props.RefProp;
 import com.apollographql.oas.converter.types.props.ScalarProp;
 import com.apollographql.oas.converter.utils.GqlUtils;
+import com.apollographql.oas.converter.utils.NameUtils;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -161,13 +162,22 @@ public abstract class CType {
     return deps;
   }
 
-  protected static CType getDependenciesFromProp(Context context, Prop p) {
-    if (p instanceof RefProp ref) {
+  public static CType getDependenciesFromProp(Context context, Prop property) {
+    if (property instanceof RefProp ref) {
       return context.lookup(ref.getRef());
     }
-    else if (p instanceof ArrayProp array) {
+    else if (property instanceof ArrayProp array) {
       final Prop items = array.getItems();
       return getDependenciesFromProp(context, items);
     }
     return null;
-  }}
+  }
+
+  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+    throw new IllegalStateException("Not yet implemented for " + getClass().getSimpleName());
+  }
+
+  public String getSimpleName() {
+    return NameUtils.getRefName(getName());
+  }
+}

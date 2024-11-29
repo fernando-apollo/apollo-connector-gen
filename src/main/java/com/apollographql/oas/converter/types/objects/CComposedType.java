@@ -11,9 +11,9 @@ import com.apollographql.oas.converter.types.CType;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Stack;
+
+import static com.apollographql.oas.converter.utils.Trace.print;
 
 public class CComposedType extends CType {
   public CComposedType(String name, ComposedSchema schema) {
@@ -32,7 +32,7 @@ public class CComposedType extends CType {
     System.out.println(String.format("[composed] -> object: %s", this.getName()));
 
     writer.append("type ")
-      .append(NameUtils.getRefName(getName()))
+      .append(getSimpleName())
       .append(" { \n");
 
     for (Prop prop : this.getProps().values()) {
@@ -41,5 +41,36 @@ public class CComposedType extends CType {
     }
 
     writer.append("}\n\n");
+  }
+
+  @Override
+  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+    if (stack.contains(this)) {
+      System.err.println("Possible recursion! Stack should not already contain " + this);
+    }
+    else {
+      stack.push(this);
+      for (final Prop prop : this.getProps().values()) {
+//      if (needsBrackets(prop)) {
+//        print(indent, getSimpleName(), prop.getName() + " {");
+//        writer.append(" ".repeat(indent)).append(prop.getName()).append(" {");
+//      }
+
+        // generate selection
+        prop.select(context, writer, stack);
+
+//      if (needsBrackets(prop)) {
+//        print(indent, getSimpleName(), "}");
+//        writer.append(" ".repeat(indent)).append("}");
+//      }
+
+//        writer.append("\n");
+      }
+      stack.pop();
+    }
+  }
+
+  static boolean needsBrackets(Prop prop) {
+    return prop instanceof RefProp || prop instanceof ArrayProp;
   }
 }

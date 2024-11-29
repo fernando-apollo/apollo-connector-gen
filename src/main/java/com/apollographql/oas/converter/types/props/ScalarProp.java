@@ -1,12 +1,16 @@
 package com.apollographql.oas.converter.types.props;
 
 import com.apollographql.oas.converter.context.Context;
+import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.utils.NameUtils;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
+import java.util.Stack;
+
+import static com.apollographql.oas.converter.utils.Trace.print;
 
 public class ScalarProp extends Prop {
 
@@ -51,5 +55,16 @@ public class ScalarProp extends Prop {
   @Override
   public void generate(Context context, Writer writer) throws IOException  {
     super.generate(context, writer);
+  }
+
+  @Override
+  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+    print(stack.size(), getName(), " -> (" + stack.peek().getSimpleName() + ")");
+
+    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+    writer
+      .append(" ".repeat(stack.size()))
+      .append(fieldName)
+      .append("\n");
   }
 }

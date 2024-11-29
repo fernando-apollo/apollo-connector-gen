@@ -311,7 +311,6 @@ public class PathsVisitor extends Visitor {
       return;
     }
 
-    print(indent, "[generatePath]", "---------------------------- Operations --------------------------");
     final Set<String> generatedSet = context.getGeneratedSet();
 
     List<CType> entries = context.getOperations().values().stream()
@@ -328,6 +327,12 @@ public class PathsVisitor extends Visitor {
 
     if (entries.size() > 1) throw new IllegalStateException("Multiple paths found");
 
+    writeSchema(writer, generatedSet, entries);
+    writeSelection(writer, entries);
+  }
+
+  private void writeSchema(Writer writer, Set<String> generatedSet, List<CType> entries) throws IOException {
+    print(indent, "[generatePath]", "---------------------------- Operations --------------------------");
     Stack<CType> dependencies = new Stack<>();
     gatherDependencies(entries.get(0), dependencies);
 
@@ -337,21 +342,19 @@ public class PathsVisitor extends Visitor {
     }
 
     generateSingle(writer, entries.get(0), generatedSet);
-
-    dependencies = new Stack<>();
-    generateSelection(writer, entries.get(0), dependencies);
   }
 
-  public void generateSelection(Writer writer, CType value, Stack<CType> dependencies) {
-    // this one we need to walk top-down:
-//    value.generateSelection(writer);
+  private void writeSelection(Writer writer, List<CType> entries) throws IOException {
+    print(indent, "[generatePath]", "---------------------------- Selection --------------------------");
+    Stack<CType> dependencies = new Stack<>();
+    entries.get(0).select(context, writer, dependencies);
   }
 
-  private void gatherDependencies(CType value, Stack<CType> stack) {
-    print(indent, "-> [gatherDependencies]", "checking " + value.getName());
+  private void gatherDependencies(CType node, Stack<CType> stack) {
+    print(indent, "-> [gatherDependencies]", "checking " + node.getName());
 
-    final Set<CType> found = value.getDependencies(context);
-    _printFound(stack, found);
+    final Set<CType> found = node.getDependencies(context);
+    _printFound(node, stack, found);
 
     final Set<CType> filtered = found.stream().filter(d -> !stack.contains(d)).collect(Collectors.toSet());
     stack.addAll(filtered);
@@ -364,17 +367,16 @@ public class PathsVisitor extends Visitor {
     }
 
     // then add all of them
-    print(indent, "<- [gatherDependencies]", "end of " + value.getName());
+    print(indent, "<- [gatherDependencies]", "end of " + node.getName());
   }
 
-  private void _printFound(Stack<CType> stack, Set<CType> found) {
-    print(indent, "   [stack]", "found " + found.size() + " -> ");
+  private void _printFound(CType node, Stack<CType> stack, Set<CType> found) {
+    print(indent, "   [stack]", "found " + found.size() + " deps for " + node.getName());
 
     for (final CType dependency : found) {
       if (stack.contains(dependency)) {
         print(indent, "   [stack]", "[WARN] Already added! : " + dependency.getName());
-      }
-      else {
+      } else {
         print(indent, "   [stack]", "New dependency: " + dependency.getName());
       }
     }
@@ -402,4 +404,5 @@ public class PathsVisitor extends Visitor {
     generatedSet.add(value.getName());
     print(indent, "<- [generateSingle]", "end " + value.getName());
   }
+
 }
