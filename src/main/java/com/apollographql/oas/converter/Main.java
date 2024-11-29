@@ -19,9 +19,9 @@ public class Main {
     options.setResolveCombinators(false); // default is true
 
     final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
-    final String source = String.format("%s/sample-oas/petstore.yaml", baseURL);
+//    final String source = String.format("%s/sample-oas/petstore.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF678-CustomerBill-v5.0.0.oas.yaml", baseURL);
-//    final String source = String.format("%s/tmf-specs/TMF632-Party_Management-v5.0.0.oas.yaml", baseURL);
+    final String source = String.format("%s/tmf-specs/TMF632-Party_Management-v5.0.0.oas.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF666-Account_Management-v5.0.0.oas.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF620-ProductCatalog-v4.1.0.swagger.json", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
@@ -36,6 +36,14 @@ public class Main {
 
     final Walker walker = new Walker(parser);
     walker.walk();
+
+    if (true) {
+      StringWriter writer = new StringWriter();
+      walker.generatePath("/individual/{id}", writer);
+
+      System.out.println("Main.main -> " + writer);
+      return;
+    }
 
     Scanner scanner = new Scanner(System.in);
     int choice = -1;

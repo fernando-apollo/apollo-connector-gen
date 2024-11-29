@@ -21,6 +21,7 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.apollographql.oas.converter.utils.Trace.print;
 import static com.apollographql.oas.converter.utils.Trace.warn;
@@ -327,20 +328,62 @@ public class PathsVisitor extends Visitor {
 
     if (entries.size() > 1) throw new IllegalStateException("Multiple paths found");
 
+    Stack<CType> dependencies = new Stack<>();
+    gatherDependencies(entries.get(0), dependencies);
+
+    for (CType type : dependencies) {
+      type.generate(context, writer);
+      generatedSet.add(type.getName());
+    }
+
     generateSingle(writer, entries.get(0), generatedSet);
+
+    dependencies = new Stack<>();
+    generateSelection(writer, entries.get(0), dependencies);
+  }
+
+  public void generateSelection(Writer writer, CType value, Stack<CType> dependencies) {
+    // this one we need to walk top-down:
+//    value.generateSelection(writer);
+  }
+
+  private void gatherDependencies(CType value, Stack<CType> stack) {
+    print(indent, "-> [gatherDependencies]", "checking " + value.getName());
+
+    final Set<CType> found = value.getDependencies(context);
+    _printFound(stack, found);
+
+    final Set<CType> filtered = found.stream().filter(d -> !stack.contains(d)).collect(Collectors.toSet());
+    stack.addAll(filtered);
+
+    // depth-first
+    for (final CType dependency : filtered) {
+      indent++;
+      gatherDependencies(dependency, stack);
+      indent--;
+    }
+
+    // then add all of them
+    print(indent, "<- [gatherDependencies]", "end of " + value.getName());
+  }
+
+  private void _printFound(Stack<CType> stack, Set<CType> found) {
+    print(indent, "   [stack]", "found " + found.size() + " -> ");
+
+    for (final CType dependency : found) {
+      if (stack.contains(dependency)) {
+        print(indent, "   [stack]", "[WARN] Already added! : " + dependency.getName());
+      }
+      else {
+        print(indent, "   [stack]", "New dependency: " + dependency.getName());
+      }
+    }
   }
 
   private void generateSingle(Writer writer, CType value, Set<String> generatedSet) throws IOException {
     print(indent, "-> [generateSingle]", "checking " + value.getName()
       + ", kind: " + value.getKind()
       + ", class: " + value.getClass().getSimpleName());
-
-    // first dependencies
-    for (CType dep : value.getDependencies(context)) {
-      indent++;
-      generateSingle(writer, dep, generatedSet);
-      indent--;
-    }
 
     if (indent == 0) {
       writer.write("type Query {\n");
