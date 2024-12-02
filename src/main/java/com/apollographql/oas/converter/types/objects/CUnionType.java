@@ -12,7 +12,7 @@ import java.io.Writer;
 import java.util.*;
 
 public class CUnionType extends CType {
-  private List<String> types = new ArrayList<>();
+  private Set<String> types = new LinkedHashSet<>();
 
   public CUnionType(String name, ComposedSchema schema) {
     super(name, schema, CTypeKind.UNION);
@@ -56,10 +56,10 @@ public class CUnionType extends CType {
     writer.append("} ### End replacement for ")
       .append(getSimpleName())
       .append("\n\n");
-    writer.write(writer.toString());
+//    writer.write(writer.toString());
   }
 
-  public List<String> getTypes() {
+  public Set<String> getTypes() {
     return types;
   }
 
@@ -73,6 +73,11 @@ public class CUnionType extends CType {
     }
 
     return deps;
+  }
+
+  @Override
+  public Set<CType> getSkipSet(Context context) {
+    return getDependencies(context);
   }
 
   @Override

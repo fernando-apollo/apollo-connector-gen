@@ -311,8 +311,6 @@ public class PathsVisitor extends Visitor {
       return;
     }
 
-    final Set<String> generatedSet = context.getGeneratedSet();
-
     List<CType> entries = context.getOperations().values().stream()
       .filter(e -> {
         final COperationType operation = (COperationType) e;
@@ -327,21 +325,83 @@ public class PathsVisitor extends Visitor {
 
     if (entries.size() > 1) throw new IllegalStateException("Multiple paths found");
 
-    writeSchema(writer, generatedSet, entries);
-    writeSelection(writer, entries);
+    writeConnector(path, writer, entries);
   }
 
-  private void writeSchema(Writer writer, Set<String> generatedSet, List<CType> entries) throws IOException {
-    print(indent, "[generatePath]", "---------------------------- Operations --------------------------");
-    Stack<CType> dependencies = new Stack<>();
-    gatherDependencies(entries.get(0), dependencies);
+  private void writeConnector(String path, Writer writer, List<CType> entries) throws IOException {
+    final Set<String> generatedSet = context.getGeneratedSet();
+    writeSchema(path, writer, generatedSet, entries);
+  }
+
+  private void writeSchema(String path, Writer writer, Set<String> generatedSet, List<CType> entries) throws IOException {
+    print(indent, "[writeSchema]", "---------------------------- Operations --------------------------");
+    writeDirectives(writer);
+
+    final Stack<CType> dependencies = new Stack<>();
+    final Set<CType> skipSet = new LinkedHashSet<>();
+
+    collectDependencies(entries.get(0), dependencies, skipSet);
 
     for (CType type : dependencies) {
-      type.generate(context, writer);
+      if (!skipSet.contains(type)) {
+        type.generate(context, writer);
+      }
+      else {
+        print(indent, "-> [writeSchema]", "skipped " + type);
+      }
       generatedSet.add(type.getName());
     }
 
-    generateSingle(writer, entries.get(0), generatedSet);
+    CType value = entries.get(0);
+    print(indent, "-> [writeSchema]", "checking " + value.getName()
+      + ", kind: " + value.getKind()
+      + ", class: " + value.getClass().getSimpleName());
+
+    if (indent == 0) {
+      writer.write("type Query {\n");
+    }
+
+    if (!generatedSet.contains(value.getName())) {
+      value.generate(context, writer);
+
+
+      var spacing = " ".repeat(indent + 4);
+      writer.append(spacing).append("@connect(\n");
+
+      var newPath = path.replaceAll("\\{([a-zA-Z0-9]+)\\}", "{\\$args.$1}");
+      spacing = " ".repeat(indent + 6);
+      writer
+        .append(spacing).append("source: \"api\"\n")
+        .append(spacing).append("http: { GET: \"" + newPath + "\" }\n")
+        .append(spacing).append("selection: \"\"\"\n");
+
+//      writer.append("#### selection goes here\n");
+      writeSelection(writer, entries);
+
+      writer.append(spacing).append("\"\"\"\n");
+
+      spacing = " ".repeat(indent + 4);
+      writer.append(spacing).append(")\n");
+
+      indent = 0;
+    }
+
+    if (indent == 0) {
+      writer.write("}\n\n");
+    }
+
+    generatedSet.add(value.getName());
+    print(indent, "<- [generateSingle]", "end " + value.getName());
+  }
+
+  private void writeDirectives(Writer writer) throws IOException {
+    writer.append("extend schema\n")
+      .append("  @link(url: \"https://specs.apollo.dev/federation/v2.10\", import: [\"@key\"])\n")
+      .append("  @link(\n")
+      .append("    url: \"https://specs.apollo.dev/connect/v0.1\"\n")
+      .append("    import: [\"@connect\", \"@source\"]\n")
+      .append("  )\n")
+      .append("  @source(name: \"api\", http: { baseURL: \"http://localhost:4010\" })\n\n");
   }
 
   private void writeSelection(Writer writer, List<CType> entries) throws IOException {
@@ -350,7 +410,7 @@ public class PathsVisitor extends Visitor {
     entries.get(0).select(context, writer, dependencies);
   }
 
-  private void gatherDependencies(CType node, Stack<CType> stack) {
+  private void collectDependencies(CType node, Stack<CType> stack, Set<CType> skipSet) {
     print(indent, "-> [gatherDependencies]", "checking " + node.getName());
 
     final Set<CType> found = node.getDependencies(context);
@@ -359,10 +419,13 @@ public class PathsVisitor extends Visitor {
     final Set<CType> filtered = found.stream().filter(d -> !stack.contains(d)).collect(Collectors.toSet());
     stack.addAll(filtered);
 
+    // skip list
+    filtered.stream().map(c -> c.getSkipSet(context)).toList().forEach(skipSet::addAll);
+
     // depth-first
     for (final CType dependency : filtered) {
       indent++;
-      gatherDependencies(dependency, stack);
+      collectDependencies(dependency, stack, skipSet);
       indent--;
     }
 
@@ -380,29 +443,6 @@ public class PathsVisitor extends Visitor {
         print(indent, "   [stack]", "New dependency: " + dependency.getName());
       }
     }
-  }
-
-  private void generateSingle(Writer writer, CType value, Set<String> generatedSet) throws IOException {
-    print(indent, "-> [generateSingle]", "checking " + value.getName()
-      + ", kind: " + value.getKind()
-      + ", class: " + value.getClass().getSimpleName());
-
-    if (indent == 0) {
-      writer.write("type Query {\n");
-    }
-
-    if (!generatedSet.contains(value.getName())) {
-      indent++;
-      value.generate(context, writer);
-      indent--;
-    }
-
-    if (indent == 0) {
-      writer.write("}\n\n");
-    }
-
-    generatedSet.add(value.getName());
-    print(indent, "<- [generateSingle]", "end " + value.getName());
   }
 
 }

@@ -24,6 +24,8 @@ public abstract class CType {
 
   protected Map<String, Prop> props = new LinkedHashMap<>();
 
+
+
   public CType(String name, Schema schema, CTypeKind kind) {
     this.name = name;
     this.schema = schema;
@@ -160,6 +162,10 @@ public abstract class CType {
     }
 
     return deps;
+  }
+
+  public Set<CType> getSkipSet(Context context) {
+    return Collections.emptySet();
   }
 
   public static CType getDependenciesFromProp(Context context, Prop property) {
