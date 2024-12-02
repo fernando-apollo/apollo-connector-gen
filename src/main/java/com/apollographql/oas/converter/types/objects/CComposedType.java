@@ -12,10 +12,15 @@ import com.apollographql.oas.converter.types.CType;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Stack;
+import java.util.logging.Logger;
 
 import static com.apollographql.oas.converter.utils.Trace.print;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.WARNING;
 
 public class CComposedType extends CType {
+  private static final Logger logger = Logger.getLogger(CComposedType.class.getName());
+  
   public CComposedType(String name, ComposedSchema schema) {
     super(name, schema, CTypeKind.COMPOSED);
   }
@@ -29,14 +34,14 @@ public class CComposedType extends CType {
 
   @Override
   public void generate(Context context, Writer writer) throws IOException {
-    System.out.println(String.format("[composed] -> object: %s", this.getName()));
+    logger.log(FINE, String.format("[composed] -> object: %s", this.getName()));
 
     writer.append("type ")
       .append(getSimpleName())
       .append(" { \n");
 
     for (Prop prop : this.getProps().values()) {
-      System.out.println(String.format("[composed] \t -> property: %s (parent: %s)", prop.getName(), prop.getSource()));
+      logger.log(FINE, String.format("[composed] \t -> property: %s (parent: %s)", prop.getName(), prop.getSource()));
       prop.generate(context, writer);
     }
 
@@ -46,7 +51,7 @@ public class CComposedType extends CType {
   @Override
   public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
     if (stack.contains(this)) {
-      System.err.println("Possible recursion! Stack should not already contain " + this);
+      logger.log(WARNING, "Possible recursion! Stack should not already contain " + this);
     }
     else {
       stack.push(this);

@@ -118,9 +118,10 @@ public class PathsVisitor extends Visitor {
           }
 
           final String resultType = NameUtils.genResponseType(path, getOp);
-          store(new CResponseObjectType(resultType, schemaRef));
+          final CResponseObjectType type = new CResponseObjectType(resultType, schemaRef);
+          store(type);
 
-          final COperationType opType = new COperationType(operation, schemaRef, parameters);
+          final COperationType opType = new COperationType(operation, schemaRef, parameters, type);
           opType.setOriginalPath(path);
           opType.setSummary(summary);
 
@@ -138,7 +139,8 @@ public class PathsVisitor extends Visitor {
           final COperationType opType = new COperationType(
             operation,
             "[" + NameUtils.getRefName(returnType.getItemsRef()) + "]",
-            parameters
+            parameters,
+            returnType
           );
           opType.setSummary(summary);
           opType.setOriginalPath(path);
@@ -257,7 +259,7 @@ public class PathsVisitor extends Visitor {
     print(indent, "  [" + path + "]", "GQL operation: " +
       operation + ": " + NameUtils.getRefName(lookup.getName()));
 
-    final COperationType opType = new COperationType(operation, lookup.getName(), parameters);
+    final COperationType opType = new COperationType(operation, lookup.getName(), parameters, lookup);
     opType.setOriginalPath(path);
 
     return opType;

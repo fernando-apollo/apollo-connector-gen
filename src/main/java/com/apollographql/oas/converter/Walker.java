@@ -61,7 +61,6 @@ public class Walker {
   }
 
   public void generate(Writer writer) throws IOException {
-    System.out.println("-------------------------------- GQL ------------------------------------");
     writer.write("scalar JSON\n\n");
 
     for (Visitor visitor : visitors) {

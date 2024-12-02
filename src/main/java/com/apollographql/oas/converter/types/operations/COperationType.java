@@ -3,38 +3,51 @@ package com.apollographql.oas.converter.types.operations;
 import com.apollographql.oas.converter.context.Context;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.CTypeKind;
-import com.apollographql.oas.converter.types.responses.CResponseObjectType;
 import com.apollographql.oas.converter.types.responses.CResponseArrayType;
+import com.apollographql.oas.converter.types.responses.CResponseObjectType;
 import com.apollographql.oas.converter.utils.NameUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.FINE;
 
 public class COperationType extends CType {
-  private String resultType;
+  private static final Logger logger = Logger.getLogger(COperationType.class.getName());
+  
+  private String result;
   private List<? extends CType> parameters = Collections.emptyList();
+  private CType returnType;
   private String originalPath;
   private String summary;
 
-  public COperationType(String name, String resultType, List<? extends CType> parameters) {
+  public COperationType(String name, String result, List<? extends CType> parameters) {
     super(name, null, CTypeKind.OPERATION);
-    this.resultType = resultType;
+    this.result = result;
     this.parameters = parameters;
   }
 
-  public String getResultType() {
-    return resultType;
+  public COperationType(String name, String result, List<? extends CType> parameters, CType returnType) {
+    super(name, null, CTypeKind.OPERATION);
+    this.result = result;
+    this.parameters = parameters;
+    this.returnType = returnType;
   }
 
-  public void setResultType(String resultType) {
-    this.resultType = resultType;
+  public String getResult() {
+    return result;
+  }
+
+  public void setResult(String result) {
+    this.result = result;
   }
 
   @Override
   public void generate(Context context, Writer writer) throws IOException {
-    System.out.println(String.format("->[operationType] -> begin: %s", this.getName()));
+    logger.log(FINE, String.format("->[operationType] -> begin: %s", this.getName()));
 
     final StringBuilder builder = new StringBuilder();
     if (getSummary() != null || getOriginalPath() != null) {
@@ -58,12 +71,12 @@ public class COperationType extends CType {
 
     builder.append(": ");
 
-    final String resultType = getResultType();
-    System.out.println(String.format(" [operationType] -> resultType: %s", resultType));
+    final String resultType = getResult();
+    logger.log(FINE, String.format(" [operationType] -> resultType: %s", resultType));
 
     if (Context.isResponseType(resultType)) {
       final CType lookup = context.lookup(resultType);
-      System.out.println(String.format(" [operationType] -> lookup: %s", lookup));
+      logger.log(FINE, String.format(" [operationType] -> lookup: %s", lookup));
 
       switch (lookup.getKind()) {
         case RESPONSE_OBJECT -> {
@@ -81,18 +94,18 @@ public class COperationType extends CType {
       // #/components/responses/ section - so let's start with a lookup
     }
     else if (Context.isSchemaType(resultType)) {
-      builder.append(NameUtils.getRefName(getResultType()));
+      builder.append(NameUtils.getRefName(getResult()));
     }
     else {
-      System.out.println(String.format(" [operationType] -> getResultType: %s", getResultType()));
+      logger.log(FINE, String.format(" [operationType] -> getResultType: %s", getResult()));
 
       // we'll just throw the name in there and get on with it
-      builder.append(getResultType());
+      builder.append(getResult());
     }
 
     builder.append("\n");
     writer.write(builder.toString());
-    System.out.println(String.format("<-[operationType] -> end: %s", this.getName()));
+    logger.log(FINE, String.format("<-[operationType] -> end: %s", this.getName()));
   }
 
   private void generateParameters(Context context, StringBuilder builder) throws IOException {
@@ -144,12 +157,14 @@ public class COperationType extends CType {
     final Set<CType> deps = new LinkedHashSet<>();
 
     // our dependency is the result type
-    if (Context.isResponseType(getResultType())) {
-      deps.add(context.lookup(getResultType()));
+    if (Context.isResponseType(getResult())) {
+      deps.add(context.lookup(getResult()));
     }
-
-    if (Context.isSchemaType(getResultType())) {
-      deps.add(context.lookup(getResultType()));
+    else if (Context.isSchemaType(getResult())) {
+      deps.add(context.lookup(getResult()));
+    }
+    else if (getReturnType() != null) {
+      deps.add(getReturnType());
     }
 
     return deps;
@@ -170,8 +185,12 @@ public class COperationType extends CType {
       "name='" + getName() + '\'' +
       ", kind=" + getKind() +
       ", props=" + this.props.size() +
-      ", resultType='" + resultType + '\'' +
+      ", resultType='" + result + '\'' +
       ", path='" + getOriginalPath() + '\'' +
       '}';
+  }
+
+  public CType getReturnType() {
+    return returnType;
   }
 }
