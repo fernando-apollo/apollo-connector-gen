@@ -74,8 +74,8 @@ public class PathsVisitor extends Visitor {
 
     // only 200 for now
     for (Map.Entry<String, ApiResponse> e : getOp.getResponses().entrySet()) {
-      if (!e.getKey().equals("200")) {
-        Trace.warn(indent, "  [visitPath]", "Ignoring response '" + e.getKey() + "'");
+      if (!(e.getKey().equals("200") || e.getKey().equals("default"))) {
+        Trace.print(indent, "  [visitPath]", "Ignoring response '" + e.getKey() + "'");
         continue;
       }
 

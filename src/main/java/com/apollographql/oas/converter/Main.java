@@ -10,10 +10,21 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.LogManager;
 
 
 public class Main {
   public static void main(String[] args) throws IOException {
+    InputStream configFile = Main.class.getClassLoader().getResourceAsStream("logging.properties");
+
+    if (configFile == null) {
+      throw new IllegalArgumentException("logging.properties file not found in classpath");
+    }
+
+    // Load the configuration
+    LogManager.getLogManager().readConfiguration(configFile);
+
+
     final ParseOptions options = new ParseOptions();
     options.setResolve(true); // implicit
     options.setResolveCombinators(false); // default is true

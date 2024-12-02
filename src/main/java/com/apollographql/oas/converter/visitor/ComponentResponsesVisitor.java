@@ -42,7 +42,7 @@ public class ComponentResponsesVisitor extends Visitor {
         final ApiResponse response = entry.getValue();
 
         if (response.getContent() == null && response.get$ref() == null) {
-          warn(indent, "[visit]", "Response with no content nor ref: " + entry.getKey());
+          warn(indent, "[visit]", "Response with no content nor ref: " + entry.getKey() + ", check #/components/responses/" + entry.getKey());
         }
 
         return response.getContent() != null || (response.getContent() == null && response.get$ref() != null);
