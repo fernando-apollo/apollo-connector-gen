@@ -346,11 +346,14 @@ public class PathsVisitor extends Visitor {
     collectDependencies(entries.get(0), dependencies, skipSet);
 
     for (final CType type : dependencies.get()) {
-      if (!skipSet.contains(type) && dependencies.getRefCount(type) == 1) {
-        type.generate(context, writer);
+      boolean isSkipped = skipSet.contains(type);
+      boolean onlyOneRef = dependencies.getRefCount(type) == 1;
+
+      if (isSkipped && onlyOneRef) {
+        print(indent, "-> [writeSchema]", "skipped " + type);
       }
       else {
-        print(indent, "-> [writeSchema]", "skipped " + type);
+        type.generate(context, writer);
       }
       generatedSet.add(type.getName());
     }

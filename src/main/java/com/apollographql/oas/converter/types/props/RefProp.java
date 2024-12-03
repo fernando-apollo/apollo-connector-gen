@@ -3,6 +3,7 @@ package com.apollographql.oas.converter.types.props;
 import com.apollographql.oas.converter.context.Context;
 import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CType;
+import com.apollographql.oas.converter.types.CTypeKind;
 import com.apollographql.oas.converter.utils.NameUtils;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -42,15 +43,27 @@ public class RefProp extends Prop {
     print(dependencies.size(), getName(), " -> (" + dependencies.peek().getSimpleName() + ")");
     writer
       .append(" ".repeat(dependencies.size()))
-      .append(getName())
-      .append(" {\n");
+      .append(getName());
+
+    if (needsBrackets(lookup)) {
+      writer.append(" {");
+      writer.append("\n");
+    }
 
     lookup.select(context, writer, dependencies);
 
     writer
-      .append(" ".repeat(dependencies.size()))
-      .append("}\n");
+      .append(" ".repeat(dependencies.size()));
 
+    if (needsBrackets(lookup)) {
+      writer.append("}");
+    }
+
+    writer.append("\n");
     print(dependencies.size(), getName(), " <- (" + dependencies.peek().getSimpleName() + ")");
+  }
+
+  private boolean needsBrackets(CType lookup) {
+    return lookup.getKind() != CTypeKind.ENUM;
   }
 }

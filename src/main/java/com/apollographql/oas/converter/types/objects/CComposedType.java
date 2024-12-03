@@ -54,20 +54,8 @@ public class CComposedType extends CType {
     else {
       dependencies.add(this);
       for (final Prop prop : this.getProps().values()) {
-//      if (needsBrackets(prop)) {
-//        print(indent, getSimpleName(), prop.getName() + " {");
-//        writer.append(" ".repeat(indent)).append(prop.getName()).append(" {");
-//      }
-
         // generate selection
         prop.select(context, writer, dependencies);
-
-//      if (needsBrackets(prop)) {
-//        print(indent, getSimpleName(), "}");
-//        writer.append(" ".repeat(indent)).append("}");
-//      }
-
-//        writer.append("\n");
       }
       dependencies.pop();
     }
