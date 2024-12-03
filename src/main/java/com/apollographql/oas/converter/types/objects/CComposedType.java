@@ -61,7 +61,4 @@ public class CComposedType extends CType {
     }
   }
 
-  static boolean needsBrackets(Prop prop) {
-    return prop instanceof RefProp || prop instanceof ArrayProp;
-  }
 }

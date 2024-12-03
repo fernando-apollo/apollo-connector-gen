@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.Stack;
 
 public class DependencySet {
-  private Stack<CType> stack;
-  private Map<String, Integer> count;
+  private final Stack<CType> stack;
+  private final Map<String, Integer> count;
 
   public DependencySet() {
      stack = new Stack<>();

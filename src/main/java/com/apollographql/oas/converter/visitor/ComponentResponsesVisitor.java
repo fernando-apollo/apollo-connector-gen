@@ -22,7 +22,7 @@ import static com.apollographql.oas.converter.utils.Trace.warn;
 public class ComponentResponsesVisitor extends Visitor {
   public static final String PREFIX = "#/components/responses/";
 
-  private Map<String, ApiResponse> responses;
+  private final Map<String, ApiResponse> responses;
   private int indent = 0;
 
   public ComponentResponsesVisitor(final Context context, Map<String, ApiResponse> responses) {
@@ -102,7 +102,7 @@ public class ComponentResponsesVisitor extends Visitor {
   private CType visitArraySchema(final String responseName, final ArraySchema schema) {
     print(indent, "->[" + "visitArraySchema" + "]", "analyzing array");
 
-    CType result = null;
+    CType result;
     final String itemsRef = schema.getItems().get$ref();
 
     if (itemsRef != null) {
@@ -112,7 +112,7 @@ public class ComponentResponsesVisitor extends Visitor {
         throw new IllegalStateException("Could not find itemsType '" + itemsRef + "'");
       }
       else {
-        result = new CResponseArrayType(fqName(responseName), itemsRef);;
+        result = new CResponseArrayType(fqName(responseName), itemsRef);
       }
     }
     else {

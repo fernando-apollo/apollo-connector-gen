@@ -18,7 +18,7 @@ import static java.util.logging.Level.FINE;
 public class CUnionType extends CType {
   private static final Logger logger = Logger.getLogger(CUnionType.class.getName());
 
-  private Set<String> types = new LinkedHashSet<>();
+  private final Set<String> types = new LinkedHashSet<>();
 
   public CUnionType(String name, ComposedSchema schema) {
     super(name, schema, CTypeKind.UNION);

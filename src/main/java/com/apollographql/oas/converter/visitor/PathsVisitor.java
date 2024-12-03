@@ -32,7 +32,7 @@ import static com.apollographql.oas.converter.utils.Trace.warn;
  * similar to what we did for the Component.Schemas visitor.
  */
 public class PathsVisitor extends Visitor {
-  private Paths paths;
+  private final Paths paths;
 
   public PathsVisitor(final Context context, Paths paths) {
     super(context);
@@ -230,6 +230,7 @@ public class PathsVisitor extends Visitor {
     return resultType;
   }
 
+  // TODO: pending
   private CType visitMapSchema(String name, MapSchema schema) {
     final Object properties = schema.getAdditionalProperties(); //
     if (properties instanceof IntegerSchema integerSchema) {
@@ -279,7 +280,6 @@ public class PathsVisitor extends Visitor {
         throw new IllegalStateException("Could not find itemsType '" + itemsRef + "'");
       } else {
         result = new CResponseArrayType(responseName, itemsRef);
-        ;
       }
     } else {
       final Schema<?> itemsSchema = schema.getItems();
@@ -378,7 +378,7 @@ public class PathsVisitor extends Visitor {
       spacing = " ".repeat(indent + 6);
       writer
         .append(spacing).append("source: \"api\"\n")
-        .append(spacing).append("http: { GET: \"" + newPath + "\" }\n")
+        .append(spacing).append("http: { GET: \"").append(newPath).append("\" }\n")
         .append(spacing).append("selection: \"\"\"\n");
 
 //      writer.append("#### selection goes here\n");

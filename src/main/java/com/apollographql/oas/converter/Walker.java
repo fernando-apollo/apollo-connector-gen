@@ -2,16 +2,14 @@ package com.apollographql.oas.converter;
 
 import com.apollographql.oas.converter.context.Context;
 import com.apollographql.oas.converter.visitor.ComponentResponsesVisitor;
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
 import com.apollographql.oas.converter.visitor.ComponentSchemasVisitor;
 import com.apollographql.oas.converter.visitor.PathsVisitor;
 import com.apollographql.oas.converter.visitor.Visitor;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;

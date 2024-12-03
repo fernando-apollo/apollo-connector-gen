@@ -21,14 +21,13 @@ public class CEnumType extends CType {
 
   @Override
   public void generate(Context context, Writer writer) throws IOException {
-    final StringBuilder builder = new StringBuilder();
-    builder.append("enum ");
-    builder.append(getSimpleName());
-    builder.append(" {\n");
-    builder.append(Strings.join(items.stream().map(s -> " " + s).toList(), ",\n"));
-    builder.append("\n}\n\n");
+    String builder = "enum " +
+      getSimpleName() +
+      " {\n" +
+      Strings.join(items.stream().map(s -> " " + s).toList(), ",\n") +
+      "\n}\n\n";
 
-    writer.write(builder.toString());
+    writer.write(builder);
   }
 
   @Override

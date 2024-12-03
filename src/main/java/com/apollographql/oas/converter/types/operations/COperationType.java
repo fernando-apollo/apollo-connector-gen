@@ -20,7 +20,7 @@ public class COperationType extends CType {
   private static final Logger logger = Logger.getLogger(COperationType.class.getName());
   
   private String result;
-  private List<? extends CType> parameters = Collections.emptyList();
+  private final List<? extends CType> parameters;
   private CType returnType;
   private String originalPath;
   private String summary;
@@ -40,10 +40,6 @@ public class COperationType extends CType {
 
   public String getResult() {
     return result;
-  }
-
-  public void setResult(String result) {
-    this.result = result;
   }
 
   @Override

@@ -2,7 +2,6 @@ package com.apollographql.oas.converter.utils;
 
 import io.swagger.v3.oas.models.media.Schema;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;

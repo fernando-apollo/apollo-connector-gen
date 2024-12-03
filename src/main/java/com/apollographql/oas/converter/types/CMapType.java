@@ -1,7 +1,6 @@
 package com.apollographql.oas.converter.types;
 
 import com.apollographql.oas.converter.context.Context;
-import com.apollographql.oas.converter.types.operations.COperationType;
 import com.apollographql.oas.converter.types.props.ScalarProp;
 import io.swagger.v3.oas.models.media.Schema;
 

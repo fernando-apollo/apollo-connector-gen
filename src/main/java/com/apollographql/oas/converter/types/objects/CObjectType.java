@@ -45,7 +45,6 @@ public class CObjectType extends CType {
     }
     else {
       dependencies.add(this);
-      int indent = dependencies.size();
 
       for (final Prop prop : this.getProps().values()) {
         prop.select(context, writer, dependencies);

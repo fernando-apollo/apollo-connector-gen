@@ -80,14 +80,6 @@ public abstract class CType {
     return kind;
   }
 
-  public boolean getResolved() {
-    return resolved;
-  }
-
-  public void setResolved(boolean resolved) {
-    this.resolved = resolved;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) return true;
@@ -124,7 +116,7 @@ public abstract class CType {
     final String source = getName();
     final String type = propertySchema.getType();
 
-    Prop prop = null;
+    Prop prop;
     if (type == null && propertySchema.get$ref() != null) {
       prop = new RefProp(propertyName, source, propertySchema, propertySchema.get$ref());
     }
