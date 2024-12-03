@@ -1,6 +1,7 @@
 package com.apollographql.oas.converter.visitor;
 
 import com.apollographql.oas.converter.context.Context;
+import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CMapType;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.operations.COperationType;
@@ -339,13 +340,13 @@ public class PathsVisitor extends Visitor {
     print(indent, "[writeSchema]", "---------------------------- Operations --------------------------");
     writeDirectives(writer);
 
-    final Stack<CType> dependencies = new Stack<>();
+    final DependencySet dependencies = new DependencySet();
     final Set<CType> skipSet = new LinkedHashSet<>();
 
     collectDependencies(entries.get(0), dependencies, skipSet);
 
-    for (CType type : dependencies) {
-      if (!skipSet.contains(type)) {
+    for (final CType type : dependencies.get()) {
+      if (!skipSet.contains(type) && dependencies.getRefCount(type) == 1) {
         type.generate(context, writer);
       }
       else {
@@ -408,26 +409,26 @@ public class PathsVisitor extends Visitor {
 
   private void writeSelection(Writer writer, List<CType> entries) throws IOException {
     print(indent, "[generatePath]", "---------------------------- Selection --------------------------");
-    Stack<CType> dependencies = new Stack<>();
+    final DependencySet dependencies = new DependencySet();
     entries.get(0).select(context, writer, dependencies);
   }
 
-  private void collectDependencies(CType node, Stack<CType> stack, Set<CType> skipSet) {
+  private void collectDependencies(CType node, DependencySet dependencySet, Set<CType> skipSet) {
     print(indent, "-> [gatherDependencies]", "checking " + node.getName());
 
     final Set<CType> found = node.getDependencies(context);
-    _printFound(node, stack, found);
+    _printFound(node, dependencySet, found);
 
-    final Set<CType> filtered = found.stream().filter(d -> !stack.contains(d)).collect(Collectors.toSet());
-    stack.addAll(filtered);
+    final Set<CType> pendingSet = found.stream().filter(d -> !dependencySet.contains(d)).collect(Collectors.toSet());
+    dependencySet.addAll(pendingSet);
 
-    // skip list
-    filtered.stream().map(c -> c.getSkipSet(context)).toList().forEach(skipSet::addAll);
+    // skip list - walk through each and find their skip list
+    pendingSet.stream().map(c -> c.getSkipSet(context)).toList().forEach(skipSet::addAll);
 
     // depth-first
-    for (final CType dependency : filtered) {
+    for (final CType dependency : pendingSet) {
       indent++;
-      collectDependencies(dependency, stack, skipSet);
+      collectDependencies(dependency, dependencySet, skipSet);
       indent--;
     }
 
@@ -435,7 +436,7 @@ public class PathsVisitor extends Visitor {
     print(indent, "<- [gatherDependencies]", "end of " + node.getName());
   }
 
-  private void _printFound(CType node, Stack<CType> stack, Set<CType> found) {
+  private void _printFound(CType node, DependencySet stack, Set<CType> found) {
     print(indent, "   [stack]", "found " + found.size() + " deps for " + node.getName());
 
     for (final CType dependency : found) {

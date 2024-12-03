@@ -1,6 +1,7 @@
 package com.apollographql.oas.converter.types;
 
 import com.apollographql.oas.converter.context.Context;
+import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.objects.CObjectType;
 import com.apollographql.oas.converter.types.objects.CSchemaType;
 import com.apollographql.oas.converter.types.props.ArrayProp;
@@ -179,7 +180,7 @@ public abstract class CType {
     return null;
   }
 
-  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+  public void select(Context context, Writer writer, DependencySet dependencies) throws IOException {
     throw new IllegalStateException("Not yet implemented for " + getClass().getSimpleName());
   }
 

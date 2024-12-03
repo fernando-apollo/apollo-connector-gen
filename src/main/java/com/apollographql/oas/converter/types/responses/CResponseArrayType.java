@@ -1,17 +1,14 @@
 package com.apollographql.oas.converter.types.responses;
 
 import com.apollographql.oas.converter.context.Context;
+import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.CTypeKind;
-import com.apollographql.oas.converter.types.operations.COperationType;
-import com.apollographql.oas.converter.types.props.Prop;
-import com.apollographql.oas.converter.utils.NameUtils;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
@@ -47,12 +44,12 @@ public class CResponseArrayType extends CType {
   }
 
   @Override
-  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+  public void select(Context context, Writer writer, DependencySet stack) throws IOException {
     if (stack.contains(this)) {
       logger.log(WARNING, "Possible recursion! Stack should not already contain " + this);
     }
     else {
-      stack.push(this);
+      stack.add(this);
 
       Set<CType> dependencies = getDependencies(context);
 

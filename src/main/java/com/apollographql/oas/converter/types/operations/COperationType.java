@@ -1,6 +1,7 @@
 package com.apollographql.oas.converter.types.operations;
 
 import com.apollographql.oas.converter.context.Context;
+import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.CTypeKind;
 import com.apollographql.oas.converter.types.responses.CResponseArrayType;
@@ -171,7 +172,7 @@ public class COperationType extends CType {
   }
 
   @Override
-  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+  public void select(Context context, Writer writer, DependencySet stack) throws IOException {
     Set<CType> dependencies = getDependencies(context);
 
     for (CType dependency : dependencies) {

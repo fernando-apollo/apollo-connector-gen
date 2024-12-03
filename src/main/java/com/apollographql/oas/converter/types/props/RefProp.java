@@ -1,13 +1,13 @@
 package com.apollographql.oas.converter.types.props;
 
 import com.apollographql.oas.converter.context.Context;
+import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.utils.NameUtils;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Stack;
 
 import static com.apollographql.oas.converter.utils.Trace.print;
 
@@ -35,22 +35,22 @@ public class RefProp extends Prop {
   }
 
   @Override
-  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+  public void select(Context context, Writer writer, DependencySet dependencies) throws IOException {
     final CType lookup = context.lookup(getRef());
     assert lookup != null;
 
-    print(stack.size(), getName(), " -> (" + stack.peek().getSimpleName() + ")");
+    print(dependencies.size(), getName(), " -> (" + dependencies.peek().getSimpleName() + ")");
     writer
-      .append(" ".repeat(stack.size()))
+      .append(" ".repeat(dependencies.size()))
       .append(getName())
       .append(" {\n");
 
-    lookup.select(context, writer, stack);
+    lookup.select(context, writer, dependencies);
 
     writer
-      .append(" ".repeat(stack.size()))
+      .append(" ".repeat(dependencies.size()))
       .append("}\n");
 
-    print(stack.size(), getName(), " <- (" + stack.peek().getSimpleName() + ")");
+    print(dependencies.size(), getName(), " <- (" + dependencies.peek().getSimpleName() + ")");
   }
 }

@@ -1,5 +1,6 @@
 package com.apollographql.oas.converter.types.objects;
 
+import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CTypeKind;
 import com.apollographql.oas.converter.types.props.Prop;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -10,8 +11,13 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.FINE;
 
 public class CUnionType extends CType {
+  private static final Logger logger = Logger.getLogger(CUnionType.class.getName());
+
   private Set<String> types = new LinkedHashSet<>();
 
   public CUnionType(String name, ComposedSchema schema) {
@@ -31,7 +37,7 @@ public class CUnionType extends CType {
     writer.append(String.join("# | ", types.stream().map(NameUtils::getRefName).toList()));
     writer.append("#\n\n");
 
-    System.out.println(String.format("[union] -> object: %s", this.getName()));
+    logger.log(FINE, String.format("[union] -> object: %s", this.getName()));
 
     writer.append("type ")
       .append(getSimpleName())
@@ -46,7 +52,7 @@ public class CUnionType extends CType {
       assert lookup != null;
 
       for (Prop prop : lookup.getProps().values().stream().filter(p -> !generatedSet.contains(p.getName())).toList()) {
-        System.out.println(String.format("[union] \t -> property: %s (parent: %s)", prop.getName(), prop.getSource()));
+        logger.log(FINE, String.format("[union] \t -> property: %s (parent: %s)", prop.getName(), prop.getSource()));
         prop.generate(context, writer);
 
         generatedSet.add(prop.getName());
@@ -78,10 +84,11 @@ public class CUnionType extends CType {
   @Override
   public Set<CType> getSkipSet(Context context) {
     return getDependencies(context);
+//    return Collections.emptySet();
   }
 
   @Override
-  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+  public void select(Context context, Writer writer, DependencySet stack) throws IOException {
     Set<CType> dependencies = getDependencies(context);
 
     for (CType dependency : dependencies) {

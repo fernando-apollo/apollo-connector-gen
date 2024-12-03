@@ -35,8 +35,8 @@ public class Main {
 //    final String source = String.format("%s/tmf-specs/TMF632-Party_Management-v5.0.0.oas.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF666-Account_Management-v5.0.0.oas.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF620-ProductCatalog-v4.1.0.swagger.json", baseURL);
-//    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
-    final String source = String.format("%s/tmf-specs/TMF680-Recommendation-v4.0.0.swagger.json", baseURL);
+    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+//    final String source = String.format("%s/tmf-specs/TMF680-Recommendation-v4.0.0.swagger.json", baseURL);
 //    final String source = String.format("%s/tmf-specs/t-boolean-array.yml", baseURL);
 
     if (!new File(source).exists()) {

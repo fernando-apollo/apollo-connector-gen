@@ -1,20 +1,18 @@
 package com.apollographql.oas.converter.types.objects;
 
 import com.apollographql.oas.converter.context.Context;
+import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CTypeKind;
 import com.apollographql.oas.converter.types.props.ArrayProp;
 import com.apollographql.oas.converter.types.props.Prop;
 import com.apollographql.oas.converter.types.props.RefProp;
-import com.apollographql.oas.converter.utils.NameUtils;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import com.apollographql.oas.converter.types.CType;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Stack;
 import java.util.logging.Logger;
 
-import static com.apollographql.oas.converter.utils.Trace.print;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 
@@ -49,12 +47,12 @@ public class CComposedType extends CType {
   }
 
   @Override
-  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
-    if (stack.contains(this)) {
+  public void select(Context context, Writer writer, DependencySet dependencies) throws IOException {
+    if (dependencies.contains(this)) {
       logger.log(WARNING, "Possible recursion! Stack should not already contain " + this);
     }
     else {
-      stack.push(this);
+      dependencies.add(this);
       for (final Prop prop : this.getProps().values()) {
 //      if (needsBrackets(prop)) {
 //        print(indent, getSimpleName(), prop.getName() + " {");
@@ -62,7 +60,7 @@ public class CComposedType extends CType {
 //      }
 
         // generate selection
-        prop.select(context, writer, stack);
+        prop.select(context, writer, dependencies);
 
 //      if (needsBrackets(prop)) {
 //        print(indent, getSimpleName(), "}");
@@ -71,7 +69,7 @@ public class CComposedType extends CType {
 
 //        writer.append("\n");
       }
-      stack.pop();
+      dependencies.pop();
     }
   }
 

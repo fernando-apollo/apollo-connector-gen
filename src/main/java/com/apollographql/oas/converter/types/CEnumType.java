@@ -1,7 +1,7 @@
 package com.apollographql.oas.converter.types;
 
 import com.apollographql.oas.converter.context.Context;
-import com.apollographql.oas.converter.utils.NameUtils;
+import com.apollographql.oas.converter.context.DependencySet;
 import io.swagger.v3.oas.models.media.Schema;
 import joptsimple.internal.Strings;
 
@@ -10,7 +10,6 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 
 public class CEnumType extends CType {
   private final List<String> items;
@@ -38,7 +37,7 @@ public class CEnumType extends CType {
   }
 
   @Override
-  public void select(Context context, Writer writer, Stack<CType> stack) throws IOException {
+  public void select(Context context, Writer writer, DependencySet stack) throws IOException {
     Set<CType> dependencies = getDependencies(context);
 
     for (CType dependency : dependencies) {
