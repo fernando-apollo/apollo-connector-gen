@@ -14,9 +14,10 @@ public class Prompt {
 //    System.out.println(msg + " (Y/n) -> " + response + " (" + (index - 1) + ")");
 //    return response.equalsIgnoreCase("y");
 
-//    final String next = new Scanner(System.in).nextLine();
-//    return next.equals("") || next.equalsIgnoreCase("y");
+    System.out.println(msg + " (Y/n)");
+    final String next = new Scanner(System.in).nextLine();
+    return next.equals("") || next.equalsIgnoreCase("y");
 
-    return true;
+//    return true;
   }
 }
