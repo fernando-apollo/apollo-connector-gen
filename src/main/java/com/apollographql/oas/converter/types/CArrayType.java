@@ -28,6 +28,7 @@ public class CArrayType extends CType {
   @Override
   public void generate(Context context, Writer writer) throws IOException {
     logger.log(FINE, String.format("[array] -> type: %s", this.getName()));
+
     writer.append("type ")
       .append(getSimpleName())
       .append("\n");
