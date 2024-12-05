@@ -1,5 +1,6 @@
 package com.apollographql.oas.select;
 
+import com.apollographql.oas.converter.Main;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.GetOp;
@@ -15,6 +16,7 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.trace;
@@ -32,6 +34,15 @@ public class Visitor {
   }
 
   public static void main(String[] args) throws IOException {
+    InputStream configFile = Main.class.getClassLoader().getResourceAsStream("logging.properties");
+
+    if (configFile == null) {
+      throw new IllegalArgumentException("logging.properties file not found in classpath");
+    }
+
+    // Load the configuration
+    LogManager.getLogManager().readConfiguration(configFile);
+
     final Input recorder = Prompt.Factory.recorder();
     Prompt.get(recorder);
 
@@ -51,12 +62,12 @@ public class Visitor {
     final Visitor visitor = new Visitor(parser);
 
     final Set<Type> collected = visitor.visit();
-//    visitor.writeSchema(collected);
 
-    final Map<String, String> recorded = ((Prompt.Recorder) recorder).getRecords();
-//    System.out.println("recorded:\n" + recorded.values().toString());
+    System.out.println("---------------- schema ----------------------");
+    visitor.writeSchema(collected);
 
     System.out.println("---------------- recorder ----------------------");
+    final Map<String, String> recorded = ((Prompt.Recorder) recorder).getRecords();
     recorded.forEach((key, value) -> System.out.println("\"" + value + "\", /* " + key + " */"));
   }
 
@@ -87,7 +98,7 @@ public class Visitor {
     return collected;
   }
 
-  private Context getContext() {
+  public Context getContext() {
     if (this.context == null) {
       this.context = new Context(getParser());
     }

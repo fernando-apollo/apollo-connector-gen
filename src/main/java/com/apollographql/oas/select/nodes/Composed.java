@@ -1,5 +1,6 @@
 package com.apollographql.oas.select.nodes;
 
+import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.props.Prop;
@@ -7,10 +8,13 @@ import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
 import static com.apollographql.oas.select.log.Trace.trace;
+import static com.apollographql.oas.select.log.Trace.warn;
 
 public class Composed extends Type {
   private final Schema schema;
@@ -22,6 +26,44 @@ public class Composed extends Type {
 
   public Schema getSchema() {
     return schema;
+  }
+
+
+  @Override
+  public void generate(final Context context, final Writer writer) throws IOException {
+    context.enter(this);
+    trace(context, "-> [obj::generate]", String.format("-> in: %s", this.getName()));
+
+    writer.append("type ")
+      .append(NameUtils.getRefName(getName()))
+      .append(" {\n");
+
+    for (Prop prop : this.getProps().values()) {
+      trace(context, "-> [obj::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
+      prop.generate(context, writer);
+    }
+
+    writer.append("}\n\n");
+
+    trace(context, "<- [obj::generate]", String.format("-> out: %s", this.getName()));
+    context.leave(this);
+  }
+
+  @Override
+  public void select(final Context context, final Writer writer) throws IOException {
+    if (context.getStack().contains(this)) {
+      warn(context, "[obj::select]", "Possible recursion! Stack should not already contain " + this);
+      return;
+    }
+    context.enter(this);
+    trace(context, "-> [ref::select]", String.format("-> in: %s", this.getSimpleName()));
+
+    for (Prop prop : this.getProps().values()) {
+      prop.select(context, writer);
+    }
+
+    trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
+    context.leave(this);
   }
 
   @Override

@@ -1,39 +1,42 @@
 package com.apollographql.oas.select;
 
-import com.apollographql.oas.converter.Walker;
-import com.apollographql.oas.select.context.Context;
+import com.apollographql.oas.converter.Main;
+import com.apollographql.oas.select.nodes.Obj;
 import com.apollographql.oas.select.nodes.Type;
-import com.apollographql.oas.select.prompt.Input;
 import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.logging.LogManager;
 
-import static com.apollographql.oas.select.log.Trace.trace;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class SelectTests {
+public class VisitorTests {
+  static final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
+
   private StringWriter writer;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws IOException {
+    InputStream configFile = Main.class.getClassLoader().getResourceAsStream("logging.properties");
+
+    if (configFile == null) {
+      throw new IllegalArgumentException("logging.properties file not found in classpath");
+    }
+
+    // Load the configuration
+    LogManager.getLogManager().readConfiguration(configFile);
+
     System.out.println("ParserTest.setUp creating writer...");
     this.writer = new StringWriter();
   }
@@ -44,13 +47,12 @@ public class SelectTests {
 
   @Test
   void test_001_testFullPetStoreSchema() throws URISyntaxException, IOException {
-    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
     final String source = String.format("%s/./sample-oas/petstore.yaml", baseURL);
 
     final OpenAPI parser = createParser(source);
     assertNotNull(parser);
 
-    String[] record = new String[] {
+    String[] record = new String[]{
       "y", /*    visit '/pet/findByStatus'? */
       "y", /* Add all properties from Pet?:
              - name: String,
@@ -105,13 +107,12 @@ public class SelectTests {
 
   @Test
   void test_001_testMinimalPetstore() throws URISyntaxException, IOException {
-    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
     final String source = String.format("%s/./sample-oas/petstore.yaml", baseURL);
 
     final OpenAPI parser = createParser(source);
     assertNotNull(parser);
 
-    String[] record = new String[] {
+    String[] record = new String[]{
       "n", /*    visit '/pet/findByStatus'? */
       "n", /*    visit '/pet/findByTags'? */
       "y", /*    visit '/pet/{petId}'? */
@@ -135,6 +136,41 @@ public class SelectTests {
     final Set<Type> collected = visitor.visit();
     assertNotNull(collected);
     assertEquals(1, collected.size(), "Should have collected 5 paths");
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    final Set<Type> childrenSet = new LinkedHashSet<>();
+    findAllChildren(type, childrenSet);
+
+    assertFalse(childrenSet.isEmpty(), "Should have found many children");
+    assertEquals(3, childrenSet.size());
+
+    final Map<String, Type> types = visitor.getContext().getTypes();
+    assertEquals(1, types.size());
+    assertTrue(types.containsKey("#/components/schemas/Pet"), "Should contain definition for Pet");
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Pet"));
+  }
+
+  @Test
+  void test_003_testTMF637_ScalarsOnly() throws IOException {
+    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+
+    final OpenAPI parser = createParser(source);
+    assertNotNull(parser);
+
+    String[] record = new String[]{ "n", "y", "y", "y", "n", "n", "n", "y",
+      "y", "n", "y", "y", "y", "y", "n", "n", "n", "n", "n", "n", "n", "y",
+      "n", "n", "n", "n", "n", "y", "n", "y"
+    };
+
+    Prompt.get(Prompt.Factory.player(record));
+
+    final Visitor visitor = new Visitor(parser);
+    final Set<Type> collected = visitor.visit();
+    assertNotNull(collected);
+
+    visitor.writeSchema(collected);
   }
   private static OpenAPI createParser(String source) {
     final ParseOptions options = new ParseOptions();
@@ -144,4 +180,10 @@ public class SelectTests {
     return new OpenAPIV3Parser().read(source, null, options);
   }
 
+  void findAllChildren(Type type, Set<Type> childrenSet) {
+    childrenSet.add(type);
+    for (Type child : type.getChildren()) {
+      findAllChildren(child, childrenSet);
+    }
+  }
 }

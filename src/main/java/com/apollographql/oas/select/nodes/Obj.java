@@ -9,10 +9,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.indent;
@@ -105,13 +102,15 @@ public class Obj extends Type {
       return;
     }
 
-    final Set<String> collected = properties.entrySet().stream()
+    final Set<Map.Entry<String, Schema>> sorted = properties.entrySet()
+      .stream()
+      .sorted((o1, o2) -> o1.getKey().compareToIgnoreCase(o2.getKey()))
+      .collect(Collectors.toCollection(LinkedHashSet::new));
+
+    final List<String> collected = sorted.stream()
       .map(e -> Factory.fromProperty(this, e.getKey(), e.getValue()))
-      .map((Prop p) -> {
-//        p.visit(context);
-        return p.forPrompt(context);
-      })
-      .collect(Collectors.toSet());
+      .map((Prop p) -> p.forPrompt(context))
+      .collect(Collectors.toList());
 
     final String propertiesNames = String.join(",\n - ", collected);
     String owner = getSimpleName();
@@ -121,13 +120,13 @@ public class Obj extends Type {
 
     final boolean addAll = Prompt.get().prompt("Add all properties from " + owner + "?: \n - " + propertiesNames + "\n");
 
-    for (final Map.Entry<String, Schema> entry : properties.entrySet()) {
+    for (final Map.Entry<String, Schema> entry : sorted) {
       final String propertyName = entry.getKey();
       final Schema propertySchema = entry.getValue();
 
       final Prop prop = Factory.fromProperty(this, propertyName, propertySchema);
 
-      if (addAll || Prompt.get().prompt(indent(context) + "add property '" + prop + "'?")) {
+      if (addAll || Prompt.get().prompt(indent(context) + "add property '" + prop.forPrompt(context) + "'?")) {
         trace(context, "   [obj::props]", "prop: " + prop);
 
         // add property to our dependencies
