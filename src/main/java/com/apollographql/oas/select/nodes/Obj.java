@@ -70,12 +70,12 @@ public class Obj extends Type {
       warn(context, "[obj::select]", "Possible recursion! Stack should not already contain " + this);
       return;
     }
-      context.enter(this);
-      trace(context, "-> [ref::select]", String.format("-> in: %s", this.getSimpleName()));
+    context.enter(this);
+    trace(context, "-> [ref::select]", String.format("-> in: %s", this.getSimpleName()));
 
-      for (Prop prop : this.getProps().values()) {
-        prop.select(context, writer);
-      }
+    for (Prop prop : this.getProps().values()) {
+      prop.select(context, writer);
+    }
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
     context.leave(this);
@@ -98,12 +98,16 @@ public class Obj extends Type {
       return;
     }
 
+    final String propertiesNames = String.join(",\n - ", properties.keySet());
+    final boolean addAll = Prompt.get().prompt("Add all properties from " + getSimpleName() + "?: \n - " + propertiesNames + "\n");
+
     for (final Map.Entry<String, Schema> entry : properties.entrySet()) {
       final String propertyName = entry.getKey();
       final Schema propertySchema = entry.getValue();
 
       final Prop prop = Factory.fromProperty(this, propertyName, propertySchema);
-      if (Prompt.prompt(indent(context) + "add property '" + prop + "'?")) {
+
+      if (addAll || Prompt.get().prompt(indent(context) + "add property '" + prop + "'?")) {
         trace(context, "   [obj::props]", "prop: " + prop);
 
         // add property to our dependencies

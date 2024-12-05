@@ -45,7 +45,7 @@ public class Main {
     final Set<Type> collected = new LinkedHashSet<>();
 
     for (final Map.Entry<String, PathItem> entry : filtered) {
-      if (!Prompt.prompt("   visit '" + entry.getKey() + "'?")) {
+      if (!Prompt.get().prompt("   visit '" + entry.getKey() + "'?")) {
         trace(context, "   [visitPath]", entry.getKey() + " skipped");
         continue;
       }
