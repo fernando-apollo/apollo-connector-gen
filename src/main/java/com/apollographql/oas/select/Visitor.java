@@ -55,6 +55,8 @@ public class Visitor {
 
     final Map<String, String> recorded = ((Prompt.Recorder) recorder).getRecords();
 //    System.out.println("recorded:\n" + recorded.values().toString());
+
+    System.out.println("---------------- recorder ----------------------");
     recorded.forEach((key, value) -> System.out.println("\"" + value + "\", /* " + key + " */"));
   }
 

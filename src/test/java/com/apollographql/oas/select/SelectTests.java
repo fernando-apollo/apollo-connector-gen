@@ -102,6 +102,40 @@ public class SelectTests {
     assertNotNull(collected);
     assertEquals(5, collected.size(), "Should have collected 5 paths");
   }
+
+  @Test
+  void test_001_testMinimalPetstore() throws URISyntaxException, IOException {
+    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
+    final String source = String.format("%s/./sample-oas/petstore.yaml", baseURL);
+
+    final OpenAPI parser = createParser(source);
+    assertNotNull(parser);
+
+    String[] record = new String[] {
+      "n", /*    visit '/pet/findByStatus'? */
+      "n", /*    visit '/pet/findByTags'? */
+      "y", /*    visit '/pet/{petId}'? */
+      "n", /* Add all properties from Pet? */
+      "y", /*    add property 'PropScalar {name='id', type='Int', parent='Obj {name='#/components/schemas/Pet', children=0, props=0}'}'? */
+      "y", /*    add property 'PropScalar {name='name', type='String', parent='Obj {name='#/components/schemas/Pet', children=0, props=1}'}'? */
+      "n", /*    add property 'PropRef {name='category', ref='#/components/schemas/Category', parent='Obj {name='#/components/schemas/Pet', children=0, props=2}'}'? */
+      "y", /*    add property 'PropArray {name='photoUrls', items='items', parent='Obj {name='#/components/schemas/Pet', children=0, props=2}'}'? */
+      "n", /*    add property 'PropArray {name='tags', items='items', parent='Obj {name='#/components/schemas/Pet', children=0, props=3}'}'? */
+      "y", /*    add property 'PropScalar {name='status', type='String', parent='Obj {name='#/components/schemas/Pet', children=0, props=3}'}'? */
+      "n", /*    visit '/store/inventory'? */
+      "n", /*    visit '/store/order/{orderId}'? */
+      "n", /*    visit '/user/login'? */
+      "n", /*    visit '/user/logout'? */
+      "n", /*    visit '/user/{username}'? */
+    };
+
+    Prompt.get(Prompt.Factory.player(record));
+
+    final Visitor visitor = new Visitor(parser);
+    final Set<Type> collected = visitor.visit();
+    assertNotNull(collected);
+    assertEquals(1, collected.size(), "Should have collected 5 paths");
+  }
   private static OpenAPI createParser(String source) {
     final ParseOptions options = new ParseOptions();
     options.setResolve(true); // implicit
