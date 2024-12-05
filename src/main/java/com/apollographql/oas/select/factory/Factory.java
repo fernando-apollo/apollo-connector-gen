@@ -10,9 +10,13 @@ import com.apollographql.oas.select.nodes.props.PropRef;
 import com.apollographql.oas.select.nodes.props.PropScalar;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+
+import java.util.List;
 
 public class Factory {
   public static GetOp createGetOperation(String name, Operation get) {
@@ -33,6 +37,9 @@ public class Factory {
     }
     else if (schema instanceof ObjectSchema) {
       result = new Obj(parent, schema.getName(), schema);
+    }
+    else if (schema instanceof ComposedSchema) {
+      result = new Composed(parent, schema.getName(), schema);
     }
     else {
       final String type = schema.getType();
@@ -94,12 +101,29 @@ public class Factory {
     final Schema schema = p.getSchema();
     var required = p.getRequired() != null && p.getRequired().equals(Boolean.TRUE);
 
-//    final Type type = fromSchema(context, parent, schema);
-//    assert type != null;
-//
     return new Param(parent, p.getName(), schema, required, schema.getDefault());
-//    result.setResultType(type);
+  }
 
-//    return result;
+  public static Type fromResponse(final Context context, final Type parent, final ApiResponse response) {
+    return new ResponseRef(parent, response.get$ref());
+  }
+
+  public static Type fromUnion(final Context context, final Type parent, final List<Schema> oneOfs) {
+    final Union union = new Union(parent, parent.getSimpleName(), oneOfs);
+
+//    for (final Schema<?> allOf : oneOfs) {
+//      final String refName = allOf.get$ref();
+//      final Schema refSchema = context.lookupRef(refName);
+//
+//      if (refSchema != null) {
+//        // this is different from the AllOf - in this case we only need to add the refName
+//        union.addRef(refName);
+//      }
+//      else {
+//        throw new IllegalStateException("visitOneOfNode: could not find schema for: " + refName);
+//      }
+//    }
+
+    return union;
   }
 }

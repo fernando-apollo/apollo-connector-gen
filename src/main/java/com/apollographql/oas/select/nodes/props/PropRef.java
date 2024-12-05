@@ -1,5 +1,6 @@
 package com.apollographql.oas.select.nodes.props;
 
+import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.Obj;
@@ -30,7 +31,8 @@ public class PropRef extends Prop {
 
   @Override
   public String getValue(Context context) {
-    return getRefType().getSimpleName();
+    final Type type = getRefType();
+    return type != null ? type.getSimpleName() : NameUtils.getRefName(getRef());
   }
 
   @Override
@@ -76,7 +78,7 @@ public class PropRef extends Prop {
         .append(" ".repeat(context.getStack().size()))
         .append("}");
 
-    writer.append("\n");
+      writer.append("\n");
     }
   }
 
@@ -84,12 +86,16 @@ public class PropRef extends Prop {
     return child instanceof Obj;
   }
 
+  public String forPrompt(final Context context) {
+    return getName() + ": " + NameUtils.getRefName(getRef());
+  }
+
   @Override
   public String toString() {
     return "PropRef {" +
       "name='" + getName() + '\'' +
       ", ref='" + getRef() + '\'' +
-      ", parent='" + getParent().getName() + '\'' +
+      ", parent='" + getParent() + '\'' +
       '}';
   }
 }

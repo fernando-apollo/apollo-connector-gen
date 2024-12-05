@@ -12,6 +12,8 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.indent;
 import static com.apollographql.oas.select.log.Trace.trace;
@@ -38,7 +40,11 @@ public class Obj extends Type {
     trace(context, "-> [obj]", "in " + getName());
 
     visitProperties(context);
-    context.store(getName(), this);
+
+    // we don't store Anonymous objects
+    if (getName() != null) {
+      context.store(getName(), this);
+    }
 
     trace(context, "<- [obj]", "out " + getName());
     context.leave(this);
@@ -95,11 +101,25 @@ public class Obj extends Type {
     trace(context, "-> [obj::props]", "in props " + (properties.isEmpty() ? "0" : properties.size()));
 
     if (properties.isEmpty()) {
+      trace(context, "<- [obj::props]", "no props " + getProps().size());
       return;
     }
 
-    final String propertiesNames = String.join(",\n - ", properties.keySet());
-    final boolean addAll = Prompt.get().prompt("Add all properties from " + getSimpleName() + "?: \n - " + propertiesNames + "\n");
+    final Set<String> collected = properties.entrySet().stream()
+      .map(e -> Factory.fromProperty(this, e.getKey(), e.getValue()))
+      .map((Prop p) -> {
+//        p.visit(context);
+        return p.forPrompt(context);
+      })
+      .collect(Collectors.toSet());
+
+    final String propertiesNames = String.join(",\n - ", collected);
+    String owner = getSimpleName();
+    if (owner == null && getParent() instanceof Composed) {
+      owner = getParent().getSimpleName();
+    }
+
+    final boolean addAll = Prompt.get().prompt("Add all properties from " + owner + "?: \n - " + propertiesNames + "\n");
 
     for (final Map.Entry<String, Schema> entry : properties.entrySet()) {
       final String propertyName = entry.getKey();

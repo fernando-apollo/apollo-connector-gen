@@ -5,6 +5,7 @@ import com.apollographql.oas.select.nodes.Obj;
 import com.apollographql.oas.select.nodes.Type;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 
 import java.util.*;
 
@@ -113,9 +114,14 @@ public class Context {
       return parser.getComponents().getSchemas().get(NameUtils.getRefName(ref));
     }
 
-//    if (ref.startsWith(COMPONENTS_RESPONSES)) {
-//      return parser.getComponents().getResponses().get(NameUtils.getRefName(ref));
-//    }
+    return null;
+  }
+
+  public ApiResponse lookupResponse(final String ref) {
+    if (ref.startsWith(COMPONENTS_RESPONSES)) {
+      final ApiResponse response = parser.getComponents().getResponses().get(NameUtils.getRefName(ref));
+      return response;
+    }
 
     return null;
   }

@@ -82,6 +82,10 @@ public abstract class Type {
     throw new IllegalStateException("Not yet implemented for " + getClass().getSimpleName());
   }
 
+  public String forPrompt(final Context context) {
+    return getSimpleName() + " (" + getClass().getSimpleName() + ")";
+  }
+
 //  protected void addProperties(Map<String, Schema> properties) {
 //    for (var property : properties.entrySet()) {
 //      final String propertyName = property.getKey();

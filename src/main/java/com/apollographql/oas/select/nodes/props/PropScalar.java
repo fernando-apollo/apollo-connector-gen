@@ -46,11 +46,15 @@ public class PropScalar extends Prop {
     return "PropScalar {" +
       "name='" + getName() + '\'' +
       ", type='" + getType() + '\'' +
-      ", entity='" + getParent().getName() + '\'' +
+      ", parent='" + getParent() + '\'' +
       '}';
   }
 
   public String getType() {
     return type;
+  }
+
+  public String forPrompt(final Context context) {
+    return getName() + ": " + getValue(context);
   }
 }

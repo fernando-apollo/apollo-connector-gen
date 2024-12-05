@@ -70,12 +70,16 @@ public class PropArray extends Prop {
     return getItems().getClass().getSimpleName();
   }
 
+  public String forPrompt(final Context context) {
+    return getName() + ": " + getValue(context);
+  }
+
   @Override
   public String toString() {
     return "PropArray {" +
       "name='" + getName() + '\'' +
       ", items='" + getItems().getName() + '\'' +
-      ", parent='" + getParent().getName() + '\'' +
+      ", parent='" + getParent() + '\'' +
       '}';
   }
 

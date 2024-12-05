@@ -30,7 +30,7 @@ public class Ref extends Type {
   @Override
   public void visit(final Context context) {
     context.enter(this);
-    trace(context, "-> [ref]", "in");
+    trace(context, "-> [ref]", "in: " + getRef());
 
     final Type cached = context.get(getRef());
     if (cached == null) {
@@ -48,7 +48,7 @@ public class Ref extends Type {
       this.refType = cached;
     }
 
-    trace(context, "-> [ref]", "out");
+    trace(context, "<- [ref]", "out: " + getRef());
     context.leave(this);
   }
 

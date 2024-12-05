@@ -103,25 +103,28 @@ public class GetOp extends Type {
       .toList();
 
     for (Map.Entry<String, ApiResponse> e : filtered) {
-      final ApiResponse response = e.getValue();
+      visitResponse(context, e.getKey(), e.getValue());
+    }
 
-      if (response.get$ref() != null) {
-        visitResponseRef(context, response);
-      }
-      else if (response.getContent() != null) {
-        final Optional<Map.Entry<String, MediaType>> first = findJsonContent(response.getContent());
-        if (first.isEmpty()) {
-          warn(context, "  [" + name + "]", "no mediaType found for content application/json, bailing out!");
-        }
-        else {
-          visitResponseContent(context, e.getKey(), response);
-        }
+    trace(context, "<- [get::responses]", "out " + getName());
+  }
+
+  private void visitResponse(final Context context, String code, final ApiResponse response) {
+    if (response.get$ref() != null) {
+      visitResponseRef(context, response);
+    }
+    else if (response.getContent() != null) {
+      final Optional<Map.Entry<String, MediaType>> first = findJsonContent(response.getContent());
+      if (first.isEmpty()) {
+        warn(context, "  [" + code + "]", "no mediaType found for content application/json, bailing out!");
       }
       else {
-        throw new IllegalStateException("Not yet implemented for: " + response);
+        visitResponseContent(context, code, response);
       }
     }
-    trace(context, "<- [get::responses]", "out " + getName());
+    else {
+      throw new IllegalStateException("Not yet implemented for: " + response);
+    }
   }
 
   private void visitResponseContent(final Context context, final String code, final ApiResponse response) {
@@ -145,11 +148,16 @@ public class GetOp extends Type {
   }
 
   private void visitResponseRef(final Context context, final ApiResponse response) {
-    trace(context, "-> [get::responses::ref]", "in " + getName());
+    trace(context, "-> [get::responses::ref]", "in: " + getName() + ", ref: " + response.get$ref());
 
-    throw new IllegalStateException("Not yet implemented");
+    final ApiResponse lookup = context.lookupResponse(response.get$ref());
+    visitResponse(context, response.get$ref(), lookup);
 
-//    trace(context, "<- [get::responses::ref]", "out " + getName());
+//    final Type responseType = Factory.fromResponse(context, this, response);
+//    assert responseType != null;
+//    responseType.visit(context);
+
+    trace(context, "<- [get::responses::ref]", "out: " + getName());
   }
 
   @Override
