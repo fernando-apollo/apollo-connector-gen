@@ -104,6 +104,8 @@ public class VisitorTests {
     final Set<Type> collected = visitor.visit();
     assertNotNull(collected);
     assertEquals(5, collected.size(), "Should have collected 5 paths");
+
+    visitor.writeSchema(collected);
   }
 
   @Test

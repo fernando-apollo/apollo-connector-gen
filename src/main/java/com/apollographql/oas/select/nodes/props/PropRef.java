@@ -35,17 +35,17 @@ public class PropRef extends Prop {
     return type != null ? type.getSimpleName() : NameUtils.getRefName(getRef());
   }
 
-  @Override
-  public void generate(final Context context, final Writer writer) throws IOException {
-    context.enter(this);
-    trace(context, "-> [prop-ref::generate]", String.format("-> in: %s", this.getSimpleName()));
-
-    getRefType().generate(context, writer);
-//    writer.write(NameUtils.getRefName(getRef()));
-
-    trace(context, "<- [prop-ref::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
-  }
+//  @Override
+//  public void generate(final Context context, final Writer writer) throws IOException {
+//    context.enter(this);
+//    trace(context, "-> [prop-ref::generate]", String.format("-> in: %s", this.getSimpleName()));
+//
+//    getRefType().generate(context, writer);
+////    writer.write(NameUtils.getRefName(getRef()));
+//
+//    trace(context, "<- [prop-ref::generate]", String.format("-> out: %s", this.getSimpleName()));
+//    context.leave(this);
+//  }
 
   @Override
   public void visit(final Context context) {

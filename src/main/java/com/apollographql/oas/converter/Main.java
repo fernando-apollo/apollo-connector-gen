@@ -11,6 +11,9 @@ import java.util.Scanner;
 import java.util.logging.LogManager;
 
 
+/**
+ * @deprecated No longer used.
+ */
 public class Main {
   public static void main(String[] args) throws IOException {
     InputStream configFile = Main.class.getClassLoader().getResourceAsStream("logging.properties");
