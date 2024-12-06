@@ -10,8 +10,11 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.trace;
 import static com.apollographql.oas.select.log.Trace.warn;
@@ -31,14 +34,27 @@ public class Composed extends Type {
   @Override
   public String id() {
     final Schema schema = getSchema();
+    final String refs = getChildren().stream().map(Type::id).collect(Collectors.joining(" + "));
+
     if (schema.getAllOf() != null) {
-      return "allOf://" + getName();
+      return "comp:all-of://" + refs;
     }
-    else if (this.schema.getOneOf() != null) {
-      return "allOf://" + getName();
+    else if (schema.getOneOf() != null) {
+      return "comp:one-of://" + refs;
     }
 
-    return "comp://" + getName();
+    return "comp://" + refs;
+  }
+
+  @Override
+  public Set<Type> dependencies() {
+    final Set<Type> set = new HashSet<>();
+
+    for (Type p : getProps().values()) {
+      set.addAll(p.dependencies());
+    }
+
+    return set;
   }
 
   @Override

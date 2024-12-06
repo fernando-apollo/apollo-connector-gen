@@ -17,7 +17,6 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 import java.io.*;
 import java.util.*;
 import java.util.logging.LogManager;
-import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.trace;
 

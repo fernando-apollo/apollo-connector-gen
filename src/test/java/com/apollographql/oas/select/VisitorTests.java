@@ -175,10 +175,11 @@ public class VisitorTests {
     final Type type = collected.stream().findFirst().get();
 
     final RefCounter counter = new RefCounter();
-    counter.count(type);
+    counter.addAll(collected);
+    printRefs(counter.getCount());
 
-    final Map<String, Integer> values = counter.get();
-    System.out.println("VisitorTests.test_003_testTMF637_ScalarsOnly -- \n" + values);
+    System.out.println(" ----------- schema -------------- ");
+    visitor.writeSchema(collected);
   }
   @Test
   void test_003_testTMF637_Full() throws IOException {
@@ -203,9 +204,20 @@ public class VisitorTests {
     final RefCounter counter = new RefCounter();
     counter.addAll(collected);
 
-    final Map<String, Integer> values = counter.get();
-    System.out.println("VisitorTests.test_003_testTMF637_Full -- \n" + values);
+    System.out.println("VisitorTests.test_003_testTMF637_Full -- \n");
+    final Map<String, Integer> values = counter.getCount();
+    printRefs(values);
+
+    System.out.println("VisitorTests.test_003_testTMF637_Full ----------- schema -------------- \n");
+    visitor.writeSchema(collected);
   }
+
+  private static void printRefs(final Map<String, Integer> values) {
+    System.out.println("----------- ref count -------------- ");
+    values.entrySet().stream()//.filter(e -> e.getKey().startsWith("ref://"))
+      .forEach(e -> System.out.println(e.getKey() + " -> " + e.getValue()));
+  }
+
   private static OpenAPI createParser(String source) {
     final ParseOptions options = new ParseOptions();
     options.setResolve(true); // implicit

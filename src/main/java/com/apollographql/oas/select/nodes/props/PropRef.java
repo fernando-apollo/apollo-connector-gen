@@ -36,6 +36,18 @@ public class PropRef extends Prop {
   }
 
   @Override
+  public void generate(final Context context, final Writer writer) throws IOException {
+    context.enter(this);
+    trace(context, "-> [prop-ref::generate]", String.format("-> in: %s", this.getSimpleName()));
+
+    getRefType().generate(context, writer);
+//    writer.write(NameUtils.getRefName(getRef()));
+
+    trace(context, "<- [prop-ref::generate]", String.format("-> out: %s", this.getSimpleName()));
+    context.leave(this);
+  }
+
+  @Override
   public void visit(final Context context) {
     context.enter(this);
     trace(context, "-> [prop-ref]", "in " + getName() + ", ref: " + getRef());
@@ -51,6 +63,9 @@ public class PropRef extends Prop {
 
       type.setName(getRef());
       type.visit(context);
+    }
+    else {
+      this.refType = cached;
     }
 
     trace(context, "<- [prop-ref]", "out " + getName() + ", ref: " + getRef());

@@ -15,6 +15,11 @@ public class Scalar extends Type {
   }
 
   @Override
+  public String id() {
+    return "scalar://" + name;
+  }
+
+  @Override
   public void visit(final Context context) {
     // do nothing - scalars don't visit others
   }

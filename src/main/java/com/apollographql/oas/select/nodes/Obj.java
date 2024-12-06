@@ -9,10 +9,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.*;
@@ -32,7 +29,7 @@ public class Obj extends Type {
 
   @Override
   public String id() {
-    return "obj://" + getName();
+    return "obj://" + (getName() != null ? getName() : "[anonymous:" + hashCode() + "] <- " + getParent().getName());
   }
 
   @Override
@@ -57,6 +54,17 @@ public class Obj extends Type {
 
     trace(context, "<- [obj]", "out " + getName());
     context.leave(this);
+  }
+
+  @Override
+  public Set<Type> dependencies() {
+    final Set<Type> set = new HashSet<>();
+
+    for (Type p : getProps().values()) {
+      set.addAll(p.dependencies());
+    }
+
+    return set;
   }
 
   @Override
@@ -143,6 +151,10 @@ public class Obj extends Type {
 
         // add property to our dependencies
         getProps().put(propertyName, prop);
+
+        if (!this.getChildren().contains(prop)) {
+          this.add(prop);
+        }
       }
     }
 
@@ -151,5 +163,19 @@ public class Obj extends Type {
     }
 
     trace(context, "<- [obj::props]", "out props " + getProps().size());
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    final Obj obj = (Obj) o;
+    return Objects.equals(schema, obj.schema);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), schema);
   }
 }

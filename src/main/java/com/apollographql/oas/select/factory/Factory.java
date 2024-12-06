@@ -90,8 +90,6 @@ public class Factory {
       prop = new PropScalar(parent, propertyName, "JSON", propertySchema);
     }
 
-    parent.add(prop);
-
     return prop;
   }
 
@@ -112,6 +110,7 @@ public class Factory {
 
   public static Type fromUnion(final Context context, final Type parent, final List<Schema> oneOfs) {
     final Union union = new Union(parent, parent.getSimpleName(), oneOfs);
+    parent.add(union);
 
 //    for (final Schema<?> allOf : oneOfs) {
 //      final String refName = allOf.get$ref();

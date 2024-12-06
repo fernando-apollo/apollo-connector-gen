@@ -83,7 +83,6 @@ public class Ref extends Type {
   public String toString() {
     return "Ref {" +
       "name='" + name + '\'' +
-      ", ref=" + getRef() +
       ", children=" + children.size() +
       ", props=" + props.size() +
       '}';

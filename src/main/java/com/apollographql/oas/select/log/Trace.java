@@ -10,7 +10,7 @@ public class Trace {
   private static final Logger logger = Logger.getLogger(Trace.class.getName());
 
   public static void trace(final Context ctx, final String context, final String message) {
-    logger.log(FINE, " ".repeat(ctx.size()) + context + " " + message);
+    logger.log(FINE, " ".repeat(ctx != null ? ctx.size() : 0) + context + " " + message);
   }
 
   public static String indent(final Context context) {
@@ -18,6 +18,6 @@ public class Trace {
   }
 
   public static void warn(final Context ctx, final String context, final String message) {
-    logger.log(FINE, " ".repeat(ctx.size()) + context + " " + message);
+    logger.log(FINE, " ".repeat(ctx != null ? ctx.size() : 0) + context + " " + message);
   }
 }

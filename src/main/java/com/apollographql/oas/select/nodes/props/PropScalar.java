@@ -7,6 +7,8 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.Set;
 
 import static com.apollographql.oas.converter.utils.Trace.print;
 import static com.apollographql.oas.select.log.Trace.trace;
@@ -17,6 +19,11 @@ public class PropScalar extends Prop {
   public PropScalar(final Type parent, final String name, final String type, final Schema schema) {
     super(parent, name, schema);
     this.type = type;
+  }
+
+  @Override
+  public String id() {
+    return "prop:scalar://" + getName();
   }
 
   @Override
@@ -56,5 +63,10 @@ public class PropScalar extends Prop {
 
   public String forPrompt(final Context context) {
     return getName() + ": " + getValue(context);
+  }
+
+  @Override
+  public Set<Type> dependencies() {
+    return Collections.emptySet();
   }
 }

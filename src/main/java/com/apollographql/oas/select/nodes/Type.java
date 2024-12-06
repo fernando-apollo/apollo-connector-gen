@@ -1,5 +1,6 @@
 package com.apollographql.oas.select.nodes;
 
+import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.nodes.props.Prop;
@@ -7,6 +8,8 @@ import com.apollographql.oas.select.nodes.props.Prop;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
+
+import static com.apollographql.oas.select.log.Trace.trace;
 
 public abstract class Type {
   protected String name;
@@ -63,7 +66,7 @@ public abstract class Type {
 
   @Override
   public String toString() {
-    return "Type {" +
+    return getClass().getSimpleName() + " {" +
       "name='" + name + '\'' +
       ", children=" + children.size() +
       ", props=" + props.size() +
@@ -91,16 +94,17 @@ public abstract class Type {
     return getSimpleName() + " (" + getClass().getSimpleName() + ")";
   }
 
-//  protected void addProperties(Map<String, Schema> properties) {
-//    for (var property : properties.entrySet()) {
-//      final String propertyName = property.getKey();
-//      final Schema propertySchema = property.getValue();
-//
-//      final Prop prop = createProp(propertyName, propertySchema);
-//      if (prop != null) {
-//        getProps().put(propertyName, prop);
-//      }
-//    }
-//  }
+  public Set<Type> dependencies() {
+    trace(null,  "-> [" + id() + "::dependencies]", String.format("-> in: %s", this.getName()));
+    final Set<Type> set = new HashSet<>(getChildren());
+
+    // by default dependencies will be children, except in objects and composed types
+    for (Type t : getChildren()) {
+      set.addAll(t.dependencies());
+    }
+
+    trace(null,  "<- [" + id() + "::dependencies]", "found '" + set.size() + "' dependencies");
+    return set;
+  }
 
 }
