@@ -2,10 +2,10 @@ package com.apollographql.oas.select;
 
 import com.apollographql.oas.converter.Main;
 import com.apollographql.oas.select.context.Context;
+import com.apollographql.oas.select.context.RefCounter;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.GetOp;
 import com.apollographql.oas.select.nodes.Type;
-import com.apollographql.oas.select.prompt.Input;
 import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -15,7 +15,10 @@ import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 
 import java.io.*;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.LogManager;
 
 import static com.apollographql.oas.select.log.Trace.trace;
@@ -42,32 +45,42 @@ public class Visitor {
     // Load the configuration
     LogManager.getLogManager().readConfiguration(configFile);
 
-    final Input recorder = Prompt.Factory.recorder();
-    Prompt.get(recorder);
-
     final ParseOptions options = new ParseOptions();
     options.setResolve(true); // implicit
     options.setResolveCombinators(false); // default is true
 
     final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
-    final String source = String.format("%s/sample-oas/petstore.yaml", baseURL);
-//    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+//    final String source = String.format("%s/sample-oas/petstore.yaml", baseURL);
+    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
 
     if (!new File(source).exists()) {
       throw new FileNotFoundException("Source not found: " + source);
     }
+
+//    final Input recorder = Prompt.Factory.recorder();
+//    Prompt.get(recorder);
+//    Prompt.get(Prompt.Factory.yes());
+//    Prompt.get(Prompt.Factory.player(Recordings.TMF633_IntentOrValue_UNION));
+    Prompt.get(Prompt.Factory.player(Recordings.TMF633_RefAndUnion));
 
     final OpenAPI parser = new OpenAPIV3Parser().read(source, null, options);
     final Visitor visitor = new Visitor(parser);
 
     final Set<Type> collected = visitor.visit();
 
+    System.out.println("---------------- ref counter ----------------------");
+//    visitor.writeSchema(collected);
+
+    final RefCounter counter = new RefCounter();
+    counter.addAll(collected);
+    printRefs(counter.getCount());
+
+//    System.out.println("---------------- recorder ----------------------");
+//    final Map<String, String> recorded = ((Prompt.Recorder) recorder).getRecords();
+//    recorded.forEach((key, value) -> System.out.println("\"" + value + "\", /* " + key + " */"));
+
     System.out.println("---------------- schema ----------------------");
     visitor.writeSchema(collected);
-
-    System.out.println("---------------- recorder ----------------------");
-    final Map<String, String> recorded = ((Prompt.Recorder) recorder).getRecords();
-    recorded.forEach((key, value) -> System.out.println("\"" + value + "\", /* " + key + " */"));
   }
 
   public Set<Type> visit() throws IOException {
@@ -105,6 +118,7 @@ public class Visitor {
 
   public void writeSchema(final Set<Type> collected) throws IOException {
     final Set<String> generatedSet = context.getGeneratedSet();
+    generatedSet.clear();
 
     final StringWriter writer = new StringWriter();
     writeDirectives(writer);
@@ -191,5 +205,11 @@ public class Visitor {
       .append("  )\n")
       .append("  @source(name: \"api\", http: { baseURL: \"http://localhost:4010\" })\n\n");
   }
-}
 
+  private static void printRefs(final Map<String, Integer> values) {
+    System.out.println("----------- ref count -------------- ");
+    values.entrySet().stream()//.filter(e -> e.getKey().startsWith("ref://"))
+      .forEach(e -> System.out.println(e.getKey() + " -> " + e.getValue()));
+  }
+
+}

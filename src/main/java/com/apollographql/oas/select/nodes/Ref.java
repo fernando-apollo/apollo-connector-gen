@@ -3,10 +3,12 @@ package com.apollographql.oas.select.nodes;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
+import com.apollographql.oas.select.nodes.props.Prop;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map;
 
 import static com.apollographql.oas.select.log.Trace.trace;
 
@@ -77,6 +79,11 @@ public class Ref extends Type {
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
     context.leave(this);
+  }
+
+  @Override
+  public Map<String, Prop> getProps() {
+    return getRefType().getProps();
   }
 
   @Override

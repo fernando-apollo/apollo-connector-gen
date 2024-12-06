@@ -41,6 +41,9 @@ public class Union extends Type {
       type.visit(context);
     }
 
+    // store the union for generation
+    context.store(getName(), this);
+
     trace(context, "<- [union]", "out: " + getSchemas().stream().map(Schema::get$ref).toList());
     context.leave(this);
   }

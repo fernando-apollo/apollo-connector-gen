@@ -69,6 +69,10 @@ public class Obj extends Type {
 
   @Override
   public void generate(final Context context, final Writer writer) throws IOException {
+    if (getProps().isEmpty()) {
+      return;
+    }
+
     context.enter(this);
     trace(context, "-> [obj::generate]", String.format("-> in: %s", this.getName()));
 

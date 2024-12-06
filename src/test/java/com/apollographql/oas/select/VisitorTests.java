@@ -190,11 +190,6 @@ public class VisitorTests {
     final OpenAPI parser = createParser(source);
     assertNotNull(parser);
 
-//    String[] record = new String[]{ "n", "y", "y", "y", "n", "n", "n", "y",
-//      "y", "n", "y", "y", "y", "y", "n", "n", "n", "n", "n", "n", "n", "y",
-//      "n", "n", "n", "n", "n", "y", "n", "y"
-//    };
-
     Prompt.get(Prompt.Factory.yes());
 
     final Visitor visitor = new Visitor(parser);

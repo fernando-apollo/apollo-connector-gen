@@ -3,8 +3,10 @@ package com.apollographql.oas.select.nodes.props;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
+import com.apollographql.oas.select.nodes.Composed;
 import com.apollographql.oas.select.nodes.Obj;
 import com.apollographql.oas.select.nodes.Type;
+import com.apollographql.oas.select.nodes.Union;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
@@ -98,7 +100,7 @@ public class PropRef extends Prop {
   }
 
   private boolean needsBrackets(Type child) {
-    return child instanceof Obj;
+    return child instanceof Obj || child instanceof Union || child instanceof Composed;
   }
 
   public String forPrompt(final Context context) {

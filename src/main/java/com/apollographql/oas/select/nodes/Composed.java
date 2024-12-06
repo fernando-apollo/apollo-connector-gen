@@ -10,10 +10,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.trace;
@@ -59,6 +56,10 @@ public class Composed extends Type {
 
   @Override
   public void generate(final Context context, final Writer writer) throws IOException {
+    if (getProps().isEmpty()) {
+      return;
+    }
+
     context.enter(this);
     trace(context, "-> [obj::generate]", String.format("-> in: %s", this.getName()));
 
@@ -80,17 +81,25 @@ public class Composed extends Type {
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
     if (context.getStack().contains(this)) {
-      warn(context, "[obj::select]", "Possible recursion! Stack should not already contain " + this);
+      warn(context, "[comp::select]", "Possible recursion! Stack should not already contain " + this);
       return;
     }
     context.enter(this);
-    trace(context, "-> [ref::select]", String.format("-> in: %s", this.getSimpleName()));
+    trace(context, "-> [comp::select]", String.format("-> in: %s", this.getSimpleName()));
 
-    for (Prop prop : this.getProps().values()) {
-      prop.select(context, writer);
+    final Schema schema = getSchema();
+
+    if (schema.getAllOf() != null) {
+      for (Prop prop : getProps().values()) {
+        prop.select(context, writer);
+      }
+    }
+    else if (schema.getOneOf() != null) {
+      assert getChildren().size() == 1;
+      getChildren().get(0).select(context, writer);
     }
 
-    trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
+    trace(context, "<- [comp::select]", String.format("-> out: %s", this.getSimpleName()));
     context.leave(this);
   }
 
@@ -124,8 +133,6 @@ public class Composed extends Type {
   /* we are collecting all nodes to combine them into a single object -- therefore we must 'silence' the prompt for
    * now until all types are collected and we can retrieve all the properties.  */
   private void visitAllOfNode(final Context context, final ComposedSchema schema) {
-//    Prompt.get().mute(true, this);
-
     final List<Schema> allOfs = schema.getAllOf();
     final List<String> refs = allOfs.stream().map(Schema::get$ref).toList();
 
@@ -144,15 +151,11 @@ public class Composed extends Type {
     }
 
     // we have collected the children, now we need to combine all properties
-    collectProperties(this, getProps());
-
-    // critical: we MUST turn the prompt back on
-//    Prompt.get().mute(false, this);
-
+//    collectProperties(this, getProps());
     trace(context, "<- [composed::all-of]", "out: " + String.format("'%s' of: %d - refs: %s", name, allOfs.size(), refs));
   }
 
-  private void visitOneOfNode(final Context context, final ComposedSchema schema) {
+  private Type visitOneOfNode(final Context context, final ComposedSchema schema) {
     final var oneOfs = schema.getOneOf();
     trace(context, "-> [composed::one-of]", "in: " + String.format("OneOf %s with size: %d", name, oneOfs.size()));
 
@@ -161,6 +164,20 @@ public class Composed extends Type {
     result.visit(context);
 
     trace(context, "<- [composed::one-of]", "out: " + String.format("OneOf %s with size: %d", name, oneOfs.size()));
+    return result;
+  }
+
+
+  @Override
+  public Map<String, Prop> getProps() {
+    Map<String, Prop> collected = new LinkedHashMap<>();
+
+    for (Type child : getChildren()) {
+      collected.putAll(child.getProps());
+      collectProperties(child, collected);
+    }
+
+    return collected;
   }
 
   private void collectProperties(final Type node, final Map<String, Prop> props) {
