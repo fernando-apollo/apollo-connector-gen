@@ -90,6 +90,8 @@ public class Factory {
       prop = new PropScalar(parent, propertyName, "JSON", propertySchema);
     }
 
+    parent.add(prop);
+
     return prop;
   }
 

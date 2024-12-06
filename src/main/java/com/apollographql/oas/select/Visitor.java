@@ -81,7 +81,6 @@ public class Visitor {
       .stream().filter(entry -> entry.getValue().getGet() != null)
       .sorted((o1, o2) -> o1.getKey().compareToIgnoreCase(o2.getKey()))
       .toList();
-//      .collect(Collectors.toSet());
 
     final Set<Type> collected = new LinkedHashSet<>();
 

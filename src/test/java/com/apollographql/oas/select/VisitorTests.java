@@ -1,6 +1,7 @@
 package com.apollographql.oas.select;
 
 import com.apollographql.oas.converter.Main;
+import com.apollographql.oas.select.context.RefCounter;
 import com.apollographql.oas.select.nodes.Obj;
 import com.apollographql.oas.select.nodes.Type;
 import com.apollographql.oas.select.prompt.Prompt;
@@ -170,7 +171,40 @@ public class VisitorTests {
     final Set<Type> collected = visitor.visit();
     assertNotNull(collected);
 
-    visitor.writeSchema(collected);
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    final RefCounter counter = new RefCounter();
+    counter.count(type);
+
+    final Map<String, Integer> values = counter.get();
+    System.out.println("VisitorTests.test_003_testTMF637_ScalarsOnly -- \n" + values);
+  }
+  @Test
+  void test_003_testTMF637_Full() throws IOException {
+    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+
+    final OpenAPI parser = createParser(source);
+    assertNotNull(parser);
+
+//    String[] record = new String[]{ "n", "y", "y", "y", "n", "n", "n", "y",
+//      "y", "n", "y", "y", "y", "y", "n", "n", "n", "n", "n", "n", "n", "y",
+//      "n", "n", "n", "n", "n", "y", "n", "y"
+//    };
+
+    Prompt.get(Prompt.Factory.yes());
+
+    final Visitor visitor = new Visitor(parser);
+    final Set<Type> collected = visitor.visit();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+
+    final RefCounter counter = new RefCounter();
+    counter.addAll(collected);
+
+    final Map<String, Integer> values = counter.get();
+    System.out.println("VisitorTests.test_003_testTMF637_Full -- \n" + values);
   }
   private static OpenAPI createParser(String source) {
     final ParseOptions options = new ParseOptions();

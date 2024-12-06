@@ -28,6 +28,18 @@ public class Composed extends Type {
     return schema;
   }
 
+  @Override
+  public String id() {
+    final Schema schema = getSchema();
+    if (schema.getAllOf() != null) {
+      return "allOf://" + getName();
+    }
+    else if (this.schema.getOneOf() != null) {
+      return "allOf://" + getName();
+    }
+
+    return "comp://" + getName();
+  }
 
   @Override
   public void generate(final Context context, final Writer writer) throws IOException {

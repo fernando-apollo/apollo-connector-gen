@@ -27,6 +27,11 @@ public class Array extends Type {
   }
 
   @Override
+  public String id() {
+    return "array://" + getItemsType().getName();
+  }
+
+  @Override
   public void visit(final Context context) {
     context.enter(this);
     trace(context,"-> [array]", "in");

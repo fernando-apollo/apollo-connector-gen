@@ -11,13 +11,17 @@ import java.util.*;
 public abstract class Type {
   protected String name;
   protected List<Type> children = new LinkedList<>();
-  private Type parent;
+  private final Type parent;
 
   protected Map<String, Prop> props = new LinkedHashMap<>();
 
   public Type(final Type parent, final String name) {
     this.parent = parent;
     this.name = name;
+  }
+
+  public String id() {
+    return getName();
   }
 
   public abstract void visit(Context context);
@@ -31,8 +35,9 @@ public abstract class Type {
   }
 
   public void add(Type child) {
-    if (getChildren().contains(child)) throw new IllegalArgumentException("Should not be adding this twice!");
-
+    if (getChildren().contains(child)) {
+      throw new IllegalArgumentException("Should not be adding this twice! in " + getName());
+    }
     this.children.add(child);
   }
 

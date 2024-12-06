@@ -9,14 +9,13 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.apollographql.oas.select.log.Trace.indent;
-import static com.apollographql.oas.select.log.Trace.trace;
-import static com.apollographql.oas.select.log.Trace.warn;
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.WARNING;
+import static com.apollographql.oas.select.log.Trace.*;
 
 public class Obj extends Type {
 
@@ -29,6 +28,19 @@ public class Obj extends Type {
 
   public Schema getSchema() {
     return schema;
+  }
+
+  @Override
+  public String id() {
+    return "obj://" + getName();
+  }
+
+  @Override
+  public void add(final Type child) {
+    if (getChildren().contains(child)) {
+      throw new IllegalArgumentException("Should not be adding this twice! in " + getName());
+    }
+    super.add(child);
   }
 
   @Override

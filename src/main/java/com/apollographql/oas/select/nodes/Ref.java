@@ -28,6 +28,11 @@ public class Ref extends Type {
   }
 
   @Override
+  public String id() {
+    return "ref://" + getRef();
+  }
+
+  @Override
   public void visit(final Context context) {
     context.enter(this);
     trace(context, "-> [ref]", "in: " + getRef());

@@ -61,6 +61,11 @@ public class GetOp extends Type {
   }
 
   @Override
+  public String id() {
+    return "get://" + getName();
+  }
+
+  @Override
   public void visit(final Context context) {
     context.enter(this);
     trace(context, "-> [get]", "in " + getName());
