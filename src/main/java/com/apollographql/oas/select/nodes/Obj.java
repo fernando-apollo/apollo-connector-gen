@@ -46,7 +46,7 @@ public class Obj extends Type {
     context.enter(this);
     trace(context, "-> [obj]", "in " + getName());
 
-    if (context.notComposing(this))
+    if (!context.inComposeContext(this))
       print(context, "In object: " + (getName() != null ? getName() : getOwner()));
 
     // we don't store Anonymous objects
@@ -153,17 +153,18 @@ public class Obj extends Type {
       owner = getParent().getSimpleName();
     }
 
-    final char addAll = Prompt
+    final boolean inCompose = context.inComposeContext(this);
+    trace(context, "   [obj::props]", getSimpleName() + " is within compose context");
+
+    final char addAll = inCompose ? 'y' : Prompt
       .get()
       .yesNoSelect(" -> Add all properties from " + owner + "?: \n - " + propertiesNames + "\n");
-
 
     /* we should only prompt for properties if:
      * 1. we are NOT a comp://all-of
      * 2. the comp://all-of contains our name (i.e: #/component/schemas/Extensible
      */
-
-    if (addAll == 'y' || addAll == 's') {
+    if ((addAll == 'y' || addAll == 's')) {
       for (final Map.Entry<String, Schema> entry : sorted) {
         final String propertyName = entry.getKey();
         final Schema propertySchema = entry.getValue();
@@ -183,6 +184,7 @@ public class Obj extends Type {
       }
     }
 
+    // DO NOT ADD THIS
 //    for (final Prop prop : getProps().values()) {
 //      prop.visit(context);
 //    }

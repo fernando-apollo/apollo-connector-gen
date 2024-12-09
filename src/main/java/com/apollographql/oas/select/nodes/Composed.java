@@ -108,8 +108,8 @@ public class Composed extends Type {
     context.enter(this);
     trace(context, "-> [composed]", "in: " + (getName() == null ? "[object]" : getName()));
 
-    if (context.notComposing(this))
-      print(context, "In composed schema: " + getName());
+    if (!context.inComposeContext(this))
+      print(null, "In composed schema: " + getName());
 
     final ComposedSchema schema = (ComposedSchema) getSchema();
     if (schema.getAllOf() != null) {
@@ -147,6 +147,7 @@ public class Composed extends Type {
 
     trace(context, "-> [composed::all-of]", "in: " + String.format("'%s' of: %d - refs: %s", name, allOfs.size(), refs));
 
+    final Map<String, Prop> collected = new LinkedHashMap<>();
     for (int i = 0; i < allOfs.size(); i++) {
       final Schema allOfItemSchema = allOfs.get(i);
 
@@ -156,8 +157,42 @@ public class Composed extends Type {
       // we are visiting all the tree -- then we'll let them choose which properties they want to add
       type.visit(context);
 
-      getProps().putAll(type.getProps());
+      collected.putAll(type.getProps());
       trace(context, "   [composed::all-of]", "allOf type: " + type);
+    }
+
+    final boolean inCompose = context.inComposeContext(this);
+    if (inCompose) {
+      getProps().putAll(collected);
+    }
+    else {
+
+      final String propertiesNames = String.join(",\n - ",
+        collected.values().stream().map(Type::getName).toList());
+
+      final char addAll = Prompt
+        .get()
+        .yesNoSelect(" -> Add all properties from " + getName() + "?: \n - " + propertiesNames + "\n");
+
+      /* we should only prompt for properties if:
+       * 1. we are NOT a comp://all-of
+       * 2. the comp://all-of contains our name (i.e: #/component/schemas/Extensible
+       */
+      if ((addAll == 'y' || addAll == 's')) {
+        for (final Map.Entry<String, Prop> entry : collected.entrySet()) {
+          final Prop prop = entry.getValue();
+          if (addAll == 'y' || Prompt.get().yesNo("Add field '" + prop.forPrompt(context) + "'?")) {
+            trace(context, "   [obj::props]", "prop: " + prop);
+
+            // add property to our dependencies
+            getProps().put(prop.getName(), prop);
+
+            if (!this.getChildren().contains(prop)) {
+              this.add(prop);
+            }
+          }
+        }
+      }
     }
 
     // we'll store it first, it might avoid recursion

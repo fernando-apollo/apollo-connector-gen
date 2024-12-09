@@ -47,13 +47,13 @@ public class Ref extends Type {
       final Type type = Factory.fromSchema(context, this, schema);
       assert type != null;
       this.refType = type;
-
-      type.setName(getRef());
-      type.visit(context);
     }
     else {
       this.refType = cached;
     }
+
+    this.refType.setName(getRef());
+    this.refType.visit(context);
 
     trace(context, "<- [ref]", "out: " + getRef());
     context.leave(this);

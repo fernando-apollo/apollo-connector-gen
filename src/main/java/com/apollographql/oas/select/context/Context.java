@@ -86,6 +86,10 @@ public class Context {
   }
 
   public Type get(final String name) {
+    if (this.types.containsKey(name)) {
+      trace(this, "[context::inc]", "cached => " + name);
+    }
+
     return this.types.get(name);
   }
 
@@ -111,24 +115,24 @@ public class Context {
     return this.pendingList;
   }
 
-  public boolean notComposing(final Type current) {
+  public boolean inComposeContext(final Type current) {
     final Stack<Type> stack = getStack();
     final int indexOf = stack.indexOf(current);
 
     if (indexOf > -1) {
       if ((indexOf - 1) == 0) {
-        return true;
+        return false;
       }
 
       int walkIndex = (indexOf - 1);
       while (walkIndex > -1) {
         if (stack.get(walkIndex) instanceof Composed) {
-          return false;
+          return true;
         }
         walkIndex -= 1;
       }
     }
 
-    return true;
+    return false;
   }
 }
