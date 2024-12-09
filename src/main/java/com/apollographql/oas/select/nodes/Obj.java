@@ -17,6 +17,7 @@ import static com.apollographql.oas.select.log.Trace.*;
 public class Obj extends Type {
 
   private final Schema schema;
+  private boolean visited;
 
   public Obj(final Type parent, final String name, final Schema schema) {
     super(parent, name);
@@ -45,15 +46,32 @@ public class Obj extends Type {
     context.enter(this);
     trace(context, "-> [obj]", "in " + getName());
 
-    visitProperties(context);
 
     // we don't store Anonymous objects
-    if (getName() != null) {
+    if (!inComposed(this)) {
+      visitProperties(context);
       context.store(getName(), this);
+    }
+    else {
+      collectProperties(context, true);
     }
 
     trace(context, "<- [obj]", "out " + getName());
     context.leave(this);
+  }
+
+  public static boolean inComposed(Type current) {
+    Type parent = current;
+    do {
+      parent = parent.getParent();
+    }
+    while (parent != null && !(parent instanceof Composed));
+
+    if (parent != null) {
+      trace(null, " [obj::in-composed]", "in composed " + parent.id());
+    }
+
+    return parent != null;
   }
 
   @Override
@@ -144,6 +162,12 @@ public class Obj extends Type {
 
     final boolean addAll = Prompt.get().prompt("Add all properties from " + owner + "?: \n - " + propertiesNames + "\n");
 
+
+    /* we should only prompt for properties if:
+     * 1. we are NOT a comp://all-of
+     * 2. the comp://all-of contains our name (i.e: #/component/schemas/Extensible
+     */
+
     for (final Map.Entry<String, Schema> entry : sorted) {
       final String propertyName = entry.getKey();
       final Schema propertySchema = entry.getValue();
@@ -167,6 +191,31 @@ public class Obj extends Type {
     }
 
     trace(context, "<- [obj::props]", "out props " + getProps().size());
+  }
+
+  private void collectProperties(final Context context, boolean visitProperties) {
+    final Map<String, Schema> properties = schema.getProperties();
+    trace(context, "-> [obj::props]", "in props " + (properties.isEmpty() ? "0" : properties.size()));
+
+    if (properties.isEmpty()) {
+      trace(context, "<- [obj::props]", "no props " + getProps().size());
+      return;
+    }
+
+    properties.entrySet().stream()
+      .map(e -> Factory.fromProperty(this, e.getKey(), e.getValue()))
+      .forEach(prop -> {
+        getProps().put(prop.getName(), prop);
+        if (!getChildren().contains(prop)) {
+          add(prop);
+        }
+      });
+
+    if (visitProperties) {
+      for (final Prop prop : getProps().values()) {
+        prop.visit(context);
+      }
+    }
   }
 
   @Override

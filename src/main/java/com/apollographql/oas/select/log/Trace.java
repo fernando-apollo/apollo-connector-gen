@@ -5,6 +5,7 @@ import com.apollographql.oas.select.context.Context;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.WARNING;
 
 public class Trace {
   private static final Logger logger = Logger.getLogger(Trace.class.getName());
@@ -18,6 +19,7 @@ public class Trace {
   }
 
   public static void warn(final Context ctx, final String context, final String message) {
-    logger.log(FINE, " ".repeat(ctx != null ? ctx.size() : 0) + context + " " + message);
+//    logger.log(WARNING, " ".repeat(ctx != null ? ctx.size() : 0) + context + " " + message);
+    logger.log(WARNING, context + " " + message);
   }
 }

@@ -183,6 +183,38 @@ public class VisitorTests {
     System.out.println(" ----------- schema -------------- ");
     visitor.writeSchema(collected);
   }
+
+  @Test
+  void test_TMF633_IntentOrValue_to_Union() throws IOException {
+    InputStream input = VisitorTests.class.getClassLoader()
+      .getResourceAsStream("TMF633_IntentOrValue_to_Union.txt");
+    assertNotNull(input);
+
+    final String[] recording = Recordings.fromInputStream(input);
+    assertNotNull(recording);
+    assertTrue(recording.length > 0);
+
+    Prompt.get(Prompt.Factory.player(recording));
+
+    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+    final OpenAPI parser = createParser(source);
+    assertNotNull(parser);
+
+    final Visitor visitor = new Visitor(parser);
+    final Set<Type> collected = visitor.visit();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    final RefCounter counter = new RefCounter();
+    counter.addAll(collected);
+    printRefs(counter.getCount());
+
+    System.out.println(" ----------- schema -------------- ");
+    visitor.writeSchema(collected);
+  }
+
   @Test
   void test_003_testTMF637_Full() throws IOException {
     final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);

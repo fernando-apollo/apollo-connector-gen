@@ -44,13 +44,15 @@ public class Context {
 
   public void enter(final Type type) {
     if (this.stack.contains((type))) {
-      warn(this, "[context]", "Possible recursion? We have entered this type more than once! " + type.id());
+      warn(this, "[context]", "Possible recursion? We have entered this type more than once! " + Type.getRootPathFor(type));
     }
 
+    trace(this, ">>> [context::enter]", type.id());
     this.stack.push(type);
   }
 
   public void leave(final Type type) {
+    trace(this, "<<< [context::enter]", type.id());
     this.stack.pop();
   }
 

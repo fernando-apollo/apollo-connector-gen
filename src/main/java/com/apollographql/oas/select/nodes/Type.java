@@ -107,4 +107,20 @@ public abstract class Type {
     return set;
   }
 
+  public static String getRootPathFor(Type type) {
+    StringBuilder builder = new StringBuilder();
+    Type current = type;
+    int indent = 0;
+    do {
+      builder.append(" <- ")
+        .append(" ".repeat(indent++))
+        .append(current.id())
+        .append(" (")
+        .append(current.getClass().getSimpleName())
+        .append(")\n");
+    }
+    while ((current = current.getParent()) != null);
+
+    return builder.toString();
+  }
 }

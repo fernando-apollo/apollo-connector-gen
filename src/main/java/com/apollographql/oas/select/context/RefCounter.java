@@ -24,11 +24,11 @@ public class RefCounter {
 
     Integer value = count.get(type.id());
     if (value != null) {
-      System.out.println("[inc] " + type.id());
+//      System.out.println("[inc] " + type.id());
       count.put(type.id(), ++value);
     }
     else {
-      System.out.println("[put] " + type.id());
+//      System.out.println("[put] " + type.id());
       count.put(type.id(), 1);
     }
   }
@@ -43,17 +43,6 @@ public class RefCounter {
 
   public Map<String, Integer> getCount() {
     return this.count;
-  }
-
-  String getTree(Type type) {
-    StringBuilder builder = new StringBuilder();
-    Type current = type;
-    do {
-      builder.append(" <- " + current.id() + " (" + current.getClass().getSimpleName() + ")");
-    }
-    while ((current = current.getParent()) != null);
-
-    return builder.toString();
   }
 
   public void addAll(final Collection<Type> types) {

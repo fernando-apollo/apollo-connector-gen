@@ -6,6 +6,7 @@ import com.apollographql.oas.select.context.RefCounter;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.GetOp;
 import com.apollographql.oas.select.nodes.Type;
+import com.apollographql.oas.select.prompt.Input;
 import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -51,33 +52,31 @@ public class Visitor {
 
     final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
 //    final String source = String.format("%s/sample-oas/petstore.yaml", baseURL);
-    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+//    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+    final String source = String.format("%s/tmf-specs/TMF637-001-ComposedTest.yaml", baseURL);
 
     if (!new File(source).exists()) {
       throw new FileNotFoundException("Source not found: " + source);
     }
 
-//    final Input recorder = Prompt.Factory.recorder();
-//    Prompt.get(recorder);
+    final Input recorder = Prompt.Factory.recorder();
+    Prompt.get(recorder);
 //    Prompt.get(Prompt.Factory.yes());
 //    Prompt.get(Prompt.Factory.player(Recordings.TMF633_IntentOrValue_UNION));
-    Prompt.get(Prompt.Factory.player(Recordings.TMF633_RefAndUnion));
+//    Prompt.get(Prompt.Factory.player(Recordings.TMF633_RefAndUnion));
 
     final OpenAPI parser = new OpenAPIV3Parser().read(source, null, options);
     final Visitor visitor = new Visitor(parser);
 
     final Set<Type> collected = visitor.visit();
 
-    System.out.println("---------------- ref counter ----------------------");
-//    visitor.writeSchema(collected);
-
     final RefCounter counter = new RefCounter();
     counter.addAll(collected);
     printRefs(counter.getCount());
 
-//    System.out.println("---------------- recorder ----------------------");
-//    final Map<String, String> recorded = ((Prompt.Recorder) recorder).getRecords();
-//    recorded.forEach((key, value) -> System.out.println("\"" + value + "\", /* " + key + " */"));
+    System.out.println("---------------- recorder ----------------------");
+    final Map<String, String> recorded = ((Prompt.Recorder) recorder).getRecords();
+    recorded.forEach((key, value) -> System.out.println("\"" + value + "\", /* " + key + " */"));
 
     System.out.println("---------------- schema ----------------------");
     visitor.writeSchema(collected);
@@ -117,6 +116,9 @@ public class Visitor {
   }
 
   public void writeSchema(final Set<Type> collected) throws IOException {
+    final RefCounter counter = new RefCounter();
+    counter.addAll(collected);
+
     final Set<String> generatedSet = context.getGeneratedSet();
     generatedSet.clear();
 
@@ -125,8 +127,10 @@ public class Visitor {
 
     // 1. generated collected types
     for (final Type type : context.getTypes().values()) {
-      type.generate(context, writer);
-      generatedSet.add(type.getName());
+      if (counter.getCount().containsKey(type.id())) {
+        type.generate(context, writer);
+        generatedSet.add(type.getName());
+      }
     }
 
     // 2. now operations

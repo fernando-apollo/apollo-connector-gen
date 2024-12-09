@@ -4,7 +4,6 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.props.Prop;
-import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -108,12 +107,7 @@ public class Composed extends Type {
     context.enter(this);
     trace(context, "-> [composed]", "in: " + (getName() == null ? "[object]" : getName()));
 
-    // we'll store it first, it might avoid recursion
-    trace(context, "-> [composed]", "storing: " + getName() + " with: " + this);
-    context.store(getName(), this);
-
     final ComposedSchema schema = (ComposedSchema) getSchema();
-
     if (schema.getAllOf() != null) {
       // this translates to a type with all the properties of the allOf schemas
       visitAllOfNode(context, schema);
@@ -147,11 +141,17 @@ public class Composed extends Type {
       // we are visiting all the tree -- then we'll let them choose which properties they want to add
       type.visit(context);
 
+      this.getProps().putAll(type.getProps());
+
       trace(context, "   [composed::all-of]", "allOf type: " + type);
     }
 
     // we have collected the children, now we need to combine all properties
 //    collectProperties(this, getProps());
+    // we'll store it first, it might avoid recursion
+    trace(context, "-> [composed]", "storing: " + getName() + " with: " + this);
+    context.store(getName(), this);
+
     trace(context, "<- [composed::all-of]", "out: " + String.format("'%s' of: %d - refs: %s", name, allOfs.size(), refs));
   }
 
@@ -163,27 +163,10 @@ public class Composed extends Type {
     assert result != null;
     result.visit(context);
 
+    trace(context, "-> [composed::one-of]", "storing: " + getName() + " with: " + this);
+    context.store(getName(), this);
+
     trace(context, "<- [composed::one-of]", "out: " + String.format("OneOf %s with size: %d", name, oneOfs.size()));
     return result;
-  }
-
-
-  @Override
-  public Map<String, Prop> getProps() {
-    Map<String, Prop> collected = new LinkedHashMap<>();
-
-    for (Type child : getChildren()) {
-      collected.putAll(child.getProps());
-      collectProperties(child, collected);
-    }
-
-    return collected;
-  }
-
-  private void collectProperties(final Type node, final Map<String, Prop> props) {
-    for (Type child : node.getChildren()) {
-      props.putAll(child.getProps());
-      collectProperties(child, props);
-    }
   }
 }
