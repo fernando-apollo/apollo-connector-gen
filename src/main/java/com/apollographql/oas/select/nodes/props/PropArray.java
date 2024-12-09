@@ -8,6 +8,8 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.apollographql.oas.select.log.Trace.trace;
 
@@ -34,6 +36,7 @@ public class PropArray extends Prop {
 
     trace(context,"   [array]", "type: " + getItems());
     getItems().visit(context);
+    setVisited(true);
 
     trace(context,"<- [array]", "out");
     context.leave(this);
@@ -63,6 +66,14 @@ public class PropArray extends Prop {
         .append("}");
     }
     writer.append("\n");
+  }
+
+  public Set<Type> dependencies() {
+    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies!");
+
+    final Set<Type> set = new HashSet<>();
+    set.add(getItems());
+    return set;
   }
 
   @Override

@@ -45,6 +45,8 @@ public class Composed extends Type {
 
   @Override
   public Set<Type> dependencies() {
+    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies!");
+
     final Set<Type> set = new HashSet<>();
 
     for (Type p : getProps().values()) {
@@ -123,6 +125,8 @@ public class Composed extends Type {
     else {
       throw new IllegalStateException("Composed.visit: unsupported composed schema: " + schema.getClass().getSimpleName());
     }
+
+    setVisited(true);
 
     trace(context, "<- [composed]", "out: " + getName());
     context.leave(this);

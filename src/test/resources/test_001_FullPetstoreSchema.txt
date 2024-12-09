@@ -1,0 +1,13 @@
+"y" /* visit '/pet/findByStatus'? */
+"y" /*  -> Add all properties from Pet?:  - category: Category, - id: Int, - name: String, - photoUrls: [String], - status: String, - tags: [Tag] */
+"y" /* visit '/pet/findByTags'? */
+"y" /*  -> Add all properties from Pet?:  - category: Category, - id: Int, - name: String, - photoUrls: [String], - status: String, - tags: [Tag] */
+"y" /* visit '/pet/{petId}'? */
+"y" /*  -> Add all properties from Pet?:  - category: Category, - id: Int, - name: String, - photoUrls: [String], - status: String, - tags: [Tag] */
+"n" /* visit '/store/inventory'? */
+"n" /* visit '/store/order/{orderId}'? */
+"n" /* visit '/user/login'? */
+"n" /* visit '/user/logout'? */
+"n" /* visit '/user/{username}'? */
+"y" /*  -> Add all properties from Category?:  - id: Int, - name: String */
+"y" /*  -> Add all properties from Tag?:  - id: Int, - name: String */

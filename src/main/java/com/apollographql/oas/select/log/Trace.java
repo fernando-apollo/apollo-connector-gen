@@ -12,11 +12,12 @@ public class Trace {
 
   public static void trace(final Context ctx, final String context, final String message) {
     final int count = ctx != null ? ctx.size() : 0;
-    logger.log(FINE, " ".repeat(count) + ("(" + count + ")") + context + " " + message);
+//    logger.log(FINE, " ".repeat(count) + ("(" + count + ")") + context + " " + message);
+    System.out.println(" ".repeat(count) + ("(" + count + ")") + context + " " + message);
   }
 
   public static void print(final Context ctx, final String message) {
-    System.out.println(" ".repeat(ctx != null ? ctx.size() : 0) + " " + message);
+    System.out.println((ctx != null ? " ".repeat(ctx.size()) : "") + message);
   }
 
   public static String indent(final Context ctx) {

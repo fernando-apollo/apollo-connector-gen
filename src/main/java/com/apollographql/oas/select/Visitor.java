@@ -1,6 +1,5 @@
 package com.apollographql.oas.select;
 
-import com.apollographql.oas.converter.Main;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.context.RefCounter;
 import com.apollographql.oas.select.factory.Factory;
@@ -28,6 +27,7 @@ import static com.apollographql.oas.select.log.Trace.trace;
 public class Visitor {
   private final OpenAPI parser;
   private Context context;
+  private Set<Type> collected;
 
   public Visitor(final OpenAPI parser) {
     this.parser = parser;
@@ -38,7 +38,7 @@ public class Visitor {
   }
 
   public static void main(String[] args) throws IOException {
-    InputStream configFile = Main.class.getClassLoader().getResourceAsStream("logging.properties");
+    InputStream configFile = Visitor.class.getClassLoader().getResourceAsStream("logging.properties");
 
     if (configFile == null) {
       throw new IllegalArgumentException("logging.properties file not found in classpath");
@@ -68,22 +68,23 @@ public class Visitor {
 
     final OpenAPI parser = new OpenAPIV3Parser().read(source, null, options);
     final Visitor visitor = new Visitor(parser);
+    visitor.visit();
 
-    final Set<Type> collected = visitor.visit();
-
-//    final RefCounter counter = new RefCounter();
-//    counter.addAll(collected);
-//    printRefs(counter.getCount());
-//
     System.out.println("---------------- recorder ----------------------");
     final List<Pair<String, String>> records = ((Prompt.Recorder) recorder).getRecords();
     records.forEach(pair -> System.out.println("\"" + pair.getLeft() + "\" /* " + pair.getRight() + " */"));
 
     System.out.println("---------------- schema ----------------------");
-    visitor.writeSchema(collected);
+    final StringWriter writer = new StringWriter();
+    visitor.writeSchema(writer);
+    System.out.println(writer);
   }
 
-  public Set<Type> visit() throws IOException {
+  public Set<Type> getCollected() {
+    return collected;
+  }
+
+  public void visit() throws IOException {
     final OpenAPI parser = getParser();
 
     final Context context = getContext();
@@ -111,7 +112,7 @@ public class Visitor {
       pending.visit(context);
     }
 
-    return collected;
+    this.collected = collected;
   }
 
   public Context getContext() {
@@ -121,14 +122,13 @@ public class Visitor {
     return this.context;
   }
 
-  public void writeSchema(final Set<Type> collected) throws IOException {
+  public void writeSchema(Writer writer) throws IOException {
     final RefCounter counter = new RefCounter();
     counter.addAll(collected);
 
     final Set<String> generatedSet = context.getGeneratedSet();
     generatedSet.clear();
 
-    final StringWriter writer = new StringWriter();
     writeDirectives(writer);
 
     // 1. generated collected types
@@ -141,11 +141,10 @@ public class Visitor {
 
     // 2. now operations
     writeQuery(context, writer, collected);
-
-    System.out.println(writer);
+    writer.flush();
   }
 
-  private void writeQuery(final Context context, final StringWriter writer, final Set<Type> collected)
+  private void writeQuery(final Context context, final Writer writer, final Set<Type> collected)
     throws IOException {
 
     writer.write("type Query {\n");
@@ -160,7 +159,7 @@ public class Visitor {
     writer.write("}\n\n");
   }
 
-  private void writeConnector(final Context context, final StringWriter writer, final Type type) throws IOException {
+  private void writeConnector(final Context context, final Writer writer, final Type type) throws IOException {
     int indent = 0;
 
     // we can safely cast to GetOp
@@ -201,7 +200,7 @@ public class Visitor {
     return operation;
   }
 
-  private void writeSelection(final Context context, final StringWriter writer, final Type type)
+  private void writeSelection(final Context context, final Writer writer, final Type type)
     throws IOException {
     type.select(context, writer);
   }

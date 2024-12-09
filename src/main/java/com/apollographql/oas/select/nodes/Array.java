@@ -36,11 +36,14 @@ public class Array extends Type {
     context.enter(this);
     trace(context,"-> [array]", "in");
 
-    itemsType = Factory.fromSchema(context, this, getItems());
-    assert itemsType != null;
+    if (itemsType == null) {
+      itemsType = Factory.fromSchema(context, this, getItems());
+      assert itemsType != null;
 
-    trace(context,"   [array]", "type: " + itemsType);
-    itemsType.visit(context);
+      trace(context, "   [array]", "type: " + itemsType);
+      itemsType.visit(context);
+      setVisited(true);
+    }
 
     trace(context,"-> [array]", "out");
     context.leave(this);

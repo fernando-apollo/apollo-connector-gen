@@ -18,6 +18,8 @@ public abstract class Type {
 
   protected Map<String, Prop> props = new LinkedHashMap<>();
 
+  protected boolean visited;
+
   public Type(final Type parent, final String name) {
     this.parent = parent;
     this.name = name;
@@ -37,10 +39,19 @@ public abstract class Type {
     this.name = name;
   }
 
+  public boolean isVisited() {
+    return visited;
+  }
+
+  public void setVisited(final boolean visited) {
+    this.visited = visited;
+  }
+
   public void add(Type child) {
     if (getChildren().contains(child)) {
-      throw new IllegalArgumentException("Should not be adding this twice! in " + getName());
+      throw new IllegalArgumentException("Should not be adding this twice! in " + id() + ", trying to add " + child.id());
     }
+
     this.children.add(child);
   }
 
@@ -95,6 +106,8 @@ public abstract class Type {
   }
 
   public Set<Type> dependencies() {
+    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies! in " + id());
+
     trace(null,  "-> [" + id() + "::dependencies]", String.format("-> in: %s", this.getName()));
     final Set<Type> set = new HashSet<>(getChildren());
 

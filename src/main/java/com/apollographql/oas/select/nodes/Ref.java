@@ -55,6 +55,8 @@ public class Ref extends Type {
     this.refType.setName(getRef());
     this.refType.visit(context);
 
+    setVisited(true);
+
     trace(context, "<- [ref]", "out: " + getRef());
     context.leave(this);
   }

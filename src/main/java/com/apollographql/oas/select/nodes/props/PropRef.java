@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Set;
 
 import static com.apollographql.oas.select.log.Trace.trace;
 
@@ -38,15 +39,9 @@ public class PropRef extends Prop {
   }
 
 //  @Override
-//  public void generate(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
-//    trace(context, "-> [prop-ref::generate]", String.format("-> in: %s", this.getSimpleName()));
+//  public Set<Type> dependencies() {
 //
-//    getRefType().generate(context, writer);
-////    writer.write(NameUtils.getRefName(getRef()));
-//
-//    trace(context, "<- [prop-ref::generate]", String.format("-> out: %s", this.getSimpleName()));
-//    context.leave(this);
+//    return super.dependencies();
 //  }
 
   @Override
@@ -61,7 +56,6 @@ public class PropRef extends Prop {
 
       final Type type = Factory.fromSchema(context, this, schema);
       this.refType = type;
-      assert type != null;
 
       type.setName(getRef());
       type.visit(context);
@@ -69,6 +63,8 @@ public class PropRef extends Prop {
     else {
       this.refType = cached;
     }
+
+    setVisited(true);
 
     trace(context, "<- [prop-ref]", "out " + getName() + ", ref: " + getRef());
     context.leave(this);

@@ -45,22 +45,20 @@ public class Obj extends Type {
 
   @Override
   public void visit(final Context context) {
+    if (isVisited()) return;
+
     context.enter(this);
     trace(context, "-> [obj]", "in " + getName());
 
     if (!context.inComposeContext(this))
-      print(context, "In object: " + (getName() != null ? getName() : getOwner()));
+      print(null, "In object: " + (getName() != null ? getName() : getOwner()));
+
+    visitProperties(context);
+    setVisited(true);
 
     // we don't store Anonymous objects
-//    if (inComposed(this)) {
-//      collectProperties(context, true);
-//    }
-//    else {
-    visitProperties(context);
-
     if (getName() != null)
       context.store(getName(), this);
-//    }
 
     trace(context, "<- [obj]", "out " + getName());
     context.leave(this);
@@ -68,6 +66,8 @@ public class Obj extends Type {
 
   @Override
   public Set<Type> dependencies() {
+    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies!");
+
     final Set<Type> set = new HashSet<>();
 
     for (Type p : getProps().values()) {
@@ -187,46 +187,27 @@ public class Obj extends Type {
     }
 
     // DO NOT ADD THIS
-//    for (final Prop prop : getProps().values()) {
-//      prop.visit(context);
-//    }
-    // now do dependencies
+    // now do dependencies -- this works well for Petstore but not for TMF633
+    // in Composed we'll need to filter out which props we don't want added
+    // instead of adding them as a dependency
     final List<Prop> dependencies = getProps().values().stream()
-      .filter(p -> p instanceof PropRef || p instanceof PropArray)
+      .filter(p -> {
+        trace(context, "-> [obj]", "visitProperties inCompose " + context.inComposeContext(this) + ", in " + id());
+        return p instanceof PropRef || p instanceof PropArray;
+      })
       .toList();
 
     for (final Prop dependency : dependencies) {
-      trace(context, "-> [composed]", "prop dependency: " + dependency.getName());
-//      dependency.visit(context);
-      context.addPending(dependency);
+      trace(context, "-> [obj]", "prop dependency: " + dependency.getName());
+      if (context.inComposeContext(this)) {
+        context.addPending(dependency);
+      }
+      else {
+        dependency.visit(context);
+      }
     }
 
     trace(context, "<- [obj::props]", "out props " + getProps().size());
-  }
-
-  private void collectProperties(final Context context, boolean visitProperties) {
-    final Map<String, Schema> properties = schema.getProperties();
-    trace(context, "-> [obj::props]", "in props " + (properties.isEmpty() ? "0" : properties.size()));
-
-    if (properties.isEmpty()) {
-      trace(context, "<- [obj::props]", "no props " + getProps().size());
-      return;
-    }
-
-    properties.entrySet().stream()
-      .map(e -> Factory.fromProperty(this, e.getKey(), e.getValue()))
-      .forEach(prop -> {
-        getProps().put(prop.getName(), prop);
-        if (!getChildren().contains(prop)) {
-          add(prop);
-        }
-      });
-
-    if (visitProperties) {
-      for (final Prop prop : getProps().values()) {
-        prop.visit(context);
-      }
-    }
   }
 
   @Override

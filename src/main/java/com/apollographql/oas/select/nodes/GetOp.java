@@ -76,6 +76,7 @@ public class GetOp extends Type {
     // 2. visit responses
     visitResponses(context);
 
+    setVisited(true);
     trace(context, "<- [get]", "out " + getName());
     context.leave(this);
   }

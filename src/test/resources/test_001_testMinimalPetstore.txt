@@ -1,0 +1,15 @@
+"n" /* visit '/pet/findByStatus'? */
+"n" /* visit '/pet/findByTags'? */
+"y" /* visit '/pet/{petId}'? */
+"s" /*  -> Add all properties from Pet?:  - category: Category, - id: Int, - name: String, - photoUrls: [String], - status: String, - tags: [Tag] */
+"n" /* Add field 'category: Category'? */
+"y" /* Add field 'id: Int'? */
+"y" /* Add field 'name: String'? */
+"y" /* Add field 'photoUrls: [String]'? */
+"y" /* Add field 'status: String'? */
+"n" /* Add field 'tags: [Tag]'? */
+"n" /* visit '/store/inventory'? */
+"n" /* visit '/store/order/{orderId}'? */
+"n" /* visit '/user/login'? */
+"n" /* visit '/user/logout'? */
+"n" /* visit '/user/{username}'? */

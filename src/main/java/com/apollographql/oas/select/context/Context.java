@@ -107,12 +107,14 @@ public class Context {
     }
   }
 
-  public void addPending(final Type type) {
-    this.pendingList.add(type);
-  }
-
   public List<Type> getPendingTypes() {
     return this.pendingList;
+  }
+
+  public void addPending(final Type type) {
+    if (!getPendingTypes().contains(type)) {
+      getPendingTypes().add(type);
+    }
   }
 
   public boolean inComposeContext(final Type current) {

@@ -15,6 +15,7 @@ import static com.apollographql.oas.select.log.Trace.trace;
 
 public class PropScalar extends Prop {
   protected final String type;
+  private Type propType;
 
   public PropScalar(final Type parent, final String name, final String type, final Schema schema) {
     super(parent, name, schema);
@@ -31,8 +32,11 @@ public class PropScalar extends Prop {
     context.enter(this);
 //    trace(context, "-> [prop-scalar]", "in " + getName() + ", type: " + getType());
 
-    final Type type = Factory.fromSchema(context, this, getSchema());
-    type.visit(context);
+    if (this.propType == null) {
+      this.propType = Factory.fromSchema(context, this, getSchema());
+      this.propType.visit(context);
+      setVisited(true);
+    }
 
 //    trace(context, "<- [prop-scalar]", "out " + getName() + ", type: " + getType());
     context.leave(this);

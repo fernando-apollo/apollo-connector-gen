@@ -22,6 +22,7 @@ public class Scalar extends Type {
   @Override
   public void visit(final Context context) {
     // do nothing - scalars don't visit others
+    setVisited(true);
   }
 
   @Override

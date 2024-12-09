@@ -4,6 +4,8 @@ import com.apollographql.oas.converter.Main;
 import com.apollographql.oas.select.context.RefCounter;
 import com.apollographql.oas.select.nodes.Obj;
 import com.apollographql.oas.select.nodes.Type;
+import com.apollographql.oas.select.nodes.props.Prop;
+import com.apollographql.oas.select.nodes.props.PropArray;
 import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -48,95 +50,45 @@ public class VisitorTests {
 
   @Test
   void test_001_testFullPetStoreSchema() throws URISyntaxException, IOException {
+    loadRecording("test_001_FullPetstoreSchema.txt");
+
     final String source = String.format("%s/./sample-oas/petstore.yaml", baseURL);
 
     final OpenAPI parser = createParser(source);
     assertNotNull(parser);
 
-    String[] record = new String[]{
-      "y", /*    visit '/pet/findByStatus'? */
-      "y", /* Add all properties from Pet?:
-             - name: String,
-             - photoUrls: [String],
-             - tags: [Tag],
-             - status: String,
-             - id: Int,
-             - category: Category
-             */
-      "y", /* Add all properties from Category?:
-           - name: String,
-           - id: Int
-           */
-      "y", /* Add all properties from Tag?:
-           - name: String,
-           - id: Int
-           */
-      "y", /*    visit '/pet/findByTags'? */
-      "y", /*    visit '/pet/{petId}'? */
-      "n", /*    visit '/store/inventory'? */
-      "y", /*    visit '/store/order/{orderId}'? */
-      "y", /* Add all properties from Order?:
-           - quantity: Int,
-           - petId: Int,
-           - shipDate: String,
-           - status: String,
-           - id: Int,
-           - complete: Boolean
-           */
-      "n", /*    visit '/user/login'? */
-      "n", /*    visit '/user/logout'? */
-      "y", /*    visit '/user/{username}'? */
-      "y", /* Add all properties from User?:
-           - username: String,
-           - email: String,
-           - password: String,
-           - lastName: String,
-           - firstName: String,
-           - id: Int,
-           - userStatus: Int,
-           - phone: String
-           */
-    };
-
-    Prompt.get(Prompt.Factory.player(record));
-
     final Visitor visitor = new Visitor(parser);
-    final Set<Type> collected = visitor.visit();
-    assertNotNull(collected);
-    assertEquals(5, collected.size(), "Should have collected 5 paths");
+    visitor.visit();
+    assertNotNull(visitor.getCollected());
+    assertEquals(3, visitor.getCollected().size(), "Should have collected 3 paths");
 
-    visitor.writeSchema(collected);
+    final Map<String, Type> types = visitor.getContext().getTypes();
+    assertEquals(3, types.size());
+    assertTrue(types.containsKey("#/components/schemas/Pet"), "Should contain definition for Pet");
+    assertTrue(types.containsKey("#/components/schemas/Category"), "Should contain definition for Category");
+    assertTrue(types.containsKey("#/components/schemas/Tag"), "Should contain definition for Tag");
+
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Pet"));
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Category"));
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Tag"));
+
+    final Prop tags = types.get("#/components/schemas/Pet").getProps().get("tags");
+    assertInstanceOf(PropArray.class, tags);
+
+    printSchema(visitor);
   }
 
   @Test
-  void test_001_testMinimalPetstore() throws URISyntaxException, IOException {
-    final String source = String.format("%s/./sample-oas/petstore.yaml", baseURL);
+  void test_001_testMinimalPetstore() throws IOException {
+    loadRecording("test_001_testMinimalPetstore.txt");
 
-    final OpenAPI parser = createParser(source);
+    final OpenAPI parser = createParser(String.format("%s/./sample-oas/petstore.yaml", baseURL));
     assertNotNull(parser);
 
-    String[] record = new String[]{
-      "n", /*    visit '/pet/findByStatus'? */
-      "n", /*    visit '/pet/findByTags'? */
-      "y", /*    visit '/pet/{petId}'? */
-      "n", /* Add all properties from Pet? */
-      "y", /*    add property 'PropScalar {name='id', type='Int', parent='Obj {name='#/components/schemas/Pet', children=0, props=0}'}'? */
-      "y", /*    add property 'PropScalar {name='name', type='String', parent='Obj {name='#/components/schemas/Pet', children=0, props=1}'}'? */
-      "n", /*    add property 'PropRef {name='category', ref='#/components/schemas/Category', parent='Obj {name='#/components/schemas/Pet', children=0, props=2}'}'? */
-      "y", /*    add property 'PropArray {name='photoUrls', items='items', parent='Obj {name='#/components/schemas/Pet', children=0, props=2}'}'? */
-      "n", /*    add property 'PropArray {name='tags', items='items', parent='Obj {name='#/components/schemas/Pet', children=0, props=3}'}'? */
-      "y", /*    add property 'PropScalar {name='status', type='String', parent='Obj {name='#/components/schemas/Pet', children=0, props=3}'}'? */
-      "n", /*    visit '/store/inventory'? */
-      "n", /*    visit '/store/order/{orderId}'? */
-      "n", /*    visit '/user/login'? */
-      "n", /*    visit '/user/logout'? */
-      "n", /*    visit '/user/{username}'? */
-    };
-
-    Prompt.get(Prompt.Factory.player(record));
-
     final Visitor visitor = new Visitor(parser);
-    final Set<Type> collected = visitor.visit();
+    visitor.visit();
+
+    final Set<Type> collected = visitor.getCollected();
     assertNotNull(collected);
     assertEquals(1, collected.size(), "Should have collected 5 paths");
 
@@ -147,12 +99,14 @@ public class VisitorTests {
     findAllChildren(type, childrenSet);
 
     assertFalse(childrenSet.isEmpty(), "Should have found many children");
-    assertEquals(3, childrenSet.size());
+    assertEquals(7, childrenSet.size());
 
     final Map<String, Type> types = visitor.getContext().getTypes();
     assertEquals(1, types.size());
     assertTrue(types.containsKey("#/components/schemas/Pet"), "Should contain definition for Pet");
     assertInstanceOf(Obj.class, types.get("#/components/schemas/Pet"));
+
+    printSchema(visitor);
   }
 
   @Test
@@ -170,7 +124,8 @@ public class VisitorTests {
     Prompt.get(Prompt.Factory.player(record));
 
     final Visitor visitor = new Visitor(parser);
-    final Set<Type> collected = visitor.visit();
+    visitor.visit();
+    final Set<Type> collected = visitor.getCollected();
     assertNotNull(collected);
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
@@ -180,28 +135,20 @@ public class VisitorTests {
     counter.addAll(collected);
     printRefs(counter.getCount());
 
-    System.out.println(" ----------- schema -------------- ");
-    visitor.writeSchema(collected);
+    printSchema(visitor);
   }
 
   @Test
   void test_TMF633_IntentOrValue_to_Union() throws IOException {
-    InputStream input = VisitorTests.class.getClassLoader()
-      .getResourceAsStream("TMF633_IntentOrValue_to_Union.txt");
-    assertNotNull(input);
-
-    final String[] recording = Recordings.fromInputStream(input);
-    assertNotNull(recording);
-    assertTrue(recording.length > 0);
-
-    Prompt.get(Prompt.Factory.player(recording));
+    loadRecording("TMF633_IntentOrValue_to_Union.txt");
 
     final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
     final OpenAPI parser = createParser(source);
     assertNotNull(parser);
 
     final Visitor visitor = new Visitor(parser);
-    final Set<Type> collected = visitor.visit();
+    visitor.visit();
+    final Set<Type> collected = visitor.getCollected();
     assertNotNull(collected);
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
@@ -212,31 +159,30 @@ public class VisitorTests {
     printRefs(counter.getCount());
 
     System.out.println(" ----------- schema -------------- ");
-    visitor.writeSchema(collected);
+    printSchema(visitor);
   }
 
   @Test
   void test_TMF637_001_ComposedTest() throws IOException {
-    InputStream input = VisitorTests.class.getClassLoader()
-      .getResourceAsStream("test_TMF637_001_ComposedTest.txt");
-    assertNotNull(input);
-
-    final String[] recording = Recordings.fromInputStream(input);
-    assertNotNull(recording);
-    assertTrue(recording.length > 0);
-
-    Prompt.get(Prompt.Factory.player(recording));
+    loadRecording("test_TMF637_001_ComposedTest.txt");
 
     final String source = String.format("%s/tmf-specs/TMF637-001-ComposedTest.yaml", baseURL);
     final OpenAPI parser = createParser(source);
     assertNotNull(parser);
 
     final Visitor visitor = new Visitor(parser);
-    final Set<Type> collected = visitor.visit();
+    visitor.visit();
+
+    final Set<Type> collected = visitor.getCollected();
     assertNotNull(collected);
 
+    final Map<String, Type> types = visitor.getContext().getTypes();
+    assertTrue(types.containsKey("#/components/schemas/Product"));
+//    assertTrue(types.containsKey("#/components/schemas/BillingAccountRef"));
+    assertTrue(types.containsKey("#/components/schemas/Product"));
+
     System.out.println(" ----------- schema -------------- ");
-    visitor.writeSchema(collected);
+    printSchema(visitor);
   }
 
   @Test
@@ -249,8 +195,9 @@ public class VisitorTests {
     Prompt.get(Prompt.Factory.yes());
 
     final Visitor visitor = new Visitor(parser);
-    final Set<Type> collected = visitor.visit();
-    assertNotNull(collected);
+    visitor.visit();
+    final Set<Type> collected = visitor.getCollected();
+      assertNotNull(collected);
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
 
@@ -262,7 +209,7 @@ public class VisitorTests {
     printRefs(values);
 
     System.out.println("VisitorTests.test_003_testTMF637_Full ----------- schema -------------- \n");
-    visitor.writeSchema(collected);
+    printSchema(visitor);
   }
 
   private static void printRefs(final Map<String, Integer> values) {
@@ -284,5 +231,24 @@ public class VisitorTests {
     for (Type child : type.getChildren()) {
       findAllChildren(child, childrenSet);
     }
+  }
+
+  private static void printSchema(final Visitor visitor) throws IOException {
+    final StringWriter writer = new StringWriter();
+    visitor.writeSchema(writer);
+    System.out.println(" ----------- schema -------------- ");
+    System.out.println(writer);
+  }
+
+  private static void loadRecording(final String resource) {
+    InputStream input = VisitorTests.class.getClassLoader()
+      .getResourceAsStream(resource);
+    assertNotNull(input);
+
+    final String[] recording = Recordings.fromInputStream(input);
+    assertNotNull(recording);
+    assertTrue(recording.length > 0);
+
+    Prompt.get(Prompt.Factory.player(recording));
   }
 }
