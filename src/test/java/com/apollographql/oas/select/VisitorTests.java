@@ -216,6 +216,13 @@ public class VisitorTests {
   }
 
   @Test
+  void test_TMF637_001_ComposedTest() throws IOException {
+    final String source = String.format("%s/tmf-specs/TMF637-001-ComposedTest.yaml", baseURL);
+    final OpenAPI parser = createParser(source);
+    assertNotNull(parser);
+  }
+
+  @Test
   void test_003_testTMF637_Full() throws IOException {
     final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
 

@@ -127,16 +127,16 @@ public class Composed extends Type {
     trace(context, "<- [composed]", "out: " + getName());
     context.leave(this);
 
-    // now do dependencies
-    final List<Prop> dependencies = getProps().values().stream()
-      .filter(p -> p instanceof PropRef)
-      .toList();
-
-    for (final Prop dependency : dependencies) {
-      trace(context, "-> [composed]", "prop dependency: " + dependency.getName());
-//      dependency.visit(context);
-      context.addPending(dependency);
-    }
+//    // now do dependencies
+//    final List<Prop> dependencies = getProps().values().stream()
+//      .filter(p -> p instanceof PropRef)
+//      .toList();
+//
+//    for (final Prop dependency : dependencies) {
+//      trace(context, "-> [composed]", "prop dependency: " + dependency.getName());
+////      dependency.visit(context);
+//      context.addPending(dependency);
+//    }
   }
 
   /* we are collecting all nodes to combine them into a single object -- therefore we must 'silence' the prompt for

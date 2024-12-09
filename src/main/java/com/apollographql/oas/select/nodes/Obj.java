@@ -4,6 +4,8 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.props.Prop;
+import com.apollographql.oas.select.nodes.props.PropArray;
+import com.apollographql.oas.select.nodes.props.PropRef;
 import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -188,6 +190,16 @@ public class Obj extends Type {
 //    for (final Prop prop : getProps().values()) {
 //      prop.visit(context);
 //    }
+    // now do dependencies
+    final List<Prop> dependencies = getProps().values().stream()
+      .filter(p -> p instanceof PropRef || p instanceof PropArray)
+      .toList();
+
+    for (final Prop dependency : dependencies) {
+      trace(context, "-> [composed]", "prop dependency: " + dependency.getName());
+//      dependency.visit(context);
+      context.addPending(dependency);
+    }
 
     trace(context, "<- [obj::props]", "out props " + getProps().size());
   }
