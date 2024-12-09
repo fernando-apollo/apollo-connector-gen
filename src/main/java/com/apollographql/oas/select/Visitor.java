@@ -70,10 +70,10 @@ public class Visitor {
 
     final Set<Type> collected = visitor.visit();
 
-    final RefCounter counter = new RefCounter();
-    counter.addAll(collected);
-    printRefs(counter.getCount());
-
+//    final RefCounter counter = new RefCounter();
+//    counter.addAll(collected);
+//    printRefs(counter.getCount());
+//
     System.out.println("---------------- recorder ----------------------");
     final Map<String, String> recorded = ((Prompt.Recorder) recorder).getRecords();
     recorded.forEach((key, value) -> System.out.println("\"" + value + "\", /* " + key + " */"));
@@ -96,13 +96,18 @@ public class Visitor {
     final Set<Type> collected = new LinkedHashSet<>();
 
     for (final Map.Entry<String, PathItem> entry : filtered) {
-      if (!Prompt.get().prompt("   visit '" + entry.getKey() + "'?")) {
+      if (!Prompt.get().yesNo("visit '" + entry.getKey() + "'?")) {
         trace(context, "   [visitPath]", entry.getKey() + " skipped");
         continue;
       }
 
       final Type result = visitPath(context, entry.getKey(), entry.getValue());
       collected.add(result);
+    }
+
+    // visit collected dependencies
+    for (Type pending : context.getPendingTypes()) {
+      pending.visit(context);
     }
 
     return collected;

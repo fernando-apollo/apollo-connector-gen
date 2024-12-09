@@ -11,11 +11,16 @@ public class Trace {
   private static final Logger logger = Logger.getLogger(Trace.class.getName());
 
   public static void trace(final Context ctx, final String context, final String message) {
-    logger.log(FINE, " ".repeat(ctx != null ? ctx.size() : 0) + context + " " + message);
+    final int count = ctx != null ? ctx.size() : 0;
+    logger.log(FINE, " ".repeat(count) + ("(" + count + ")") + context + " " + message);
   }
 
-  public static String indent(final Context context) {
-    return " ".repeat(context.size());
+  public static void print(final Context ctx, final String message) {
+    System.out.println(" ".repeat(ctx != null ? ctx.size() : 0) + " " + message);
+  }
+
+  public static String indent(final Context ctx) {
+    return " ".repeat(ctx != null ? ctx.size() : 0);
   }
 
   public static void warn(final Context ctx, final String context, final String message) {

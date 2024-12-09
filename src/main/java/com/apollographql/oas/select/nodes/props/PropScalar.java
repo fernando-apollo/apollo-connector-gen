@@ -29,12 +29,12 @@ public class PropScalar extends Prop {
   @Override
   public void visit(final Context context) {
     context.enter(this);
-    trace(context, "-> [prop-scalar]", "in " + getName() + ", type: " + getType());
+//    trace(context, "-> [prop-scalar]", "in " + getName() + ", type: " + getType());
 
     final Type type = Factory.fromSchema(context, this, getSchema());
     type.visit(context);
 
-    trace(context, "<- [prop-scalar]", "out " + getName() + ", type: " + getType());
+//    trace(context, "<- [prop-scalar]", "out " + getName() + ", type: " + getType());
     context.leave(this);
   }
 

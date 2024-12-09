@@ -1,5 +1,6 @@
 package com.apollographql.oas.select.prompt;
 
 public interface Input {
-  boolean next(final String prompt);
+  boolean yesNo(final String prompt);
+  char yesNoSelect(final String prompt);
 }

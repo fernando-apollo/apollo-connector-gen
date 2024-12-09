@@ -1,7 +1,5 @@
 package com.apollographql.oas.select.prompt;
 
-import com.apollographql.oas.select.nodes.Type;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -9,8 +7,6 @@ import java.util.Scanner;
 public class Prompt {
   private static Prompt instance;
   private Input input;
-  private boolean muted;
-  private Type origin;
 
   static public Prompt get() {
     if (instance == null)
@@ -37,46 +33,30 @@ public class Prompt {
     this.input = input;
   }
 
-  public boolean prompt(final String msg) {
-    if (isMuted()) {
-      System.out.println(">>>>>>>> ignored prompt bc I'm muted");
-      return true;
-    }
-    return getRecorded().next(msg);
+  public boolean yesNo(final String msg) {
+    return getRecorded().yesNo(msg);
   }
 
-  public void mute(final boolean mute, final Type origin) {
-    if (this.origin == null) {
-      System.out.println(">>>>>>>> mute instruction " + mute + " from " + origin);
-      this.muted = mute;
-      this.origin = origin;
-    }
-    else if (mute != this.muted && this.origin == origin) {
-      System.out.println(">>>>>>>> mute change to " + mute + " accepted from " + origin);
-      this.muted = mute;
-
-      if (!this.muted) // we can clear the origin
-      {
-        System.out.println(">>>>>>>> mute change cleared origin");
-        this.origin = null;
-      }
-    }
-    else {
-      System.out.println(">>>>>>>> ignored mute instruction bc origin is different");
-    }
-  }
-
-  public boolean isMuted() {
-    return muted;
+  public char yesNoSelect(final String msg) {
+    return getRecorded().yesNoSelect(msg);
   }
 
   public static class ConsoleInput implements Input {
     final protected Scanner scanner = new Scanner(System.in);
 
-    public boolean next(final String prompt) {
-      System.out.println(prompt + " (Y/n)");
+    public boolean yesNo(final String prompt) {
+      System.out.println(prompt + " 'y': Yes, 'n': No");
       final String next = scanner.nextLine();
       return next.equals("") || next.equalsIgnoreCase("y");
+    }
+
+    public char yesNoSelect(final String prompt) {
+      System.out.println(prompt + " 'y': Yes, 'n': Skip, 's': Select");
+      final String next = scanner.nextLine();
+
+      if (next.equals("") || next.equalsIgnoreCase("y")) return 'y';
+      else if (next.equalsIgnoreCase("s")) return 's';
+      else return 'n';
     }
   }
 
@@ -89,9 +69,17 @@ public class Prompt {
     }
 
     @Override
-    public boolean next(final String prompt) {
+    public boolean yesNo(final String prompt) {
       final String next = record[track++];
       return next.equals("") || next.equalsIgnoreCase("y");
+    }
+
+    @Override
+    public char yesNoSelect(final String prompt) {
+      final String next = record[track++];
+      if (next.equals("") || next.equalsIgnoreCase("y")) return 'y';
+      else if (next.equalsIgnoreCase("s")) return 's';
+      else return 'n';
     }
   }
 
@@ -99,11 +87,22 @@ public class Prompt {
     final Map<String, String> records = new LinkedHashMap<>();
 
     @Override
-    public boolean next(final String prompt) {
-      System.out.println(prompt + " (Y/n)");
+    public boolean yesNo(final String prompt) {
+      System.out.println(prompt + " 'y': Yes, 'n': No");
       final String answer = scanner.nextLine();
       records.put(prompt, answer);
       return answer.equals("") || answer.equalsIgnoreCase("y");
+    }
+
+    @Override
+    public char yesNoSelect(final String prompt) {
+      System.out.println(prompt + " 'y': Yes, 'n': Skip, 's': Select");
+      final String next = scanner.nextLine();
+      records.put(prompt, next);
+
+      if (next.equals("") || next.equalsIgnoreCase("y")) return 'y';
+      else if (next.equalsIgnoreCase("s")) return 's';
+      else return 'n';
     }
 
     public Map<String, String> getRecords() {
@@ -117,7 +116,17 @@ public class Prompt {
     }
 
     public static Input yes() {
-      return prompt -> true;
+      return new Input() {
+        @Override
+        public boolean yesNo(final String prompt) {
+          return true;
+        }
+
+        @Override
+        public char yesNoSelect(final String prompt) {
+          return 'y';
+        }
+      };
     }
 
     public static Input player(String[] record) {

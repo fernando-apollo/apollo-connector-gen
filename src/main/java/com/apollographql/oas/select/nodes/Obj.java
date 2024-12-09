@@ -46,32 +46,22 @@ public class Obj extends Type {
     context.enter(this);
     trace(context, "-> [obj]", "in " + getName());
 
+    if (context.notComposing(this))
+      print(context, "In object: " + (getName() != null ? getName() : getOwner()));
 
     // we don't store Anonymous objects
-    if (!inComposed(this)) {
-      visitProperties(context);
+//    if (inComposed(this)) {
+//      collectProperties(context, true);
+//    }
+//    else {
+    visitProperties(context);
+
+    if (getName() != null)
       context.store(getName(), this);
-    }
-    else {
-      collectProperties(context, true);
-    }
+//    }
 
     trace(context, "<- [obj]", "out " + getName());
     context.leave(this);
-  }
-
-  public static boolean inComposed(Type current) {
-    Type parent = current;
-    do {
-      parent = parent.getParent();
-    }
-    while (parent != null && !(parent instanceof Composed));
-
-    if (parent != null) {
-      trace(null, " [obj::in-composed]", "in composed " + parent.id());
-    }
-
-    return parent != null;
   }
 
   @Override
@@ -149,6 +139,9 @@ public class Obj extends Type {
       .sorted((o1, o2) -> o1.getKey().compareToIgnoreCase(o2.getKey()))
       .collect(Collectors.toCollection(LinkedHashSet::new));
 
+
+    final String indent = indent(context);
+
     final List<String> collected = sorted.stream()
       .map(e -> Factory.fromProperty(this, e.getKey(), e.getValue()))
       .map((Prop p) -> p.forPrompt(context))
@@ -160,7 +153,9 @@ public class Obj extends Type {
       owner = getParent().getSimpleName();
     }
 
-    final boolean addAll = Prompt.get().prompt("Add all properties from " + owner + "?: \n - " + propertiesNames + "\n");
+    final char addAll = Prompt
+      .get()
+      .yesNoSelect(" -> Add all properties from " + owner + "?: \n - " + propertiesNames + "\n");
 
 
     /* we should only prompt for properties if:
@@ -168,27 +163,29 @@ public class Obj extends Type {
      * 2. the comp://all-of contains our name (i.e: #/component/schemas/Extensible
      */
 
-    for (final Map.Entry<String, Schema> entry : sorted) {
-      final String propertyName = entry.getKey();
-      final Schema propertySchema = entry.getValue();
+    if (addAll == 'y' || addAll == 's') {
+      for (final Map.Entry<String, Schema> entry : sorted) {
+        final String propertyName = entry.getKey();
+        final Schema propertySchema = entry.getValue();
 
-      final Prop prop = Factory.fromProperty(this, propertyName, propertySchema);
+        final Prop prop = Factory.fromProperty(this, propertyName, propertySchema);
 
-      if (addAll || Prompt.get().prompt(indent(context) + "add property '" + prop.forPrompt(context) + "'?")) {
-        trace(context, "   [obj::props]", "prop: " + prop);
+        if (addAll == 'y' || Prompt.get().yesNo("Add field '" + prop.forPrompt(context) + "'?")) {
+          trace(context, "   [obj::props]", "prop: " + prop);
 
-        // add property to our dependencies
-        getProps().put(propertyName, prop);
+          // add property to our dependencies
+          getProps().put(propertyName, prop);
 
-        if (!this.getChildren().contains(prop)) {
-          this.add(prop);
+          if (!this.getChildren().contains(prop)) {
+            this.add(prop);
+          }
         }
       }
     }
 
-    for (final Prop prop : getProps().values()) {
-      prop.visit(context);
-    }
+//    for (final Prop prop : getProps().values()) {
+//      prop.visit(context);
+//    }
 
     trace(context, "<- [obj::props]", "out props " + getProps().size());
   }
@@ -230,5 +227,14 @@ public class Obj extends Type {
   @Override
   public int hashCode() {
     return Objects.hash(super.hashCode(), schema);
+  }
+
+  private String getOwner() {
+    String owner = getSimpleName();
+    if (owner == null && getParent() instanceof Composed) {
+      owner = getParent().getSimpleName();
+    }
+
+    return owner;
   }
 }

@@ -4,6 +4,8 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.props.Prop;
+import com.apollographql.oas.select.nodes.props.PropRef;
+import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -12,8 +14,7 @@ import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.apollographql.oas.select.log.Trace.trace;
-import static com.apollographql.oas.select.log.Trace.warn;
+import static com.apollographql.oas.select.log.Trace.*;
 
 public class Composed extends Type {
   private final Schema schema;
@@ -107,6 +108,9 @@ public class Composed extends Type {
     context.enter(this);
     trace(context, "-> [composed]", "in: " + (getName() == null ? "[object]" : getName()));
 
+    if (context.notComposing(this))
+      print(context, "In composed schema: " + getName());
+
     final ComposedSchema schema = (ComposedSchema) getSchema();
     if (schema.getAllOf() != null) {
       // this translates to a type with all the properties of the allOf schemas
@@ -122,6 +126,17 @@ public class Composed extends Type {
 
     trace(context, "<- [composed]", "out: " + getName());
     context.leave(this);
+
+    // now do dependencies
+    final List<Prop> dependencies = getProps().values().stream()
+      .filter(p -> p instanceof PropRef)
+      .toList();
+
+    for (final Prop dependency : dependencies) {
+      trace(context, "-> [composed]", "prop dependency: " + dependency.getName());
+//      dependency.visit(context);
+      context.addPending(dependency);
+    }
   }
 
   /* we are collecting all nodes to combine them into a single object -- therefore we must 'silence' the prompt for
@@ -141,13 +156,10 @@ public class Composed extends Type {
       // we are visiting all the tree -- then we'll let them choose which properties they want to add
       type.visit(context);
 
-      this.getProps().putAll(type.getProps());
-
+      getProps().putAll(type.getProps());
       trace(context, "   [composed::all-of]", "allOf type: " + type);
     }
 
-    // we have collected the children, now we need to combine all properties
-//    collectProperties(this, getProps());
     // we'll store it first, it might avoid recursion
     trace(context, "-> [composed]", "storing: " + getName() + " with: " + this);
     context.store(getName(), this);
@@ -167,6 +179,52 @@ public class Composed extends Type {
     context.store(getName(), this);
 
     trace(context, "<- [composed::one-of]", "out: " + String.format("OneOf %s with size: %d", name, oneOfs.size()));
+    return result;
+  }
+
+  static Map<String, Prop> promptPropertySelection(final Context context, final Type root, final Map<String, Prop> properties) {
+    if (properties.isEmpty()) {
+      trace(context, "<- [obj::props]", "no props found");
+      return properties;
+    }
+
+    final Set<Map.Entry<String, Prop>> sorted = properties.entrySet()
+      .stream()
+      .sorted((o1, o2) -> o1.getKey().compareToIgnoreCase(o2.getKey()))
+      .collect(Collectors.toCollection(LinkedHashSet::new));
+
+    final List<String> collected = sorted.stream()
+      .map(Map.Entry::getValue)
+      .map((Prop p) -> p.forPrompt(context))
+      .collect(Collectors.toList());
+
+    final String propertiesNames = String.join(",\n - ", collected);
+    String owner = root.getSimpleName();
+    if (owner == null && root.getParent() instanceof Composed) {
+      owner = root.getParent().getSimpleName();
+    }
+
+    final boolean addAll = Prompt.get().yesNo("Add all properties from " + owner + "?: \n - " + propertiesNames + "\n");
+    if (addAll) {
+      return properties;
+    }
+
+    final Map<String, Prop> result = new LinkedHashMap<>();
+    for (final Map.Entry<String, Prop> entry : sorted) {
+      final Prop prop = entry.getValue();
+
+      if (Prompt.get().yesNo(indent(context) + "add property '" + prop.forPrompt(context) + "'?")) {
+        trace(context, "   [obj::props]", "prop: " + prop);
+
+        // add property to our dependencies
+        result.put(entry.getKey(), prop);
+
+        if (!result.containsKey(entry.getKey())) {
+          result.put(entry.getKey(), entry.getValue());
+        }
+      }
+    }
+
     return result;
   }
 }

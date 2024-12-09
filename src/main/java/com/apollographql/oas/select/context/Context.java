@@ -1,6 +1,7 @@
 package com.apollographql.oas.select.context;
 
 import com.apollographql.oas.converter.utils.NameUtils;
+import com.apollographql.oas.select.nodes.Composed;
 import com.apollographql.oas.select.nodes.Scalar;
 import com.apollographql.oas.select.nodes.Type;
 import com.apollographql.oas.select.nodes.props.Prop;
@@ -25,6 +26,7 @@ public class Context {
   private Set<String> generatedSet = new LinkedHashSet<>();
 
   private final Stack<Type> stack = new Stack<>();
+  private final List<Type> pendingList = new LinkedList<>();
 
   public Context(final OpenAPI parser) {
     this.parser = parser;
@@ -47,12 +49,12 @@ public class Context {
       warn(this, "[context]", "Possible recursion? We have entered this type more than once! " + Type.getRootPathFor(type));
     }
 
-    trace(this, ">>> [context::enter]", type.id());
+//    trace(this, ">>> [context::enter]", type.id());
     this.stack.push(type);
   }
 
   public void leave(final Type type) {
-    trace(this, "<<< [context::enter]", type.id());
+//    trace(this, "<<< [context::leave]", type.id());
     this.stack.pop();
   }
 
@@ -96,8 +98,37 @@ public class Context {
       refCounter.put(type.id(), ++value);
     }
     else {
-      trace(this, "[context::inc]","add: " + type.id());
+      trace(this, "[context::inc]", "add: " + type.id());
       refCounter.put(type.id(), 1);
     }
+  }
+
+  public void addPending(final Type type) {
+    this.pendingList.add(type);
+  }
+
+  public List<Type> getPendingTypes() {
+    return this.pendingList;
+  }
+
+  public boolean notComposing(final Type current) {
+    final Stack<Type> stack = getStack();
+    final int indexOf = stack.indexOf(current);
+
+    if (indexOf > -1) {
+      if ((indexOf - 1) == 0) {
+        return true;
+      }
+
+      int walkIndex = (indexOf - 1);
+      while (walkIndex > -1) {
+        if (stack.get(walkIndex) instanceof Composed) {
+          return false;
+        }
+        walkIndex -= 1;
+      }
+    }
+
+    return true;
   }
 }
