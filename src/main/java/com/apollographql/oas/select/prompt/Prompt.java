@@ -1,8 +1,9 @@
 package com.apollographql.oas.select.prompt;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Scanner;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.*;
 
 public class Prompt {
   private static Prompt instance;
@@ -70,42 +71,45 @@ public class Prompt {
 
     @Override
     public boolean yesNo(final String prompt) {
-      final String next = record[track++];
-      return next.equals("") || next.equalsIgnoreCase("y");
+      final String next = record[track++].substring(1, 2);
+      final boolean response = next.equalsIgnoreCase("y");
+      System.out.println(prompt + " 'y': Yes, 'n': No" + " -> " + next + ", response? " + response);
+      return response;
     }
 
     @Override
     public char yesNoSelect(final String prompt) {
-      final String next = record[track++];
-      if (next.equals("") || next.equalsIgnoreCase("y")) return 'y';
+      final String next = record[track++].substring(1, 2);
+      System.out.println(prompt + " 'y': Yes, 'n': Skip, 's': Select" + " -> " + next);
+      if (next.equalsIgnoreCase("y")) return 'y';
       else if (next.equalsIgnoreCase("s")) return 's';
       else return 'n';
     }
   }
 
   public static class Recorder extends Prompt.ConsoleInput {
-    final Map<String, String> records = new LinkedHashMap<>();
+    final List<Pair<String, String>> records = new LinkedList<>();
 
     @Override
     public boolean yesNo(final String prompt) {
       System.out.println(prompt + " 'y': Yes, 'n': No");
       final String answer = scanner.nextLine();
-      records.put(prompt, answer);
+      records.add(new ImmutablePair<>(answer, prompt.replaceAll("\\n", "")));
       return answer.equals("") || answer.equalsIgnoreCase("y");
     }
 
     @Override
     public char yesNoSelect(final String prompt) {
       System.out.println(prompt + " 'y': Yes, 'n': Skip, 's': Select");
-      final String next = scanner.nextLine();
-      records.put(prompt, next);
+      final String answer = scanner.nextLine();
+      records.add(new ImmutablePair<>(answer, prompt.replaceAll("\\n", "")));
 
-      if (next.equals("") || next.equalsIgnoreCase("y")) return 'y';
-      else if (next.equalsIgnoreCase("s")) return 's';
+      if (answer.equals("") || answer.equalsIgnoreCase("y")) return 'y';
+      else if (answer.equalsIgnoreCase("s")) return 's';
       else return 'n';
     }
 
-    public Map<String, String> getRecords() {
+    public List<Pair<String, String>> getRecords() {
       return records;
     }
   }

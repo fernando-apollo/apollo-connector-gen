@@ -14,6 +14,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.*;
 import java.util.LinkedHashSet;
@@ -75,8 +76,8 @@ public class Visitor {
 //    printRefs(counter.getCount());
 //
     System.out.println("---------------- recorder ----------------------");
-    final Map<String, String> recorded = ((Prompt.Recorder) recorder).getRecords();
-    recorded.forEach((key, value) -> System.out.println("\"" + value + "\", /* " + key + " */"));
+    final List<Pair<String, String>> records = ((Prompt.Recorder) recorder).getRecords();
+    records.forEach(pair -> System.out.println("\"" + pair.getLeft() + "\" /* " + pair.getRight() + " */"));
 
     System.out.println("---------------- schema ----------------------");
     visitor.writeSchema(collected);

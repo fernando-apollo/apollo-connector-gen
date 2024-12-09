@@ -217,9 +217,26 @@ public class VisitorTests {
 
   @Test
   void test_TMF637_001_ComposedTest() throws IOException {
+    InputStream input = VisitorTests.class.getClassLoader()
+      .getResourceAsStream("test_TMF637_001_ComposedTest.txt");
+    assertNotNull(input);
+
+    final String[] recording = Recordings.fromInputStream(input);
+    assertNotNull(recording);
+    assertTrue(recording.length > 0);
+
+    Prompt.get(Prompt.Factory.player(recording));
+
     final String source = String.format("%s/tmf-specs/TMF637-001-ComposedTest.yaml", baseURL);
     final OpenAPI parser = createParser(source);
     assertNotNull(parser);
+
+    final Visitor visitor = new Visitor(parser);
+    final Set<Type> collected = visitor.visit();
+    assertNotNull(collected);
+
+    System.out.println(" ----------- schema -------------- ");
+    visitor.writeSchema(collected);
   }
 
   @Test
