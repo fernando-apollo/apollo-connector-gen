@@ -10,6 +10,9 @@ import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @deprecated
+ */
 public class CResponseObjectType extends CType {
   private final String typeRef;
 

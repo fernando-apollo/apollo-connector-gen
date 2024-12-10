@@ -8,6 +8,9 @@ import com.apollographql.oas.converter.types.CType;
 import java.io.IOException;
 import java.io.Writer;
 
+/**
+ * @deprecated
+ */
 public class CSchemaType extends CType {
   public CSchemaType(Schema schema) {
     super(null, schema, CTypeKind.OBJ_ANON);

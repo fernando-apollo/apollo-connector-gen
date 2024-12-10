@@ -16,6 +16,9 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 
+/**
+ * @deprecated
+ */
 public class CComposedType extends CType {
   private static final Logger logger = Logger.getLogger(CComposedType.class.getName());
   

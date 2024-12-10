@@ -9,6 +9,9 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
 
+/**
+ * @deprecated
+ */
 public class CArrayType extends CType {
   private static final Logger logger = Logger.getLogger(CArrayType.class.getName());
   private final String itemType;

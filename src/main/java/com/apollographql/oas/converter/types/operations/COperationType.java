@@ -16,6 +16,9 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
 
+/**
+ * @deprecated
+ */
 public class COperationType extends CType {
   private static final Logger logger = Logger.getLogger(COperationType.class.getName());
   

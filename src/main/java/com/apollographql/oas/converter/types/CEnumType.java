@@ -11,6 +11,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+
+/**
+ * @deprecated
+ */
 public class CEnumType extends CType {
   private final List<String> items;
 

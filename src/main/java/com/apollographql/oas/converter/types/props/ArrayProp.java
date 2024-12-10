@@ -10,6 +10,9 @@ import java.io.Writer;
 
 import static com.apollographql.oas.converter.utils.Trace.print;
 
+/**
+ * @deprecated
+ */
 public class ArrayProp extends Prop {
   private final Prop items;
 

@@ -12,6 +12,9 @@ import java.io.Writer;
 
 import static com.apollographql.oas.converter.utils.Trace.print;
 
+/**
+ * @deprecated
+ */
 public class RefProp extends Prop {
   private final String ref;
 

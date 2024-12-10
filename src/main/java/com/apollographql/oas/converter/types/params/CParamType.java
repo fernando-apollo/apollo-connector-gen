@@ -9,6 +9,9 @@ import io.swagger.v3.oas.models.media.Schema;
 import java.io.IOException;
 import java.io.Writer;
 
+/**
+ * @deprecated
+ */
 public class CParamType extends CType {
 
   private final boolean required;

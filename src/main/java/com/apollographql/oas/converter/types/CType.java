@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
 
+/**
+ * @deprecated
+ */
 public abstract class CType {
   private final String name;
   private final Schema schema;
