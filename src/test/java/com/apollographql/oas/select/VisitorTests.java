@@ -1,7 +1,6 @@
 package com.apollographql.oas.select;
 
 import com.apollographql.oas.converter.Main;
-import com.apollographql.oas.select.context.RefCounter;
 import com.apollographql.oas.select.nodes.Obj;
 import com.apollographql.oas.select.nodes.Type;
 import com.apollographql.oas.select.nodes.props.Prop;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -25,8 +25,6 @@ import java.util.logging.LogManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class VisitorTests {
-  static final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
-
   private StringWriter writer;
 
   @BeforeEach
@@ -52,7 +50,7 @@ public class VisitorTests {
   void test_001_testMinimalPetstore() throws IOException {
     loadRecording("test_001_testMinimalPetstore.txt");
 
-    final OpenAPI parser = createParser(String.format("%s/./sample-oas/petstore.yaml", baseURL));
+    final OpenAPI parser = createParser(loadSpec("petstore.yaml"));
     assertNotNull(parser);
 
     final Visitor visitor = new Visitor(parser);
@@ -83,9 +81,7 @@ public class VisitorTests {
   void test_002_testFullPetStoreSchema() throws URISyntaxException, IOException {
     loadRecording("test_001_FullPetstoreSchema.txt");
 
-    final String source = String.format("%s/./sample-oas/petstore.yaml", baseURL);
-
-    final OpenAPI parser = createParser(source);
+    final OpenAPI parser = createParser(loadSpec("petstore.yaml"));
     assertNotNull(parser);
 
     final Visitor visitor = new Visitor(parser);
@@ -111,10 +107,7 @@ public class VisitorTests {
 
   @Test
   void test_003_testConsumerJourney() throws IOException {
-    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
-    final String source = String.format("%s/js-mva-consumer-info_v1.yaml", baseURL);
-
-    final OpenAPI parser = createParser(source);
+    final OpenAPI parser = createParser(loadSpec("js-mva-consumer-info_v1.yaml"));
     assertNotNull(parser);
 
     loadRecording("test_001_ConsumerJourney.txt");
@@ -139,8 +132,7 @@ public class VisitorTests {
   void test_TMF633_IntentOrValue_to_Union() throws IOException {
     loadRecording("TMF633_IntentOrValue_to_Union.txt");
 
-    final String source = String.format("%s/tmf-specs/TMF637-001-UnionTest.yaml", baseURL);
-    final OpenAPI parser = createParser(source);
+    final OpenAPI parser = createParser(loadSpec("TMF637-001-UnionTest.yaml"));
     assertNotNull(parser);
 
     final Visitor visitor = new Visitor(parser);
@@ -164,8 +156,7 @@ public class VisitorTests {
   void test_TMF637_001_ComposedTest() throws IOException {
     loadRecording("test_TMF637_001_ComposedTest.txt");
 
-    final String source = String.format("%s/tmf-specs/TMF637-001-ComposedTest.yaml", baseURL);
-    final OpenAPI parser = createParser(source);
+    final OpenAPI parser = createParser(loadSpec("TMF637-001-ComposedTest.yaml"));
     assertNotNull(parser);
 
     final Visitor visitor = new Visitor(parser);
@@ -185,9 +176,7 @@ public class VisitorTests {
 
   @Test
   void test_003_testTMF637_Full() throws IOException {
-    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
-
-    final OpenAPI parser = createParser(source);
+    final OpenAPI parser = createParser(loadSpec("TMF637-ProductInventory-v5.0.0.oas.yaml"));
     assertNotNull(parser);
 
     Prompt.get(Prompt.Factory.yes());
@@ -229,6 +218,14 @@ public class VisitorTests {
     visitor.writeSchema(writer);
     System.out.println(" ----------- schema -------------- ");
     System.out.println(writer);
+  }
+
+  private static String loadSpec(final String resource) {
+    URL input = VisitorTests.class.getClassLoader()
+      .getResource(resource);
+    assertNotNull(input);
+
+    return input.getPath();
   }
 
   private static void loadRecording(final String resource) {
