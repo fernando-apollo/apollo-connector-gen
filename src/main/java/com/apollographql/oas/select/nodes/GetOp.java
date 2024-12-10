@@ -92,7 +92,9 @@ public class GetOp extends Type {
     trace(context, "-> [get::parameters]", "in: " + getName());
 
     if (this.get.getParameters() != null && !this.get.getParameters().isEmpty()) {
-      this.parameters = this.get.getParameters().stream().map((Parameter p) -> visitParameter(context, this, p)).toList();
+      this.parameters = this.get.getParameters().stream()
+        .filter(p -> p.getIn() == null || (p.getIn() != null && !p.getIn().equalsIgnoreCase("header")))
+        .map((Parameter p) -> visitParameter(context, this, p)).toList();
     }
     else {
       this.parameters = Collections.emptyList();

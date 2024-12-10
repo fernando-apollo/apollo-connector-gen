@@ -55,7 +55,7 @@ public class NameUtils {
       return null;
 
     final List<String> parameters = operation.getParameters().stream()
-      .filter(parameter -> parameter.getRequired() != null && parameter.getRequired())
+      .filter(parameter -> parameter.getRequired() != null && parameter.getRequired() && !parameter.getIn().equals("header"))
       .map(p -> String.format("By%s", StringUtils.capitalize(p.getName())))
       .toList();
 
@@ -89,7 +89,7 @@ public class NameUtils {
   public static String genOperationName(String path, Operation operation) {
 
     final List<String> parameters = operation.getParameters() != null ? operation.getParameters().stream()
-      .filter(parameter -> parameter.getRequired() != null && parameter.getRequired())
+      .filter(parameter -> parameter.getRequired() != null && parameter.getRequired() && !parameter.getIn().equalsIgnoreCase("header"))
       .map(p -> {
         final String name = capitaliseParts(p.getName(), "-");
         return String.format("By%s", StringUtils.capitalize(name));
