@@ -21,7 +21,7 @@ public class Context {
   private final OpenAPI parser;
   private Map<String, Type> types = new TreeMap<>();
 
-  private final Map<String, Integer> refCounter = new LinkedHashMap<>();
+//  private final Map<String, Integer> refCounter = new LinkedHashMap<>();
 
   private Set<String> generatedSet = new LinkedHashSet<>();
 
@@ -82,7 +82,7 @@ public class Context {
   public void store(final String name, final Type type) {
     trace(this, "[context::store]", "store " + type.id());
     this.types.put(name, type);
-    inc(type);
+//    inc(type);
   }
 
   public Type get(final String name) {
@@ -93,19 +93,19 @@ public class Context {
     return this.types.get(name);
   }
 
-  private void inc(Type type) {
-    if (type instanceof Prop || type instanceof Scalar) return;
-
-    Integer value = refCounter.get(type.id());
-    if (value != null) {
-      trace(this, "[context::inc]", "inc: " + type.id());
-      refCounter.put(type.id(), ++value);
-    }
-    else {
-      trace(this, "[context::inc]", "add: " + type.id());
-      refCounter.put(type.id(), 1);
-    }
-  }
+//  private void inc(Type type) {
+//    if (type instanceof Prop || type instanceof Scalar) return;
+//
+//    Integer value = refCounter.get(type.id());
+//    if (value != null) {
+//      trace(this, "[context::inc]", "inc: " + type.id());
+//      refCounter.put(type.id(), ++value);
+//    }
+//    else {
+//      trace(this, "[context::inc]", "add: " + type.id());
+//      refCounter.put(type.id(), 1);
+//    }
+//  }
 
   public List<Type> getPendingTypes() {
     return this.pendingList;

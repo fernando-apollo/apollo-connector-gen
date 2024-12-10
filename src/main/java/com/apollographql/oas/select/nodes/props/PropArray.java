@@ -1,8 +1,6 @@
 package com.apollographql.oas.select.nodes.props;
 
 import com.apollographql.oas.select.context.Context;
-import com.apollographql.oas.select.nodes.Obj;
-import com.apollographql.oas.select.nodes.Ref;
 import com.apollographql.oas.select.nodes.Type;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -68,8 +66,10 @@ public class PropArray extends Prop {
     writer.append("\n");
   }
 
-  public Set<Type> dependencies() {
-    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies!");
+  public Set<Type> dependencies(final Context context) {
+    if (!isVisited()) {
+      this.visit(context);
+    }
 
     final Set<Type> set = new HashSet<>();
     set.add(getItems());

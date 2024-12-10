@@ -65,13 +65,15 @@ public class Obj extends Type {
   }
 
   @Override
-  public Set<Type> dependencies() {
-    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies!");
+  public Set<Type> dependencies(final Context context) {
+    if (!isVisited()) {
+      this.visit(context);
+    }
 
     final Set<Type> set = new HashSet<>();
 
     for (Type p : getProps().values()) {
-      set.addAll(p.dependencies());
+      set.addAll(p.dependencies(context));
     }
 
     return set;
@@ -141,26 +143,20 @@ public class Obj extends Type {
       .sorted((o1, o2) -> o1.getKey().compareToIgnoreCase(o2.getKey()))
       .collect(Collectors.toCollection(LinkedHashSet::new));
 
-
-    final String indent = indent(context);
-
-    final List<String> collected = sorted.stream()
+    final Map<String, Prop> collected = sorted.stream()
       .map(e -> Factory.fromProperty(this, e.getKey(), e.getValue()))
-      .map((Prop p) -> p.forPrompt(context))
-      .collect(Collectors.toList());
+      .collect(Collectors.toMap(Prop::getName, prop -> prop));
 
-    final String propertiesNames = String.join(",\n - ", collected);
-    String owner = getSimpleName();
-    if (owner == null && getParent() instanceof Composed) {
-      owner = getParent().getSimpleName();
-    }
+    final String propertiesNames = collected.values().stream()
+      .map(p -> p.forPrompt(context))
+      .collect(Collectors.joining(",\n - "));
 
     final boolean inCompose = context.inComposeContext(this);
-    trace(context, "   [obj::props]", getSimpleName() + " is within compose context");
+    trace(context, "   [obj::props]", getSimpleName() + " is within compose context? " + inCompose);
 
     final char addAll = inCompose ? 'y' : Prompt
       .get()
-      .yesNoSelect(" -> Add all properties from " + owner + "?: \n - " + propertiesNames + "\n");
+      .yesNoSelect(" -> Add all properties from " + getOwner() + "?: \n - " + propertiesNames + "\n");
 
     /* we should only prompt for properties if:
      * 1. we are NOT a comp://all-of
@@ -186,28 +182,30 @@ public class Obj extends Type {
       }
     }
 
-    // DO NOT ADD THIS
     // now do dependencies -- this works well for Petstore but not for TMF633
     // in Composed we'll need to filter out which props we don't want added
     // instead of adding them as a dependency
-    final List<Prop> dependencies = getProps().values().stream()
-      .filter(p -> {
-        trace(context, "-> [obj]", "visitProperties inCompose " + context.inComposeContext(this) + ", in " + id());
-        return p instanceof PropRef || p instanceof PropArray;
-      })
-      .toList();
+    addDependencies(context);
 
-    for (final Prop dependency : dependencies) {
-      trace(context, "-> [obj]", "prop dependency: " + dependency.getName());
-      if (context.inComposeContext(this)) {
-        context.addPending(dependency);
-      }
-      else {
+    trace(context, "<- [obj::props]", "out props " + getProps().size());
+  }
+
+  private void addDependencies(final Context context) {
+    final boolean inCompose = context.inComposeContext(this);
+
+    if (!inCompose) {
+      final List<Prop> dependencies = getProps().values().stream()
+        .filter(p -> {
+          trace(context, "-> [obj]", "visitProperties inCompose " + context.inComposeContext(this) + ", in " + id());
+          return p instanceof PropRef || p instanceof PropArray;
+        })
+        .toList();
+
+      for (final Prop dependency : dependencies) {
+        trace(context, "-> [obj]", "prop dependency: " + dependency.getName());
         dependency.visit(context);
       }
     }
-
-    trace(context, "<- [obj::props]", "out props " + getProps().size());
   }
 
   @Override
@@ -224,12 +222,4 @@ public class Obj extends Type {
     return Objects.hash(super.hashCode(), schema);
   }
 
-  private String getOwner() {
-    String owner = getSimpleName();
-    if (owner == null && getParent() instanceof Composed) {
-      owner = getParent().getSimpleName();
-    }
-
-    return owner;
-  }
 }

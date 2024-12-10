@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.LogManager;
+import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.trace;
 
@@ -54,7 +55,9 @@ public class Visitor {
     final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
 //    final String source = String.format("%s/sample-oas/petstore.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
-    final String source = String.format("%s/tmf-specs/TMF637-001-ComposedTest.yaml", baseURL);
+//    final String source = String.format("%s/tmf-specs/TMF637-001-ComposedTest.yaml", baseURL);
+//    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+    final String source = String.format("%s/tmf-specs/TMF637-001-UnionTest.yaml", baseURL);
 
     if (!new File(source).exists()) {
       throw new FileNotFoundException("Source not found: " + source);
@@ -107,10 +110,16 @@ public class Visitor {
       collected.add(result);
     }
 
+    trace(context, "   [visit]", "pending: " + context.getPendingTypes());
+
+//    for (Type type : collected) {
+//
+//    }
+
     // visit collected dependencies
-    for (Type pending : context.getPendingTypes()) {
-      pending.visit(context);
-    }
+//    for (Type pending : context.getPendingTypes()) {
+//      pending.visit(context);
+//    }
 
     this.collected = collected;
   }
@@ -123,17 +132,35 @@ public class Visitor {
   }
 
   public void writeSchema(Writer writer) throws IOException {
-    final RefCounter counter = new RefCounter();
-    counter.addAll(collected);
-
     final Set<String> generatedSet = context.getGeneratedSet();
     generatedSet.clear();
 
     writeDirectives(writer);
 
+    final RefCounter counter = new RefCounter(getContext());
+    counter.addAll(collected);
+
+    final Map<String, Integer> refs = counter.getCount();
+    printRefs(refs);
+
+    // we can sort by ref count I guess if we wanted to
+//    final Map<String, Type> types = context.getTypes();
+//    final Set<Type> filtered = types.values().stream()
+//      .filter(t -> refs.containsKey(t.getName()))
+//      .sorted((o1, o2) -> {
+//        int o1rc = refs.get(o1.getName());
+//        int o2rc = refs.get(o2.getName());
+//        return o1rc > o2rc ? -1 : o1rc < o2rc ? 1 : 0;
+//      }).collect(Collectors.toCollection(LinkedHashSet::new));
+//
+//    for (Type type : filtered) {
+//      type.generate(context, writer);
+//      generatedSet.add(type.getName());
+//    }
+
     // 1. generated collected types
     for (final Type type : context.getTypes().values()) {
-      if (counter.getCount().containsKey(type.id())) {
+      if (counter.getCount().containsKey(type.getName())) {
         type.generate(context, writer);
         generatedSet.add(type.getName());
       }

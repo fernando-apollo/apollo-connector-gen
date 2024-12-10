@@ -1,114 +1,18 @@
-    "n", /*    visit '/product'? */
-    "y", /*    visit '/product/{id}'? */
-    "n", /* Add all properties from Extensible?:
- - @baseType: String,
- - @schemaLocation: String,
- - @type: String
- */
-    "n", /*        add property '@baseType: String'? */
-    "n", /*        add property '@schemaLocation: String'? */
-    "n", /*        add property '@type: String'? */
-    "n", /* Add all properties from Addressable?:
- - href: String,
- - id: String
- */
-    "n", /*        add property 'href: String'? */
-    "n", /*        add property 'id: String'? */
-    "n", /* Add all properties from Product?:
- - agreementItem: [AgreementItemRef],
- - billingAccount: BillingAccountRef,
- - creationDate: String,
- - description: String,
- - intent: IntentRefOrValue,
- - isBundle: Boolean,
- - isCustomerVisible: Boolean,
- - name: String,
- - orderDate: String,
- - place: [RelatedPlaceRefOrValue],
- - product: [ProductRefOrValue],
- - productCharacteristic: [Characteristic],
- - productOffering: ProductOfferingRef,
- - productOrderItem: [RelatedOrderItem],
- - productPrice: [ProductPrice],
- - productRelationship: [ProductRelationship],
- - productSerialNumber: String,
- - productSpecification: ProductSpecificationRef,
- - productTerm: [ProductTerm],
- - realizingResource: [ResourceRef],
- - realizingService: [ServiceRef],
- - relatedParty: [RelatedPartyOrPartyRole],
- - startDate: String,
- - status: ProductStatusType,
- - terminationDate: String
- */
-    "n", /*     add property 'agreementItem: [AgreementItemRef]'? */
-    "n", /*     add property 'billingAccount: BillingAccountRef'? */
-    "n", /*     add property 'creationDate: String'? */
-    "y", /*     add property 'description: String'? */
-    "y", /*     add property 'intent: IntentRefOrValue'? */
-    "n", /*     add property 'isBundle: Boolean'? */
-    "n", /*     add property 'isCustomerVisible: Boolean'? */
-    "n", /*     add property 'name: String'? */
-    "n", /*     add property 'orderDate: String'? */
-    "n", /*     add property 'place: [RelatedPlaceRefOrValue]'? */
-    "n", /*     add property 'product: [ProductRefOrValue]'? */
-    "n", /*     add property 'productCharacteristic: [Characteristic]'? */
-    "n", /*     add property 'productOffering: ProductOfferingRef'? */
-    "n", /*     add property 'productOrderItem: [RelatedOrderItem]'? */
-    "n", /*     add property 'productPrice: [ProductPrice]'? */
-    "n", /*     add property 'productRelationship: [ProductRelationship]'? */
-    "n", /*     add property 'productSerialNumber: String'? */
-    "n", /*     add property 'productSpecification: ProductSpecificationRef'? */
-    "n", /*     add property 'productTerm: [ProductTerm]'? */
-    "n", /*     add property 'realizingResource: [ResourceRef]'? */
-    "n", /*     add property 'realizingService: [ServiceRef]'? */
-    "n", /*     add property 'relatedParty: [RelatedPartyOrPartyRole]'? */
-    "n", /*     add property 'startDate: String'? */
-    "n", /*     add property 'status: ProductStatusType'? */
-    "n", /*     add property 'terminationDate: String'? */
-    "n", /* Add all properties from EntityRef?:
- - @referredType: String,
- - href: String,
- - id: String,
- - name: String
- */
-    "n", /*             add property '@referredType: String'? */
-    "n", /*             add property 'href: String'? */
-    "n", /*             add property 'id: String'? */
-    "n", /*             add property 'name: String'? */
-    "n", /* Add all properties from Intent?:
- - attachment: [AttachmentRefOrValue],
- - characteristic: [Characteristic],
- - context: String,
- - creationDate: String,
- - description: String,
- - expression: Expression,
- - intentRelationship: [EntityRelationship],
- - intentSpecification: EntityRef,
- - isBundle: Boolean,
- - lastUpdate: String,
- - lifecycleStatus: String,
- - name: String,
- - priority: String,
- - relatedParty: [RelatedPartyRefOrPartyRoleRef],
- - statusChangeDate: String,
- - validFor: TimePeriod,
- - version: String
- */
-    "n", /*           add property 'attachment: [AttachmentRefOrValue]'? */
-    "n", /*           add property 'characteristic: [Characteristic]'? */
-    "n", /*           add property 'context: String'? */
-    "n", /*           add property 'creationDate: String'? */
-    "n", /*           add property 'description: String'? */
-    "n", /*           add property 'expression: Expression'? */
-    "n", /*           add property 'intentRelationship: [EntityRelationship]'? */
-    "n", /*           add property 'intentSpecification: EntityRef'? */
-    "n", /*           add property 'isBundle: Boolean'? */
-    "n", /*           add property 'lastUpdate: String'? */
-    "n", /*           add property 'lifecycleStatus: String'? */
-    "y", /*           add property 'name: String'? */
-    "y", /*           add property 'priority: String'? */
-    "n", /*           add property 'relatedParty: [RelatedPartyRefOrPartyRoleRef]'? */
-    "n", /*           add property 'statusChangeDate: String'? */
-    "n", /*           add property 'validFor: TimePeriod'? */
-    "n", /*           add property 'version: String'? */
+"y" /* visit '/product/{id}'? */
+"s" /*  -> Add all properties from #/components/schemas/Product?:  - @baseType, - @schemaLocation, - @type, - href, - id, - intent, - name */
+"n" /* Add field '@baseType: String'? */
+"n" /* Add field '@schemaLocation: String'? */
+"n" /* Add field '@type: String'? */
+"n" /* Add field 'href: String'? */
+"y" /* Add field 'id: String'? */
+"y" /* Add field 'intent: IntentRefOrValue'? */
+"y" /* Add field 'name: String'? */
+"s" /*  -> Add all properties from IntentRefOrValue?:  - @baseType, - @schemaLocation, - @type, - href, - id, - @referredType, - name, - description */
+"n" /* Add field '@baseType: String'? */
+"n" /* Add field '@schemaLocation: String'? */
+"n" /* Add field '@type: String'? */
+"n" /* Add field 'href: String'? */
+"y" /* Add field 'id: String'? */
+"n" /* Add field '@referredType: String'? */
+"y" /* Add field 'name: String'? */
+"y" /* Add field 'description: String'? */

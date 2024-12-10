@@ -10,9 +10,6 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.apollographql.oas.converter.utils.Trace.print;
-import static com.apollographql.oas.select.log.Trace.trace;
-
 public class PropScalar extends Prop {
   protected final String type;
   private Type propType;
@@ -70,7 +67,7 @@ public class PropScalar extends Prop {
   }
 
   @Override
-  public Set<Type> dependencies() {
+  public Set<Type> dependencies(final Context context) {
     return Collections.emptySet();
   }
 }

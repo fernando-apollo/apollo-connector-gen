@@ -4,7 +4,6 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.props.Prop;
-import com.apollographql.oas.select.nodes.props.PropRef;
 import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -44,13 +43,13 @@ public class Composed extends Type {
   }
 
   @Override
-  public Set<Type> dependencies() {
+  public Set<Type> dependencies(final Context context) {
     if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies!");
 
     final Set<Type> set = new HashSet<>();
 
     for (Type p : getProps().values()) {
-      set.addAll(p.dependencies());
+      set.addAll(p.dependencies(context));
     }
 
     return set;
@@ -58,25 +57,28 @@ public class Composed extends Type {
 
   @Override
   public void generate(final Context context, final Writer writer) throws IOException {
-    if (getProps().isEmpty()) {
-      return;
-    }
-
     context.enter(this);
-    trace(context, "-> [obj::generate]", String.format("-> in: %s", this.getName()));
+    trace(context, "-> [comp::generate]", String.format("-> in: %s", this.getName()));
 
-    writer.append("type ")
-      .append(NameUtils.getRefName(getName()))
-      .append(" {\n");
+    if (getSchema().getOneOf() != null) {
+      getChildren().get(0).generate(context, writer);
+    }
+    else if (getSchema().getAllOf() != null) {
+      if (!getProps().isEmpty()) {
+        writer.append("type ")
+          .append(NameUtils.getRefName(getName()))
+          .append(" {\n");
 
-    for (Prop prop : this.getProps().values()) {
-      trace(context, "-> [obj::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
-      prop.generate(context, writer);
+        for (Prop prop : this.getProps().values()) {
+          trace(context, "-> [comp::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
+          prop.generate(context, writer);
+        }
+
+        writer.append("}\n\n");
+      }
     }
 
-    writer.append("}\n\n");
-
-    trace(context, "<- [obj::generate]", String.format("-> out: %s", this.getName()));
+    trace(context, "<- [comp::generate]", String.format("-> out: %s", this.getName()));
     context.leave(this);
   }
 
@@ -130,17 +132,6 @@ public class Composed extends Type {
 
     trace(context, "<- [composed]", "out: " + getName());
     context.leave(this);
-
-//    // now do dependencies
-//    final List<Prop> dependencies = getProps().values().stream()
-//      .filter(p -> p instanceof PropRef)
-//      .toList();
-//
-//    for (final Prop dependency : dependencies) {
-//      trace(context, "-> [composed]", "prop dependency: " + dependency.getName());
-////      dependency.visit(context);
-//      context.addPending(dependency);
-//    }
   }
 
   /* we are collecting all nodes to combine them into a single object -- therefore we must 'silence' the prompt for
@@ -156,13 +147,12 @@ public class Composed extends Type {
       final Schema allOfItemSchema = allOfs.get(i);
 
       final Type type = Factory.fromSchema(context, this, allOfItemSchema);
+      trace(context, "   [composed::all-of]", "allOf type: " + type);
       assert type != null;
 
       // we are visiting all the tree -- then we'll let them choose which properties they want to add
       type.visit(context);
-
       collected.putAll(type.getProps());
-      trace(context, "   [composed::all-of]", "allOf type: " + type);
     }
 
     final boolean inCompose = context.inComposeContext(this);
@@ -170,34 +160,22 @@ public class Composed extends Type {
       getProps().putAll(collected);
     }
     else {
-
-      final String propertiesNames = String.join(",\n - ",
-        collected.values().stream().map(Type::getName).toList());
-
-      final char addAll = Prompt
-        .get()
-        .yesNoSelect(" -> Add all properties from " + getName() + "?: \n - " + propertiesNames + "\n");
-
-      /* we should only prompt for properties if:
-       * 1. we are NOT a comp://all-of
-       * 2. the comp://all-of contains our name (i.e: #/component/schemas/Extensible
-       */
-      if ((addAll == 'y' || addAll == 's')) {
-        for (final Map.Entry<String, Prop> entry : collected.entrySet()) {
-          final Prop prop = entry.getValue();
-          if (addAll == 'y' || Prompt.get().yesNo("Add field '" + prop.forPrompt(context) + "'?")) {
-            trace(context, "   [obj::props]", "prop: " + prop);
-
-            // add property to our dependencies
-            getProps().put(prop.getName(), prop);
-
-            if (!this.getChildren().contains(prop)) {
-              this.add(prop);
-            }
-          }
-        }
-      }
+      promptPropertySelection(context, collected);
     }
+
+    /*final List<Prop> dependencies = getProps().values().stream()
+      .filter(p -> {
+        trace(context, "-> [composed]", "visitProperties inCompose " + context.inComposeContext(this) + ", in " + id());
+        return p instanceof PropRef || p instanceof PropArray;
+      })
+      .toList();
+
+    for (final Prop dependency : dependencies) {
+      if (!dependency.isVisited()) {
+        trace(context, "-> [composed]", "adding prop dependency: " + dependency.getName());
+        context.addPending(dependency);
+      }
+    }*/
 
     // we'll store it first, it might avoid recursion
     trace(context, "-> [composed]", "storing: " + getName() + " with: " + this);
@@ -206,7 +184,36 @@ public class Composed extends Type {
     trace(context, "<- [composed::all-of]", "out: " + String.format("'%s' of: %d - refs: %s", name, allOfs.size(), refs));
   }
 
-  private Type visitOneOfNode(final Context context, final ComposedSchema schema) {
+  private void promptPropertySelection(final Context context, final Map<String, Prop> properties) {
+    final String propertiesNames = String.join(",\n - ",
+      properties.values().stream().map(Type::getName).toList());
+
+    final char addAll = Prompt
+      .get()
+      .yesNoSelect(" -> Add all properties from " + getName() + "?: \n - " + propertiesNames + "\n");
+
+    /* we should only prompt for properties if:
+     * 1. we are NOT a comp://all-of
+     * 2. the comp://all-of contains our name (i.e: #/component/schemas/Extensible
+     */
+    if ((addAll == 'y' || addAll == 's')) {
+      for (final Map.Entry<String, Prop> entry : properties.entrySet()) {
+        final Prop prop = entry.getValue();
+        if (addAll == 'y' || Prompt.get().yesNo("Add field '" + prop.forPrompt(context) + "'?")) {
+          trace(context, "   [composed::props]", "prop: " + prop);
+
+          // add property to our dependencies
+          getProps().put(prop.getName(), prop);
+
+          if (!this.getChildren().contains(prop)) {
+            this.add(prop);
+          }
+        }
+      }
+    }
+  }
+
+  private void visitOneOfNode(final Context context, final ComposedSchema schema) {
     final var oneOfs = schema.getOneOf();
     trace(context, "-> [composed::one-of]", "in: " + String.format("OneOf %s with size: %d", name, oneOfs.size()));
 
@@ -214,56 +221,18 @@ public class Composed extends Type {
     assert result != null;
     result.visit(context);
 
+//    final boolean inCompose = context.inComposeContext(this);
+//    if (inCompose) {
+//      getProps().putAll(result.getProps());
+//    }
+//    else {
+//      promptPropertySelection(context, result.getProps());
+//    }
+
     trace(context, "-> [composed::one-of]", "storing: " + getName() + " with: " + this);
     context.store(getName(), this);
 
     trace(context, "<- [composed::one-of]", "out: " + String.format("OneOf %s with size: %d", name, oneOfs.size()));
-    return result;
   }
 
-  static Map<String, Prop> promptPropertySelection(final Context context, final Type root, final Map<String, Prop> properties) {
-    if (properties.isEmpty()) {
-      trace(context, "<- [obj::props]", "no props found");
-      return properties;
-    }
-
-    final Set<Map.Entry<String, Prop>> sorted = properties.entrySet()
-      .stream()
-      .sorted((o1, o2) -> o1.getKey().compareToIgnoreCase(o2.getKey()))
-      .collect(Collectors.toCollection(LinkedHashSet::new));
-
-    final List<String> collected = sorted.stream()
-      .map(Map.Entry::getValue)
-      .map((Prop p) -> p.forPrompt(context))
-      .collect(Collectors.toList());
-
-    final String propertiesNames = String.join(",\n - ", collected);
-    String owner = root.getSimpleName();
-    if (owner == null && root.getParent() instanceof Composed) {
-      owner = root.getParent().getSimpleName();
-    }
-
-    final boolean addAll = Prompt.get().yesNo("Add all properties from " + owner + "?: \n - " + propertiesNames + "\n");
-    if (addAll) {
-      return properties;
-    }
-
-    final Map<String, Prop> result = new LinkedHashMap<>();
-    for (final Map.Entry<String, Prop> entry : sorted) {
-      final Prop prop = entry.getValue();
-
-      if (Prompt.get().yesNo(indent(context) + "add property '" + prop.forPrompt(context) + "'?")) {
-        trace(context, "   [obj::props]", "prop: " + prop);
-
-        // add property to our dependencies
-        result.put(entry.getKey(), prop);
-
-        if (!result.containsKey(entry.getKey())) {
-          result.put(entry.getKey(), entry.getValue());
-        }
-      }
-    }
-
-    return result;
-  }
 }

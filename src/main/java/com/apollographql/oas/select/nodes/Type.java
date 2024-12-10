@@ -1,6 +1,5 @@
 package com.apollographql.oas.select.nodes;
 
-import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.nodes.props.Prop;
@@ -10,6 +9,7 @@ import java.io.Writer;
 import java.util.*;
 
 import static com.apollographql.oas.select.log.Trace.trace;
+import static com.apollographql.oas.select.log.Trace.warn;
 
 public abstract class Type {
   protected String name;
@@ -49,7 +49,8 @@ public abstract class Type {
 
   public void add(Type child) {
     if (getChildren().contains(child)) {
-      throw new IllegalArgumentException("Should not be adding this twice! in " + id() + ", trying to add " + child.id());
+      warn(null, "[type]", "Should not be adding this twice! in " + id() + ", trying to add " + child.id() + " with children: " + getChildren());
+      return;
     }
 
     this.children.add(child);
@@ -105,18 +106,21 @@ public abstract class Type {
     return getSimpleName() + " (" + getClass().getSimpleName() + ")";
   }
 
-  public Set<Type> dependencies() {
-    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies! in " + id());
+  public Set<Type> dependencies(final Context context) {
+//    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies! in " + id() + "(" + getName() + ")");
+    if (!isVisited()) {
+      visit(context);
+    }
 
-    trace(null,  "-> [" + id() + "::dependencies]", String.format("-> in: %s", this.getName()));
+//    trace(null,  "-> [" + id() + "::dependencies]", String.format("-> in: %s", this.getName()));
     final Set<Type> set = new HashSet<>(getChildren());
 
     // by default dependencies will be children, except in objects and composed types
     for (Type t : getChildren()) {
-      set.addAll(t.dependencies());
+      set.addAll(t.dependencies(context));
     }
 
-    trace(null,  "<- [" + id() + "::dependencies]", "found '" + set.size() + "' dependencies");
+//    trace(null,  "<- [" + id() + "::dependencies]", "found '" + set.size() + "' dependencies");
     return set;
   }
 
@@ -135,5 +139,15 @@ public abstract class Type {
     while ((current = current.getParent()) != null);
 
     return builder.toString();
+  }
+
+  protected String getOwner() {
+    String owner = getSimpleName();
+
+    if (owner == null && getParent() instanceof Composed) {
+      owner = getParent().getSimpleName();
+    }
+
+    return owner;
   }
 }
