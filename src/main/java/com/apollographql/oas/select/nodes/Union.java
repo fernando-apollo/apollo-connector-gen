@@ -54,7 +54,9 @@ public class Union extends Type {
     visitProperties(context, collected);
 
     // store the union for generation
-    context.store(getName(), this);
+    if (getName() != null)
+      context.store(getName(), this);
+
     setVisited(true);
 
     trace(context, "<- [union]", "out: " + getSchemas().stream().map(Schema::get$ref).toList());
@@ -90,35 +92,45 @@ public class Union extends Type {
 
   @Override
   public void generate(Context context, Writer writer) throws IOException {
+    context.enter(this);
     trace(context, "-> [union::generate]", "in: " + getSchemas().stream().map(Schema::get$ref).toList());
 
-    // when we generate this Union in GQL it will be something like
-    // union MyUnion = Type1 | Type2 | Type3 -> name + "=" + types.join(' | ')
-    // and then we pray that the types are defined somewhere else
-    writer.append("#### NOT SUPPORTED YET BY CONNECTORS!!! union ").append(getSimpleName()).append(" = ");
-    writer.append(String.join("# | ", getChildren().stream().map(Type::getName).toList()));
-    writer.append("#\n\n");
+    if (context.inParamContext(this)) {
+      System.out.println("Union.generate");
+      for (Type child : getChildren()) {
+        child.generate(context, writer);
+      }
+    }
+    else {
+      // when we generate this Union in GQL it will be something like
+      // union MyUnion = Type1 | Type2 | Type3 -> name + "=" + types.join(' | ')
+      // and then we pray that the types are defined somewhere else
+      writer.append("#### NOT SUPPORTED YET BY CONNECTORS!!! union ").append(getSimpleName()).append(" = ");
+      writer.append(String.join("# | ", getChildren().stream().map(Type::getName).toList()));
+      writer.append("#\n\n");
 
-    trace(context, "   [union::generate]", String.format("[union] -> object: %s", this.getName()));
+      trace(context, "   [union::generate]", String.format("[union] -> object: %s", this.getName()));
 
-    writer.append("type ")
-      .append(getSimpleName())
-      .append(" { #### replacement for Union ")
-      .append(getSimpleName())
-      .append("\n");
+      writer.append("type ")
+        .append(getSimpleName())
+        .append(" { #### replacement for Union ")
+        .append(getSimpleName())
+        .append("\n");
 
-    final Set<Type> generatedSet = new LinkedHashSet<>();
+      final Set<Type> generatedSet = new LinkedHashSet<>();
 
-    for (Prop prop : this.getProps().values()) {
-      trace(context, "-> [union::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
-      prop.generate(context, writer);
+      for (Prop prop : this.getProps().values()) {
+        trace(context, "-> [union::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
+        prop.generate(context, writer);
+      }
+
+      writer.append("} ### End replacement for ")
+        .append(getSimpleName())
+        .append("\n\n");
     }
 
-    writer.append("} ### End replacement for ")
-      .append(getSimpleName())
-      .append("\n\n");
-
     trace(context, "<- [union::generate]", "out: " + getSchemas().stream().map(Schema::get$ref).toList());
+    context.leave(this);
   }
 
   @Override

@@ -1,5 +1,6 @@
 package com.apollographql.oas.select.factory;
 
+import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.nodes.*;
@@ -9,10 +10,7 @@ import com.apollographql.oas.select.nodes.props.PropArray;
 import com.apollographql.oas.select.nodes.props.PropRef;
 import com.apollographql.oas.select.nodes.props.PropScalar;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.ComposedSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
@@ -47,12 +45,18 @@ public class Factory {
         if (type.equals("array")) {
           throw new IllegalArgumentException("Should have been handled already? " + type + ", schema: " + schema);
         }
+        else if (schema.getEnum() != null) {
+          result = new En(parent, schema, schema.getEnum());
+        }
         else if (GqlUtils.gqlScalar(type) != null) { // scalar includes object => JSON
           result = new Scalar(parent, schema);
         }
         else {
           throw new IllegalArgumentException("Cannot handle property type " + type + ", schema: " + schema);
         }
+      }
+      else {
+        throw new IllegalArgumentException("Cannot handle property with schema: " + schema);
       }
     }
 

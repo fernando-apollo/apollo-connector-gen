@@ -52,12 +52,15 @@ public class Visitor {
     options.setResolve(true); // implicit
     options.setResolveCombinators(false); // default is true
 
-    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
+//    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
+    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
+
 //    final String source = String.format("%s/sample-oas/petstore.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF637-001-ComposedTest.yaml", baseURL);
 //    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
-    final String source = String.format("%s/tmf-specs/TMF637-001-UnionTest.yaml", baseURL);
+//    final String source = String.format("%s/tmf-specs/TMF637-001-UnionTest.yaml", baseURL);
+    final String source = String.format("%s/js-mva-consumer-info_v1.yaml", baseURL);
 
     if (!new File(source).exists()) {
       throw new FileNotFoundException("Source not found: " + source);

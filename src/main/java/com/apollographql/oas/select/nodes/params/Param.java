@@ -1,6 +1,7 @@
 package com.apollographql.oas.select.nodes.params;
 
 import com.apollographql.oas.converter.utils.GqlUtils;
+import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
 import com.apollographql.oas.select.nodes.Type;
@@ -64,7 +65,7 @@ public class Param extends Type {
     context.enter(this);
     trace(context, "-> [param::generate]", String.format("-> in: %s", this.getSimpleName()));
 
-    writer.write(getName());
+    writer.write(NameUtils.genParamName(getName()));
     writer.write(": ");
 
     getResultType().generate(context, writer);

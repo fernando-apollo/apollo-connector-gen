@@ -19,7 +19,11 @@ public class NameUtils {
     String cleanedPath = path.replaceAll("\\{[^}]*}", "");
 
     // Step 2: Split the path into parts and capitalize each part.
-    String[] parts = cleanedPath.split("/");
+    return capitaliseParts(cleanedPath, "/");
+  }
+
+  private static String capitaliseParts(final String cleanedPath, final String splitChar) {
+    String[] parts = cleanedPath.split(splitChar);
     StringBuilder formattedPath = new StringBuilder();
 
     for (String part : parts) {
@@ -33,6 +37,11 @@ public class NameUtils {
 
     // Step 3: Ensure the final string starts with a single slash.
     return formattedPath.toString();
+  }
+
+
+  public static String genParamName(final String param) {
+    return StringUtils.uncapitalize(capitaliseParts(param, "[-_]"));
   }
 
   public static void main(String[] args) {
@@ -81,7 +90,10 @@ public class NameUtils {
 
     final List<String> parameters = operation.getParameters() != null ? operation.getParameters().stream()
       .filter(parameter -> parameter.getRequired() != null && parameter.getRequired())
-      .map(p -> String.format("By%s", StringUtils.capitalize(p.getName())))
+      .map(p -> {
+        final String name = capitaliseParts(p.getName(), "-");
+        return String.format("By%s", StringUtils.capitalize(name));
+      })
       .toList() : Collections.emptyList();
 
     String result = "";

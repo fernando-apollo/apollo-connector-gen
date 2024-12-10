@@ -49,36 +49,6 @@ public class VisitorTests {
   }
 
   @Test
-  void test_001_testFullPetStoreSchema() throws URISyntaxException, IOException {
-    loadRecording("test_001_FullPetstoreSchema.txt");
-
-    final String source = String.format("%s/./sample-oas/petstore.yaml", baseURL);
-
-    final OpenAPI parser = createParser(source);
-    assertNotNull(parser);
-
-    final Visitor visitor = new Visitor(parser);
-    visitor.visit();
-    assertNotNull(visitor.getCollected());
-    assertEquals(3, visitor.getCollected().size(), "Should have collected 3 paths");
-
-    final Map<String, Type> types = visitor.getContext().getTypes();
-    assertEquals(3, types.size());
-    assertTrue(types.containsKey("#/components/schemas/Pet"), "Should contain definition for Pet");
-    assertTrue(types.containsKey("#/components/schemas/Category"), "Should contain definition for Category");
-    assertTrue(types.containsKey("#/components/schemas/Tag"), "Should contain definition for Tag");
-
-    assertInstanceOf(Obj.class, types.get("#/components/schemas/Pet"));
-    assertInstanceOf(Obj.class, types.get("#/components/schemas/Category"));
-    assertInstanceOf(Obj.class, types.get("#/components/schemas/Tag"));
-
-    final Prop tags = types.get("#/components/schemas/Pet").getProps().get("tags");
-    assertInstanceOf(PropArray.class, tags);
-
-    printSchema(visitor);
-  }
-
-  @Test
   void test_001_testMinimalPetstore() throws IOException {
     loadRecording("test_001_testMinimalPetstore.txt");
 
@@ -110,18 +80,44 @@ public class VisitorTests {
   }
 
   @Test
-  void test_003_testTMF637_ScalarsOnly() throws IOException {
-    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+  void test_002_testFullPetStoreSchema() throws URISyntaxException, IOException {
+    loadRecording("test_001_FullPetstoreSchema.txt");
+
+    final String source = String.format("%s/./sample-oas/petstore.yaml", baseURL);
 
     final OpenAPI parser = createParser(source);
     assertNotNull(parser);
 
-    String[] record = new String[]{ "n", "y", "y", "y", "n", "n", "n", "y",
-      "y", "n", "y", "y", "y", "y", "n", "n", "n", "n", "n", "n", "n", "y",
-      "n", "n", "n", "n", "n", "y", "n", "y"
-    };
+    final Visitor visitor = new Visitor(parser);
+    visitor.visit();
+    assertNotNull(visitor.getCollected());
+    assertEquals(3, visitor.getCollected().size(), "Should have collected 3 paths: " + visitor.getCollected());
 
-    Prompt.get(Prompt.Factory.player(record));
+    final Map<String, Type> types = visitor.getContext().getTypes();
+    assertEquals(3, types.size());
+    assertTrue(types.containsKey("#/components/schemas/Pet"), "Should contain definition for Pet");
+    assertTrue(types.containsKey("#/components/schemas/Category"), "Should contain definition for Category");
+    assertTrue(types.containsKey("#/components/schemas/Tag"), "Should contain definition for Tag");
+
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Pet"));
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Category"));
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Tag"));
+
+    final Prop tags = types.get("#/components/schemas/Pet").getProps().get("tags");
+    assertInstanceOf(PropArray.class, tags);
+
+    printSchema(visitor);
+  }
+
+  @Test
+  void test_003_testConsumerJourney() throws IOException {
+    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
+    final String source = String.format("%s/js-mva-consumer-info_v1.yaml", baseURL);
+
+    final OpenAPI parser = createParser(source);
+    assertNotNull(parser);
+
+    loadRecording("test_001_ConsumerJourney.txt");
 
     final Visitor visitor = new Visitor(parser);
     visitor.visit();
@@ -131,10 +127,11 @@ public class VisitorTests {
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
     final Type type = collected.stream().findFirst().get();
 
-    final RefCounter counter = new RefCounter();
-    counter.addAll(collected);
-    printRefs(counter.getCount());
-
+//    final RefCounter counter = new RefCounter();
+//    counter.addAll(collected);
+//    printRefs(counter.getCount());
+//
+    System.out.println(" ----------- schema -------------- ");
     printSchema(visitor);
   }
 
@@ -142,7 +139,7 @@ public class VisitorTests {
   void test_TMF633_IntentOrValue_to_Union() throws IOException {
     loadRecording("TMF633_IntentOrValue_to_Union.txt");
 
-    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
+    final String source = String.format("%s/tmf-specs/TMF637-001-UnionTest.yaml", baseURL);
     final OpenAPI parser = createParser(source);
     assertNotNull(parser);
 
@@ -154,9 +151,10 @@ public class VisitorTests {
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
     final Type type = collected.stream().findFirst().get();
 
-    final RefCounter counter = new RefCounter();
-    counter.addAll(collected);
-    printRefs(counter.getCount());
+    // TODO: add assertions
+//    final RefCounter counter = new RefCounter();
+//    counter.addAll(collected);
+//    printRefs(counter.getCount());
 
     System.out.println(" ----------- schema -------------- ");
     printSchema(visitor);
@@ -201,21 +199,14 @@ public class VisitorTests {
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
 
-    final RefCounter counter = new RefCounter();
-    counter.addAll(collected);
-
-    System.out.println("VisitorTests.test_003_testTMF637_Full -- \n");
-    final Map<String, Integer> values = counter.getCount();
-    printRefs(values);
+//    final RefCounter counter = new RefCounter();
+//    counter.addAll(collected);
+//    System.out.println("VisitorTests.test_003_testTMF637_Full -- \n");
+//    final Map<String, Integer> values = counter.getCount();
+//    printRefs(values);
 
     System.out.println("VisitorTests.test_003_testTMF637_Full ----------- schema -------------- \n");
     printSchema(visitor);
-  }
-
-  private static void printRefs(final Map<String, Integer> values) {
-    System.out.println("----------- ref count -------------- ");
-    values.entrySet().stream()//.filter(e -> e.getKey().startsWith("ref://"))
-      .forEach(e -> System.out.println(e.getKey() + " -> " + e.getValue()));
   }
 
   private static OpenAPI createParser(String source) {

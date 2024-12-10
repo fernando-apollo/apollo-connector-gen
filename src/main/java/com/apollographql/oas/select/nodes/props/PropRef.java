@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.apollographql.oas.select.log.Trace.trace;
@@ -38,11 +39,10 @@ public class PropRef extends Prop {
     return type != null ? type.getSimpleName() : NameUtils.getRefName(getRef());
   }
 
-//  @Override
-//  public Set<Type> dependencies() {
-//
-//    return super.dependencies();
-//  }
+  @Override
+  public Set<Type> dependencies(final Context context) {
+    return super.dependencies(context);
+  }
 
   @Override
   public void visit(final Context context) {
@@ -101,6 +101,20 @@ public class PropRef extends Prop {
 
   public String forPrompt(final Context context) {
     return getName() + ": " + NameUtils.getRefName(getRef());
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    final PropRef propRef = (PropRef) o;
+    return Objects.equals(ref, propRef.ref);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), ref);
   }
 
   @Override

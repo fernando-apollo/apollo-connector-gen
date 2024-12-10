@@ -72,8 +72,9 @@ public class Obj extends Type {
 
     final Set<Type> set = new HashSet<>();
 
-    for (Type p : getProps().values()) {
-      set.addAll(p.dependencies(context));
+    for (Type p : getProps().values().stream().filter(p -> p instanceof PropRef || p instanceof PropArray).toList()) {
+      final Set<Type> dependencies = p.dependencies(context);
+      set.addAll(dependencies);
     }
 
     return set;

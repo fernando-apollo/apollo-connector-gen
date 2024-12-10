@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.apollographql.oas.select.log.Trace.trace;
@@ -101,5 +102,19 @@ public class PropArray extends Prop {
 
   private boolean needsBrackets(Type child) {
     return child instanceof PropRef;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    final PropArray propArray = (PropArray) o;
+    return Objects.equals(items, propArray.items);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), items);
   }
 }

@@ -4,6 +4,8 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.nodes.Composed;
 import com.apollographql.oas.select.nodes.Scalar;
 import com.apollographql.oas.select.nodes.Type;
+import com.apollographql.oas.select.nodes.Union;
+import com.apollographql.oas.select.nodes.params.Param;
 import com.apollographql.oas.select.nodes.props.Prop;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
@@ -87,7 +89,7 @@ public class Context {
 
   public Type get(final String name) {
     if (this.types.containsKey(name)) {
-      trace(this, "[context::inc]", "cached => " + name);
+      trace(this, " [context::inc]", "cached => " + name);
     }
 
     return this.types.get(name);
@@ -133,6 +135,19 @@ public class Context {
         }
         walkIndex -= 1;
       }
+    }
+
+    return false;
+  }
+
+  public boolean inParamContext(final Type type) {
+    final Stack<Type> stack = getStack();
+    int walkIndex = stack.size() - 1;
+    while (walkIndex > -1) {
+      if (stack.get(walkIndex) instanceof Param) {
+        return true;
+      }
+      walkIndex -= 1;
     }
 
     return false;

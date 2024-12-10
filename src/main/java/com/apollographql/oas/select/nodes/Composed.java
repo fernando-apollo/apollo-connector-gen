@@ -230,7 +230,8 @@ public class Composed extends Type {
 //    }
 
     trace(context, "-> [composed::one-of]", "storing: " + getName() + " with: " + this);
-    context.store(getName(), this);
+    if (getName() != null)
+      context.store(getName(), this);
 
     trace(context, "<- [composed::one-of]", "out: " + String.format("OneOf %s with size: %d", name, oneOfs.size()));
   }
