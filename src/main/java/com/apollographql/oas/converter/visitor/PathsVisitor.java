@@ -90,7 +90,8 @@ public class PathsVisitor extends Visitor {
         resultType.setSummary(summary);
 
         context.putOperation(resultType);
-      } else {
+      }
+      else {
         final Content content = response.getContent();
 
         Optional<Map.Entry<String, MediaType>> first = content.entrySet().stream()
@@ -132,7 +133,8 @@ public class PathsVisitor extends Visitor {
         else if (schema instanceof ObjectSchema) {
           print(indent, "  [" + name + "]", "schema is ObjectSchema");
           throw new IllegalStateException("Cannot handle ObjectSchema yet for " + schema);
-        } else if (schema instanceof ArraySchema) {
+        }
+        else if (schema instanceof ArraySchema) {
           indent++;
           CResponseArrayType returnType = (CResponseArrayType) visitArraySchema(name, (ArraySchema) schema);
           store(returnType);
@@ -148,7 +150,8 @@ public class PathsVisitor extends Visitor {
 
           context.putOperation(opType);
           indent--;
-        } else if (schema instanceof MapSchema) {
+        }
+        else if (schema instanceof MapSchema) {
           indent++;
           // this is a work-around, and an easy one at that. we can potentially have 3 scenarios here:
           // 1. we return a JSON which is dynamic - but that means that types will need to be defined manually
@@ -160,14 +163,16 @@ public class PathsVisitor extends Visitor {
 
           context.putOperation(opType);
           indent--;
-        } else if (schema instanceof StringSchema) {
+        }
+        else if (schema instanceof StringSchema) {
           // response is actually a scalar type, in this case String
           final COperationType opType = new COperationType(operation, GqlUtils.getGQLScalarType(schema), parameters);
           opType.setSummary(summary);
           opType.setOriginalPath(path);
 
           context.putOperation(opType);
-        } else {
+        }
+        else {
           throw new IllegalStateException("Can't handle " + schema.getClass().getSimpleName());
         }
 
@@ -185,7 +190,8 @@ public class PathsVisitor extends Visitor {
       indent++;
       parameters = getOp.getParameters().stream().map(this::visitParameter).toList();
       indent--;
-    } else {
+    }
+    else {
       parameters = Collections.emptyList();
     }
     return parameters;
@@ -222,7 +228,8 @@ public class PathsVisitor extends Visitor {
 
       // now we need a lookup just to check the value is actually there:
       resultType = "[" + GqlUtils.getGQLScalarType(itemsSchema) + "]";
-    } else { // let's try scalar
+    }
+    else { // let's try scalar
       resultType = GqlUtils.getGQLScalarType(schema);
     }
 
@@ -242,7 +249,8 @@ public class PathsVisitor extends Visitor {
       */
       final String gqlType = GqlUtils.getGQLScalarType(integerSchema);
       return new CMapType("IntegerMap", integerSchema, "key", gqlType);
-    } else {
+    }
+    else {
       throw new IllegalStateException("Can't handle properties " + properties);
     }
   }
@@ -278,10 +286,12 @@ public class PathsVisitor extends Visitor {
       final CType itemsType = lookupRef(itemsRef);
       if (itemsType == null) {
         throw new IllegalStateException("Could not find itemsType '" + itemsRef + "'");
-      } else {
+      }
+      else {
         result = new CResponseArrayType(responseName, itemsRef);
       }
-    } else {
+    }
+    else {
       final Schema<?> itemsSchema = schema.getItems();
       print(indent, "  [" + "visitArraySchema" + "]", "checking items schema: " + itemsSchema.getClass().getSimpleName());
       throw new IllegalStateException("Cannot proceed from here? " + itemsSchema.getClass().getSimpleName());
@@ -445,7 +455,8 @@ public class PathsVisitor extends Visitor {
     for (final CType dependency : found) {
       if (stack.contains(dependency)) {
         print(indent, "   [stack]", "[WARN] Already added! : " + dependency.getName());
-      } else {
+      }
+      else {
         print(indent, "   [stack]", "New dependency: " + dependency.getName());
       }
     }

@@ -6,6 +6,9 @@ import com.apollographql.oas.converter.visitor.ComponentSchemasVisitor;
 
 import java.util.*;
 
+/**
+ * @deprecated
+ */
 public class Context {
   private Map<String, CType> types = new TreeMap<>();
   private Map<String, CType> operations = new TreeMap<>();

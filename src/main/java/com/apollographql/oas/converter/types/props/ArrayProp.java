@@ -59,4 +59,14 @@ public class ArrayProp extends Prop {
     writer.append("\n");
     print(stack.size(), getName(), " <- (" + stack.peek().getSimpleName() + ")");
   }
+
+  @Override
+  public String toString() {
+    return "PropArray{" +
+      "name='" + getName() + '\'' +
+      ", items='" + getItems().getName() + '\'' +
+      ", entity='" + getSource() + '\'' +
+      '}';
+  }
+
 }

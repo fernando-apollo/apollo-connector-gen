@@ -7,6 +7,9 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 
+/**
+ * @deprecated
+ */
 public class Trace {
   private static final Logger logger = Logger.getLogger(Trace.class.getName());
   public static void printNode(int indent, String ctx, String name, Schema schema) {

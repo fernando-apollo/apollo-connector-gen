@@ -63,6 +63,15 @@ public class RefProp extends Prop {
     print(dependencies.size(), getName(), " <- (" + dependencies.peek().getSimpleName() + ")");
   }
 
+  @Override
+  public String toString() {
+    return "PropRef{" +
+      "name='" + getName() + '\'' +
+      ", ref='" + getRef() + '\'' +
+      ", entity='" + getSource() + '\'' +
+      '}';
+  }
+
   private boolean needsBrackets(CType lookup) {
     return lookup.getKind() != CTypeKind.ENUM;
   }

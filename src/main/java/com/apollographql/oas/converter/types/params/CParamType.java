@@ -63,7 +63,7 @@ public class CParamType extends CType {
 
   @Override
   public String toString() {
-    return "CParamType{" +
+    return "Param{" +
       "name=" + getName() +
       ", required=" + required +
       ", defaultValue=" + defaultValue +

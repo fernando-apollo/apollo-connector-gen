@@ -1,0 +1,18 @@
+"y" /* visit '/product/{id}'? */
+"s" /*  -> Add all properties from #/components/schemas/Product?:  - @baseType, - @schemaLocation, - @type, - href, - id, - billingAccount, - name */
+"n" /* Add field '@baseType: String'? */
+"n" /* Add field '@schemaLocation: String'? */
+"n" /* Add field '@type: String'? */
+"n" /* Add field 'href: String'? */
+"y" /* Add field 'id: String'? */
+"y" /* Add field 'billingAccount: BillingAccountRef'? */
+"y" /* Add field 'name: String'? */
+"s" /*  -> Add all properties from #/components/schemas/BillingAccountRef?:  - @baseType, - @schemaLocation, - @type, - href, - id, - @referredType, - name, - ratingType */
+"n" /* Add field '@baseType: String'? */
+"n" /* Add field '@schemaLocation: String'? */
+"n" /* Add field '@type: String'? */
+"n" /* Add field 'href: String'? */
+"y" /* Add field 'id: String'? */
+"n" /* Add field '@referredType: String'? */
+"y" /* Add field 'name: String'? */
+"y" /* Add field 'ratingType: String'? */
