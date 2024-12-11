@@ -6,15 +6,13 @@ import com.apollographql.oas.converter.visitor.ComponentSchemasVisitor;
 
 import java.util.*;
 
-/**
- * @deprecated
- */
+@Deprecated
 public class Context {
-  private Map<String, CType> types = new TreeMap<>();
-  private Map<String, CType> operations = new TreeMap<>();
+  private final Map<String, CType> types = new TreeMap<>();
+  private final Map<String, CType> operations = new TreeMap<>();
 
-  private Map<String, CType> responses = new TreeMap<>();
-  private Set<String> generatedSet = new LinkedHashSet<>();
+  private final Map<String, CType> responses = new TreeMap<>();
+  private final Set<String> generatedSet = new LinkedHashSet<>();
 
   public static boolean isResponseType(String type) {
     return type.startsWith(ComponentResponsesVisitor.PREFIX);

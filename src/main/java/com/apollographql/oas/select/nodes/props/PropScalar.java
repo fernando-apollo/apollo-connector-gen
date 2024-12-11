@@ -30,7 +30,7 @@ public class PropScalar extends Prop {
 //    trace(context, "-> [prop-scalar]", "in " + getName() + ", type: " + getType());
 
     if (this.propType == null) {
-      this.propType = Factory.fromSchema(context, this, getSchema());
+      this.propType = Factory.fromSchema(this, getSchema());
       this.propType.visit(context);
       setVisited(true);
     }

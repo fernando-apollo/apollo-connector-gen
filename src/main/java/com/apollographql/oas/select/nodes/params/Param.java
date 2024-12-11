@@ -51,7 +51,7 @@ public class Param extends Type {
     context.enter(this);
     trace(context, "-> [param]", "in: " + getName());
 
-    this.resultType = Factory.fromSchema(context, this, getSchema());
+    this.resultType = Factory.fromSchema(this, getSchema());
     trace(context, "   [param]", "type: " + resultType);
     this.resultType.visit(context);
 

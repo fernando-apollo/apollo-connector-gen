@@ -15,9 +15,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
 
-/**
- * @deprecated
- */
+@Deprecated
 public class CUnionType extends CType {
   private static final Logger logger = Logger.getLogger(CUnionType.class.getName());
 

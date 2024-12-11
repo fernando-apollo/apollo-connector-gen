@@ -107,12 +107,10 @@ public abstract class Type {
   }
 
   public Set<Type> dependencies(final Context context) {
-//    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies! in " + id() + "(" + getName() + ")");
     if (!isVisited()) {
       visit(context);
     }
 
-//    trace(null,  "-> [" + id() + "::dependencies]", String.format("-> in: %s", this.getName()));
     final Set<Type> set = new HashSet<>(getChildren());
 
     // by default dependencies will be children, except in objects and composed types
@@ -120,7 +118,6 @@ public abstract class Type {
       set.addAll(t.dependencies(context));
     }
 
-//    trace(null,  "<- [" + id() + "::dependencies]", "found '" + set.size() + "' dependencies");
     return set;
   }
 

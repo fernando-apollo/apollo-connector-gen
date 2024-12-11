@@ -13,9 +13,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 
-/**
- * @deprecated
- */
+@Deprecated
 public class CResponseArrayType extends CType {
   private static final Logger logger = Logger.getLogger(CResponseArrayType.class.getName());
 

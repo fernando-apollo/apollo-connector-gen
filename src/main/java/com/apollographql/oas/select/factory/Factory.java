@@ -15,6 +15,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 
 import java.util.List;
 
+@SuppressWarnings({"ALL", "unchecked"})
 public class Factory {
   public static GetOp createGetOperation(String name, Operation get) {
     final GetOp result = new GetOp(name, get);
@@ -24,7 +25,7 @@ public class Factory {
     return result;
   }
 
-  public static Type fromSchema(final Context context, final Type parent, final Schema schema) {
+  public static Type fromSchema(final Type parent, final Schema schema) {
     Type result = null;
     if (schema.get$ref() != null) {
       result = new Ref(parent, schema.get$ref(), schema.get$ref());
@@ -114,19 +115,6 @@ public class Factory {
   public static Type fromUnion(final Context context, final Type parent, final List<Schema> oneOfs) {
     final Union union = new Union(parent, parent.getSimpleName(), oneOfs);
     parent.add(union);
-
-//    for (final Schema<?> allOf : oneOfs) {
-//      final String refName = allOf.get$ref();
-//      final Schema refSchema = context.lookupRef(refName);
-//
-//      if (refSchema != null) {
-//        // this is different from the AllOf - in this case we only need to add the refName
-//        union.addRef(refName);
-//      }
-//      else {
-//        throw new IllegalStateException("visitOneOfNode: could not find schema for: " + refName);
-//      }
-//    }
 
     return union;
   }

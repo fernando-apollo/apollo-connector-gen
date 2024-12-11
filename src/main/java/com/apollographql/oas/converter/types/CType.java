@@ -17,9 +17,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
 
-/**
- * @deprecated
- */
+@SuppressWarnings({"ALL", "unchecked"})
+@Deprecated
 public abstract class CType {
   private final String name;
   private final Schema schema;

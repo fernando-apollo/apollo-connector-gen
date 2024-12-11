@@ -19,6 +19,7 @@ import static com.apollographql.oas.converter.utils.Trace.warn;
  * Responses will end up in the Context too as Types - for now - so we can look them up. The resolution should be
  * similar to what we did for the Component.Schemas visitor.
  */
+@Deprecated
 public class ComponentResponsesVisitor extends Visitor {
   public static final String PREFIX = "#/components/responses/";
 

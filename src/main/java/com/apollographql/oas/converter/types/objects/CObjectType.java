@@ -15,9 +15,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 
-/**
- * @deprecated
- */
+@Deprecated
 public class CObjectType extends CType {
   private static final Logger logger = Logger.getLogger(CObjectType.class.getName());
 

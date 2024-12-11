@@ -18,6 +18,7 @@ import java.util.Optional;
 import static com.apollographql.oas.converter.utils.Trace.print;
 
 // we know the prefix for this is #
+@Deprecated
 public class ComponentSchemasVisitor extends Visitor {
   public static final String PREFIX = "#/components/schemas/";
   private Map<String, Schema> schemas;

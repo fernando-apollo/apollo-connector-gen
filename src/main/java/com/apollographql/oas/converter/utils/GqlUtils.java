@@ -2,6 +2,7 @@ package com.apollographql.oas.converter.utils;
 
 import io.swagger.v3.oas.models.media.Schema;
 
+@Deprecated
 public class GqlUtils {
   public static String getGQLScalarType(Schema schema) {
     switch (schema.getType()) {
@@ -21,9 +22,7 @@ public class GqlUtils {
       case "object" -> {
         return"JSON";
       }
-      default -> {
-        throw new IllegalStateException("[getGQLScalarType] Cannot generate type = " + schema);
-      }
+      default -> throw new IllegalStateException("[getGQLScalarType] Cannot generate type = " + schema);
     }
   }
 

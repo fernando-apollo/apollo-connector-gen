@@ -11,10 +11,17 @@ import java.util.Scanner;
 import java.util.logging.LogManager;
 
 
-/**
- * @deprecated No longer used.
- */
+@Deprecated
 public class Main {
+  /**
+   * Whilst this class is deprecated it can still be used to generate a full
+   * dump of a schema (or even generate just a path) which can either
+   * be converted to a connector or just used as a Schema. If converting just a path
+   * then it generates a Connector schema instead.
+   *
+   * @param args unused
+   * @throws IOException if anything fails
+   */
   public static void main(String[] args) throws IOException {
     InputStream configFile = Main.class.getClassLoader().getResourceAsStream("logging.properties");
 

@@ -16,13 +16,11 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
 
-/**
- * @deprecated
- */
+@Deprecated
 public class COperationType extends CType {
   private static final Logger logger = Logger.getLogger(COperationType.class.getName());
   
-  private String result;
+  private final String result;
   private final List<? extends CType> parameters;
   private CType returnType;
   private String originalPath;

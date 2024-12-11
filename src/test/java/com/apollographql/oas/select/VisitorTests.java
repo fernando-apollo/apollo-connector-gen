@@ -1,6 +1,5 @@
 package com.apollographql.oas.select;
 
-import com.apollographql.oas.converter.Main;
 import com.apollographql.oas.select.nodes.Obj;
 import com.apollographql.oas.select.nodes.Type;
 import com.apollographql.oas.select.nodes.props.Prop;

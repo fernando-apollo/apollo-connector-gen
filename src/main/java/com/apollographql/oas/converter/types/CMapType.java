@@ -10,9 +10,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 
-/**
- * @deprecated
- */
+@Deprecated
 public class CMapType extends CType {
   private static final Logger logger = Logger.getLogger(CMapType.class.getName());
   public CMapType(String name, Schema schema, String key, String type) {

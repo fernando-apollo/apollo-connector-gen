@@ -10,6 +10,7 @@ import java.util.Objects;
 
 import static com.apollographql.oas.converter.utils.Trace.print;
 
+@Deprecated
 public class ScalarProp extends Prop {
 
   protected final String type;

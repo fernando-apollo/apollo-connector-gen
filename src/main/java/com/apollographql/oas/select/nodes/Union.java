@@ -42,7 +42,7 @@ public class Union extends Type {
     final Map<String, Prop> collected = new LinkedHashMap<>();
 
     for (final Schema<?> refSchema : getSchemas()) {
-      final Type type = Factory.fromSchema(context, this, refSchema);
+      final Type type = Factory.fromSchema(this, refSchema);
       trace(context, "union", "of type: " + type);
 
       type.visit(context);

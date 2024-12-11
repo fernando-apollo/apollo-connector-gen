@@ -31,7 +31,7 @@ public class ResponseRef extends Type {
       final Schema schema = context.lookupRef(getRef());
       assert schema != null;
 
-      final Type type = Factory.fromSchema(context, this, schema);
+      final Type type = Factory.fromSchema(this, schema);
       assert type != null;
       this.refType = type;
 

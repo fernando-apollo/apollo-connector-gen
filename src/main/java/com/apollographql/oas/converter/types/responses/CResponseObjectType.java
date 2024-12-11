@@ -10,9 +10,7 @@ import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * @deprecated
- */
+@Deprecated
 public class CResponseObjectType extends CType {
   private final String typeRef;
 
@@ -28,8 +26,6 @@ public class CResponseObjectType extends CType {
   @Override
   public void generate(Context context, Writer writer) throws IOException {
     // do nothing
-//    super.generate(context, writer);
-//    writer.write(getTypeRef());
   }
 
   @Override

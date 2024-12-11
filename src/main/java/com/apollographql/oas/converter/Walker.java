@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+@Deprecated
 public class Walker {
   private final OpenAPI parser;
   private final Context context = new Context();

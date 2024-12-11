@@ -141,18 +141,17 @@ public class GetOp extends Type {
     final Content content = response.getContent();
     final MediaType mediaType = findJsonContent(content).get().getValue();
 
-    this.resultType = Factory.fromSchema(context, this, mediaType.getSchema());
+    this.resultType = Factory.fromSchema(this, mediaType.getSchema());
     this.resultType.visit(context);
 
     trace(context, "<- [get::responses::content]", "out " + getName());
   }
 
   private static Optional<Map.Entry<String, MediaType>> findJsonContent(final Content content) {
-    Optional<Map.Entry<String, MediaType>> first = content.entrySet().stream()
+
+    return content.entrySet().stream()
       .filter(entry -> entry.getKey().contains("application/json"))
       .findFirst();
-
-    return first;
   }
 
   private void visitResponseRef(final Context context, final ApiResponse response) {
@@ -160,10 +159,6 @@ public class GetOp extends Type {
 
     final ApiResponse lookup = context.lookupResponse(response.get$ref());
     visitResponse(context, response.get$ref(), lookup);
-
-//    final Type responseType = Factory.fromResponse(context, this, response);
-//    assert responseType != null;
-//    responseType.visit(context);
 
     trace(context, "<- [get::responses::ref]", "out: " + getName());
   }

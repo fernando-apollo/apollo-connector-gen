@@ -10,6 +10,7 @@ import java.io.Writer;
 import static com.apollographql.oas.converter.utils.Trace.print;
 import static com.apollographql.oas.converter.utils.Trace.warn;
 
+@Deprecated
 public abstract class Visitor {
   protected final Context context;
   protected int indent = 0;

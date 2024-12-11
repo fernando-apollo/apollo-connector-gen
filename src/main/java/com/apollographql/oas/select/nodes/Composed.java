@@ -135,7 +135,7 @@ public class Composed extends Type {
   }
 
   /* we are collecting all nodes to combine them into a single object -- therefore we must 'silence' the prompt for
-   * now until all types are collected and we can retrieve all the properties.  */
+   * now until all types are collected, and we can retrieve all the properties.  */
   private void visitAllOfNode(final Context context, final ComposedSchema schema) {
     final List<Schema> allOfs = schema.getAllOf();
     final List<String> refs = allOfs.stream().map(Schema::get$ref).toList();
@@ -146,7 +146,7 @@ public class Composed extends Type {
     for (int i = 0; i < allOfs.size(); i++) {
       final Schema allOfItemSchema = allOfs.get(i);
 
-      final Type type = Factory.fromSchema(context, this, allOfItemSchema);
+      final Type type = Factory.fromSchema(this, allOfItemSchema);
       trace(context, "   [composed::all-of]", "allOf type: " + type);
       assert type != null;
 
@@ -206,14 +206,6 @@ public class Composed extends Type {
     final Type result = Factory.fromUnion(context, this, oneOfs);
     assert result != null;
     result.visit(context);
-
-//    final boolean inCompose = context.inComposeContext(this);
-//    if (inCompose) {
-//      getProps().putAll(result.getProps());
-//    }
-//    else {
-//      promptPropertySelection(context, result.getProps());
-//    }
 
     trace(context, "-> [composed::one-of]", "storing: " + getName() + " with: " + this);
     if (getName() != null)

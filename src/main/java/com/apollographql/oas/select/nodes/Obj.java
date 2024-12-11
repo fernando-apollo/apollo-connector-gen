@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.*;
 
+@SuppressWarnings({"ALL", "unchecked"})
 public class Obj extends Type {
 
   private final Schema schema;
@@ -131,6 +132,7 @@ public class Obj extends Type {
   }
 
   private void visitProperties(final Context context) {
+    //noinspection unchecked
     final Map<String, Schema> properties = schema.getProperties();
     trace(context, "-> [obj::props]", "in props " + (properties.isEmpty() ? "0" : properties.size()));
 

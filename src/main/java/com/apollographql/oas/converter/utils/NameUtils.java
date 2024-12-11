@@ -3,12 +3,12 @@ package com.apollographql.oas.converter.utils;
 import com.apollographql.oas.converter.visitor.ComponentResponsesVisitor;
 import com.apollographql.oas.converter.visitor.ComponentSchemasVisitor;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.parameters.Parameter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
 
+@Deprecated
 public class NameUtils {
   public static String formatPath(String path) {
     if (path == null || path.isEmpty()) {
@@ -74,7 +74,7 @@ public class NameUtils {
     return name + "Response";
   }
 
-  public static final String getRefName(final String ref) {
+  public static String getRefName(final String ref) {
     if (ref == null) return null;
 
     if (ref.contains(ComponentSchemasVisitor.PREFIX))

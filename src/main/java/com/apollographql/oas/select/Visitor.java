@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.LogManager;
-import java.util.stream.Collectors;
 
 import static com.apollographql.oas.select.log.Trace.trace;
 
@@ -32,14 +31,6 @@ public class Visitor {
 
   public Visitor(final OpenAPI parser) {
     this.parser = parser;
-  }
-
-  public static Visitor fromFile(final File source) throws FileNotFoundException {
-    if (!source.exists()) {
-      throw new FileNotFoundException("Source not found: " + source);
-    }
-
-    return null;
   }
 
   public OpenAPI getParser() {
@@ -91,9 +82,7 @@ public class Visitor {
 
     if (parser == null) throw new IOException("Could not create OpenAPI parser for source file");
 
-    final Visitor visitor = new Visitor(parser);
-
-    return visitor;
+    return new Visitor(parser);
   }
 
   public Set<Type> getCollected() {
@@ -214,7 +203,7 @@ public class Visitor {
     writer.append(spacing).append(")\n");
   }
 
-  private Type visitPath(final Context context, final String name, final PathItem path) throws IOException {
+  private Type visitPath(final Context context, final String name, final PathItem path) {
     trace(context, "-> [visitPath]", String.format("[%s] %s", name, path.getGet().getOperationId()));
 
     final Type type = visitGet(context, name, path.getGet());
@@ -246,7 +235,7 @@ public class Visitor {
 
   private static void printRefs(final Map<String, Integer> values) {
     System.out.println("----------- ref count -------------- ");
-    values.entrySet().stream()//.filter(e -> e.getKey().startsWith("ref://"))
+    values.entrySet()//.stream().filter(e -> e.getKey().startsWith("ref://"))
       .forEach(e -> System.out.println(e.getKey() + " -> " + e.getValue()));
   }
 

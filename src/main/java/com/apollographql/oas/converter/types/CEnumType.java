@@ -12,9 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 
-/**
- * @deprecated
- */
+@Deprecated
 public class CEnumType extends CType {
   private final List<String> items;
 

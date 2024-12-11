@@ -37,7 +37,7 @@ public class Array extends Type {
     trace(context,"-> [array]", "in");
 
     if (itemsType == null) {
-      itemsType = Factory.fromSchema(context, this, getItems());
+      itemsType = Factory.fromSchema(this, getItems());
       assert itemsType != null;
 
       trace(context, "   [array]", "type: " + itemsType);

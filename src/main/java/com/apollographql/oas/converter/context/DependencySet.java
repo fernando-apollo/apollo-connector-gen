@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-/**
- * @deprecated
- */
+@Deprecated
 public class DependencySet {
   private final Stack<CType> stack;
   private final Map<String, Integer> count;

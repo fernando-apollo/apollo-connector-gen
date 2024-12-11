@@ -1,7 +1,5 @@
 package com.apollographql.oas.select;
 
-import com.apollographql.oas.converter.Main;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

@@ -54,7 +54,7 @@ public class PropRef extends Prop {
       final Schema schema = context.lookupRef(getRef());
       assert schema != null;
 
-      final Type type = Factory.fromSchema(context, this, schema);
+      final Type type = Factory.fromSchema(this, schema);
       this.refType = type;
 
       type.setName(getRef());
