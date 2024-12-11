@@ -50,7 +50,7 @@ public class Obj extends Type {
     context.enter(this);
     trace(context, "-> [obj]", "in " + getName());
 
-    if (!context.inComposeContext(this))
+    if (!context.inContextOf(Composed.class, this))
       print(null, "In object: " + (getName() != null ? getName() : getOwner()));
 
     visitProperties(context);
@@ -61,7 +61,7 @@ public class Obj extends Type {
       context.store(getName(), this);
 
     trace(context, "<- [obj]", "out " + getName());
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -101,7 +101,7 @@ public class Obj extends Type {
     writer.append("}\n\n");
 
     trace(context, "<- [obj::generate]", String.format("-> out: %s", this.getName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -118,7 +118,7 @@ public class Obj extends Type {
     }
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -152,7 +152,7 @@ public class Obj extends Type {
       .map(p -> p.forPrompt(context))
       .collect(Collectors.joining(",\n - "));
 
-    final boolean inCompose = context.inComposeContext(this);
+    final boolean inCompose = context.inContextOf(Composed.class, this);
     trace(context, "   [obj::props]", getSimpleName() + " is within compose context? " + inCompose);
 
     final char addAll = inCompose ? 'y' : Prompt
@@ -192,12 +192,12 @@ public class Obj extends Type {
   }
 
   private void addDependencies(final Context context) {
-    final boolean inCompose = context.inComposeContext(this);
+    final boolean inCompose = context.inContextOf(Composed.class, this);
 
     if (!inCompose) {
       final List<Prop> dependencies = getProps().values().stream()
         .filter(p -> {
-          trace(context, "-> [obj]", "visitProperties inCompose " + context.inComposeContext(this) + ", in " + id());
+          trace(context, "-> [obj]", "visitProperties - NOT inCompose, in " + id());
           return p instanceof PropRef || p instanceof PropArray;
         })
         .toList();

@@ -2,9 +2,8 @@ package com.apollographql.oas.select.nodes;
 
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
+import com.apollographql.oas.select.nodes.params.Param;
 import com.apollographql.oas.select.nodes.props.Prop;
-import com.apollographql.oas.select.nodes.props.PropArray;
-import com.apollographql.oas.select.nodes.props.PropRef;
 import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -37,21 +36,21 @@ public class Union extends Type {
     context.enter(this);
     trace(context, "-> [union]", "in: " + getSchemas().stream().map(Schema::get$ref).toList());
 
-    if (!context.inComposeContext(this))
+    if (!context.inContextOf(Composed.class, this))
       print(null, "In union: " + getOwner());
 
     final Map<String, Prop> collected = new LinkedHashMap<>();
 
-    for (final Schema refSchema : getSchemas()) {
+    for (final Schema<?> refSchema : getSchemas()) {
       final Type type = Factory.fromSchema(context, this, refSchema);
       trace(context, "union", "of type: " + type);
-      assert type != null;
 
       type.visit(context);
       collected.putAll(type.getProps());
     }
 
-    visitProperties(context, collected);
+    if (!context.inContextOf(Param.class, this))
+      visitProperties(context, collected);
 
     // store the union for generation
     if (getName() != null)
@@ -60,7 +59,7 @@ public class Union extends Type {
     setVisited(true);
 
     trace(context, "<- [union]", "out: " + getSchemas().stream().map(Schema::get$ref).toList());
-    context.leave(this);
+    context.leave();
   }
 
   private void visitProperties(final Context context, final Map<String, Prop> collected) {
@@ -95,8 +94,7 @@ public class Union extends Type {
     context.enter(this);
     trace(context, "-> [union::generate]", "in: " + getSchemas().stream().map(Schema::get$ref).toList());
 
-    if (context.inParamContext(this)) {
-      System.out.println("Union.generate");
+    if (context.inContextOf(Param.class, this)) {
       for (Type child : getChildren()) {
         child.generate(context, writer);
       }
@@ -117,8 +115,6 @@ public class Union extends Type {
         .append(getSimpleName())
         .append("\n");
 
-      final Set<Type> generatedSet = new LinkedHashSet<>();
-
       for (Prop prop : this.getProps().values()) {
         trace(context, "-> [union::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
         prop.generate(context, writer);
@@ -130,7 +126,7 @@ public class Union extends Type {
     }
 
     trace(context, "<- [union::generate]", "out: " + getSchemas().stream().map(Schema::get$ref).toList());
-    context.leave(this);
+    context.leave();
   }
 
   @Override

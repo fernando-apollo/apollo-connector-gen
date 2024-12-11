@@ -1,6 +1,5 @@
 package com.apollographql.oas.select.nodes.params;
 
-import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
@@ -57,7 +56,7 @@ public class Param extends Type {
     this.resultType.visit(context);
 
     trace(context, "<- [param]", "out: " + getName());
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -81,7 +80,7 @@ public class Param extends Type {
     }
 
     trace(context, "<- [param::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override

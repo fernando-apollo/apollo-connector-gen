@@ -38,7 +38,7 @@ public class PropArray extends Prop {
     setVisited(true);
 
     trace(context,"<- [array]", "out");
-    context.leave(this);
+    context.leave();
   }
 
   @Override

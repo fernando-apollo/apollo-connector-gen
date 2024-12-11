@@ -1,6 +1,5 @@
 package com.apollographql.oas.select.factory;
 
-import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.nodes.*;

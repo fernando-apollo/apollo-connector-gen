@@ -43,7 +43,7 @@ public class ResponseRef extends Type {
     }
 
     trace(context, "-> [ref]", "out");
-    context.leave(this);
+    context.leave();
   }
 
   public Type getRefType() {

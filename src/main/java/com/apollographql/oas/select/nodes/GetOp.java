@@ -78,7 +78,7 @@ public class GetOp extends Type {
 
     setVisited(true);
     trace(context, "<- [get]", "out " + getName());
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -202,7 +202,7 @@ public class GetOp extends Type {
 //    writer.write(writer.toString());
 
     trace(context, "<- [get::generate]", String.format("-> out: %s", this.getName()));
-    context.leave(this);
+    context.leave();
   }
 
   private void generateParameters(Context context, Writer writer) throws IOException {

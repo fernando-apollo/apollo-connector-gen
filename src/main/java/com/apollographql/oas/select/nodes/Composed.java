@@ -3,6 +3,7 @@ package com.apollographql.oas.select.nodes;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
 import com.apollographql.oas.select.factory.Factory;
+import com.apollographql.oas.select.nodes.params.Param;
 import com.apollographql.oas.select.nodes.props.Prop;
 import com.apollographql.oas.select.prompt.Prompt;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -79,7 +80,7 @@ public class Composed extends Type {
     }
 
     trace(context, "<- [comp::generate]", String.format("-> out: %s", this.getName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -104,7 +105,7 @@ public class Composed extends Type {
     }
 
     trace(context, "<- [comp::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -112,8 +113,7 @@ public class Composed extends Type {
     context.enter(this);
     trace(context, "-> [composed]", "in: " + (getName() == null ? "[object]" : getName()));
 
-    if (!context.inComposeContext(this))
-      print(null, "In composed schema: " + getName());
+    if (!context.inContextOf(Composed.class, this) && !context.inContextOf(Param.class, this)) print(null, "In composed schema: " + getName());
 
     final ComposedSchema schema = (ComposedSchema) getSchema();
     if (schema.getAllOf() != null) {
@@ -131,7 +131,7 @@ public class Composed extends Type {
     setVisited(true);
 
     trace(context, "<- [composed]", "out: " + getName());
-    context.leave(this);
+    context.leave();
   }
 
   /* we are collecting all nodes to combine them into a single object -- therefore we must 'silence' the prompt for
@@ -155,27 +155,13 @@ public class Composed extends Type {
       collected.putAll(type.getProps());
     }
 
-    final boolean inCompose = context.inComposeContext(this);
+    final boolean inCompose = context.inContextOf(Composed.class, this);
     if (inCompose) {
       getProps().putAll(collected);
     }
     else {
       promptPropertySelection(context, collected);
     }
-
-    /*final List<Prop> dependencies = getProps().values().stream()
-      .filter(p -> {
-        trace(context, "-> [composed]", "visitProperties inCompose " + context.inComposeContext(this) + ", in " + id());
-        return p instanceof PropRef || p instanceof PropArray;
-      })
-      .toList();
-
-    for (final Prop dependency : dependencies) {
-      if (!dependency.isVisited()) {
-        trace(context, "-> [composed]", "adding prop dependency: " + dependency.getName());
-        context.addPending(dependency);
-      }
-    }*/
 
     // we'll store it first, it might avoid recursion
     trace(context, "-> [composed]", "storing: " + getName() + " with: " + this);
@@ -185,6 +171,10 @@ public class Composed extends Type {
   }
 
   private void promptPropertySelection(final Context context, final Map<String, Prop> properties) {
+    if (properties.isEmpty()) {
+      return;
+    }
+
     final String propertiesNames = String.join(",\n - ",
       properties.values().stream().map(Type::getName).toList());
 
@@ -192,10 +182,6 @@ public class Composed extends Type {
       .get()
       .yesNoSelect(" -> Add all properties from " + getName() + "?: \n - " + propertiesNames + "\n");
 
-    /* we should only prompt for properties if:
-     * 1. we are NOT a comp://all-of
-     * 2. the comp://all-of contains our name (i.e: #/component/schemas/Extensible
-     */
     if ((addAll == 'y' || addAll == 's')) {
       for (final Map.Entry<String, Prop> entry : properties.entrySet()) {
         final Prop prop = entry.getValue();
@@ -214,7 +200,7 @@ public class Composed extends Type {
   }
 
   private void visitOneOfNode(final Context context, final ComposedSchema schema) {
-    final var oneOfs = schema.getOneOf();
+    final List<Schema> oneOfs = schema.getOneOf();
     trace(context, "-> [composed::one-of]", "in: " + String.format("OneOf %s with size: %d", name, oneOfs.size()));
 
     final Type result = Factory.fromUnion(context, this, oneOfs);

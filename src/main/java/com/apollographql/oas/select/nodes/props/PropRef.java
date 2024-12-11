@@ -67,7 +67,7 @@ public class PropRef extends Prop {
     setVisited(true);
 
     trace(context, "<- [prop-ref]", "out " + getName() + ", ref: " + getRef());
-    context.leave(this);
+    context.leave();
   }
 
   @Override

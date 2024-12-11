@@ -36,7 +36,7 @@ public class PropScalar extends Prop {
     }
 
 //    trace(context, "<- [prop-scalar]", "out " + getName() + ", type: " + getType());
-    context.leave(this);
+    context.leave();
   }
 
   @Override

@@ -33,7 +33,7 @@ public class Scalar extends Type {
     writer.write(getName());
 
     trace(context, "<- [scalar::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override

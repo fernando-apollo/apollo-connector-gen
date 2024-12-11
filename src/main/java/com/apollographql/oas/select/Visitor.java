@@ -34,10 +34,21 @@ public class Visitor {
     this.parser = parser;
   }
 
+  public static Visitor fromFile(final File source) throws FileNotFoundException {
+    if (!source.exists()) {
+      throw new FileNotFoundException("Source not found: " + source);
+    }
+
+    return null;
+  }
+
   public OpenAPI getParser() {
     return parser;
   }
 
+  /**
+   * @deprecated
+   */
   public static void main(String[] args) throws IOException {
     InputStream configFile = Visitor.class.getClassLoader().getResourceAsStream("logging.properties");
 
@@ -48,32 +59,13 @@ public class Visitor {
     // Load the configuration
     LogManager.getLogManager().readConfiguration(configFile);
 
-    final ParseOptions options = new ParseOptions();
-    options.setResolve(true); // implicit
-    options.setResolveCombinators(false); // default is true
-
-//    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis";
-    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
-
-//    final String source = String.format("%s/sample-oas/petstore.yaml", baseURL);
-//    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
-//    final String source = String.format("%s/tmf-specs/TMF637-001-ComposedTest.yaml", baseURL);
-//    final String source = String.format("%s/tmf-specs/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
-//    final String source = String.format("%s/tmf-specs/TMF637-001-UnionTest.yaml", baseURL);
-    final String source = String.format("%s/js-mva-consumer-info_v1.yaml", baseURL);
-
-    if (!new File(source).exists()) {
-      throw new FileNotFoundException("Source not found: " + source);
-    }
-
     final Input recorder = Prompt.Factory.recorder();
     Prompt.get(recorder);
-//    Prompt.get(Prompt.Factory.yes());
-//    Prompt.get(Prompt.Factory.player(Recordings.TMF633_IntentOrValue_UNION));
-//    Prompt.get(Prompt.Factory.player(Recordings.TMF633_RefAndUnion));
 
-    final OpenAPI parser = new OpenAPIV3Parser().read(source, null, options);
-    final Visitor visitor = new Visitor(parser);
+    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
+    final String source = String.format("%s/js-mva-consumer-info_v1.yaml", baseURL);
+
+    final Visitor visitor = fromFile(source);
     visitor.visit();
 
     System.out.println("---------------- recorder ----------------------");
@@ -84,6 +76,24 @@ public class Visitor {
     final StringWriter writer = new StringWriter();
     visitor.writeSchema(writer);
     System.out.println(writer);
+  }
+
+  public static Visitor fromFile(final String source) throws IOException {
+    final ParseOptions options = new ParseOptions();
+    options.setResolve(true); // implicit
+    options.setResolveCombinators(false); // default is true
+
+    if (!new File(source).exists()) {
+      throw new FileNotFoundException("Source not found: " + source);
+    }
+
+    final OpenAPI parser = new OpenAPIV3Parser().read(source, null, options);
+
+    if (parser == null) throw new IOException("Could not create OpenAPI parser for source file");
+
+    final Visitor visitor = new Visitor(parser);
+
+    return visitor;
   }
 
   public Set<Type> getCollected() {
@@ -112,17 +122,6 @@ public class Visitor {
       final Type result = visitPath(context, entry.getKey(), entry.getValue());
       collected.add(result);
     }
-
-    trace(context, "   [visit]", "pending: " + context.getPendingTypes());
-
-//    for (Type type : collected) {
-//
-//    }
-
-    // visit collected dependencies
-//    for (Type pending : context.getPendingTypes()) {
-//      pending.visit(context);
-//    }
 
     this.collected = collected;
   }

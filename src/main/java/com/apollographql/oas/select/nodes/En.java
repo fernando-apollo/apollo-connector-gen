@@ -1,9 +1,7 @@
 package com.apollographql.oas.select.nodes;
 
-import com.apollographql.oas.converter.types.CType;
-import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.select.context.Context;
-import com.apollographql.oas.select.factory.Factory;
+import com.apollographql.oas.select.nodes.params.Param;
 import com.apollographql.oas.select.nodes.props.Prop;
 import io.swagger.v3.oas.models.media.Schema;
 import joptsimple.internal.Strings;
@@ -18,17 +16,17 @@ import java.util.Set;
 import static com.apollographql.oas.select.log.Trace.trace;
 
 public class En extends Type {
-  private final Schema schema;
+  private final Schema<?> schema;
   private final List<String> items;
 
-  public En(final Type parent, final Schema schema, final List<String> items) {
+  public En(final Type parent, final Schema<?> schema, final List<String> items) {
     super(parent, "enum");
     this.schema = schema;
     this.items = items;
   }
 
 
-  public Schema getSchema() {
+  public Schema<?> getSchema() {
     return schema;
   }
 
@@ -49,7 +47,7 @@ public class En extends Type {
     setVisited(true);
 
     trace(context, "<- [enum]", "out: " + getItems());
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -57,7 +55,7 @@ public class En extends Type {
     context.enter(this);
     trace(context, "-> [enum::generate]", String.format("-> in: %s", this.getSimpleName()));
 
-    if (!context.inParamContext(this)) {
+    if (!context.inContextOf(Param.class, this)) {
       String builder = "enum " +
         getSimpleName() +
         " {\n" +
@@ -68,7 +66,7 @@ public class En extends Type {
     }
 
     trace(context, "<- [enum::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -83,9 +81,8 @@ public class En extends Type {
     }
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
-
 
   @Override
   public Set<Type> dependencies(final Context context) {

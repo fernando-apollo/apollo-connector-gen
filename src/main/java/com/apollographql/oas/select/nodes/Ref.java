@@ -58,7 +58,7 @@ public class Ref extends Type {
     setVisited(true);
 
     trace(context, "<- [ref]", "out: " + getRef());
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -69,7 +69,7 @@ public class Ref extends Type {
     writer.write(NameUtils.getRefName(getRef()));
 
     trace(context, "<- [ref::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -80,7 +80,7 @@ public class Ref extends Type {
     getRefType().select(context, writer);
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override

@@ -46,7 +46,7 @@ public class Array extends Type {
     }
 
     trace(context,"-> [array]", "out");
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -59,7 +59,7 @@ public class Array extends Type {
     writer.append("]");
 
     trace(context, "<- [array::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override
@@ -70,7 +70,7 @@ public class Array extends Type {
     getItemsType().select(context, writer);
 
     trace(context, "<- [array::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+    context.leave();
   }
 
   @Override
