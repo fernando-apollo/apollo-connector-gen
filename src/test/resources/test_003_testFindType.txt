@@ -1,0 +1,17 @@
+get:/consumer/{id} -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer -> s
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:birthDate -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:firstName -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:gender -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:lastName -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:me -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#partyCharacteristic -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#relatedParty -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:taxIdentifier -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:title -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium -> s
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:scalar:mediumType -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:scalar:preferred -> y

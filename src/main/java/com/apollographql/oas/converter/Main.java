@@ -67,7 +67,7 @@ public class Main {
 //      StringWriter writer = new StringWriter();
 //      walker.generatePath("/individual/{id}", writer);
 //      writer.flush();
-//      System.out.println("Visitor.main -> \n" + writer);
+//      System.out.println("ConnectorGen.main -> \n" + writer);
 //      return;
 //    }
 

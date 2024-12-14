@@ -1,10 +1,13 @@
-"y" /* visit '/consumer/{id}'? */
-"y" /*  -> Add all properties from null?:  -  */
-"y" /*  -> Add all properties from Consumer?:  - firstName: String, - lastName: String, - partyCharacteristic: [Characteristic], - contactMedium: [ContactMedium], - gender: String, - me: String, - taxIdentifier: String, - accounts: [Account], - relatedParty: [RelatedParty], - title: String, - birthDate: String */
-"y" /*  -> Add all properties from Account?:  - role: [String], - isPrimary: Boolean, - contact: [Contact], - segment: SegmentCharacteristic, - id: String, - state: String, - relatedParty: [RelatedParty], - stateReason: String */
-"y" /*  -> Add all properties from Contact?:  - contactMedium: [ContactMedium], - contactType: String */
-"y" /*  -> Add all properties from ContactMedium?:  - mediumType: String, - characteristic: MediumCharacteristicExtended, - preferred: Boolean */
-"y" /*  -> Add all properties from #/components/schemas/MediumCharacteristicExtended?:  - city, - contactType, - country, - emailAddress, - faxNumber, - phoneNumber, - postCode, - socialNetworkId, - stateOrProvince, - street1, - street2 */
-"y" /*  -> Add all properties from RelatedParty?:  - role: String, - name: String, - id: String */
-"y" /*  -> Add all properties from SegmentCharacteristic?:  - subCategory: String, - paymentMethod: String, - paymentPlanType: String, - userType: String, - category: String, - productType: String */
-"y" /*  -> Add all properties from Characteristic?:  - valueType: String, - name: String, - id: String, - value: String */
+"/consumer/{id}" /* y */
+"obj:#/components/schemas/Consumer" /* s */
+"prop:array:prop:ref:#/components/schemas/Account" /* n */
+"prop:scalar:birthDate" /* y */
+"prop:array:prop:ref:#/components/schemas/ContactMedium" /* n */
+"prop:scalar:firstName" /* y */
+"prop:scalar:gender" /* y */
+"prop:scalar:lastName" /* y */
+"prop:scalar:me" /* y */
+"prop:array:prop:ref:#/components/schemas/Characteristic" /* n */
+"prop:array:prop:ref:#/components/schemas/RelatedParty" /* n */
+"prop:scalar:taxIdentifier" /* y */
+"prop:scalar:title" /* y */
