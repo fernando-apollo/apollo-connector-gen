@@ -115,14 +115,12 @@ public class WebGenerator {
   }
 
   public Type find(final String path) {
-//    final Type type = getContext().get(path);
-//    if (type != null) {
-//      // todo: convert to map, return it
-//      System.out.println("type found in context = " + type);
-//      return type;
-//    }
+    final Type type = Type.findTypeIn(path, this.getCollected());
+    if (type != null && !type.isVisited()) {
+      type.visit(getContext());
+    }
 
-    return Type.findTypeIn(path, this.getCollected());
+    return type;
   }
 
   public void writeSchema(Writer writer, final Prompt prompt) throws IOException {

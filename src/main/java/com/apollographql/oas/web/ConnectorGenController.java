@@ -1,8 +1,10 @@
 package com.apollographql.oas.web;
 
 import com.apollographql.oas.gen.WebGenerator;
+import com.apollographql.oas.gen.nodes.Composed;
 import com.apollographql.oas.gen.nodes.GetOp;
 import com.apollographql.oas.gen.nodes.Type;
+import com.apollographql.oas.gen.nodes.props.Prop;
 import com.apollographql.oas.gen.nodes.props.PropScalar;
 import com.apollographql.oas.gen.prompt.Input;
 import com.apollographql.oas.gen.prompt.Prompt;
@@ -106,12 +108,20 @@ public class ConnectorGenController {
       final Map<String, Object> result = new LinkedHashMap<>();
       result.put("parent", found.getName());
 
-      result.put("result", found.getChildren().stream().map(t -> Map.<String, Object>of(
+      Collection<? extends Type> values;
+      if (found instanceof Composed) {
+         values = found.getProps().values();
+      }
+      else {
+        values  = found.getChildren();
+      }
+
+      result.put("result", values.stream().map(t -> Map.<String, Object>of(
         "id", t.id(),
         "path", t.path(),
         "name", t.getName(),
         "value", t.forPrompt(generator.getContext())
-      )).toList());
+      )));
 
       System.out.println("ConnectorGenController.visitType [out] \n" + result);
       return result;

@@ -32,14 +32,6 @@ public class PropRef extends Prop implements Cloneable {
     return "prop:ref:" + getRef();
   }
 
-  public String path() {
-    final List<Type> ancestors = getPaths(this);
-    return ancestors.stream().map(t -> t.id())
-      .collect(Collectors.joining(">"))
-      .replaceAll("#/components/schemas", "#/c/s")
-      ;
-  }
-
   public String getRef() {
     return ref;
   }

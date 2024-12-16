@@ -32,7 +32,13 @@ public class Obj extends Type {
 
   @Override
   public String id() {
-    return "obj:" + (getName() != null ? getName() : "[anonymous:" + hashCode() + "] <- " + getParent().getName());
+    return "obj:" + getName();
+  }
+
+  @Override
+  public String getName() {
+    if (this.name == null) return "[anonymous:" + hashCode() + "]";
+    return this.name;
   }
 
   @Override

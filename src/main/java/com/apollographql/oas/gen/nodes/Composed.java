@@ -30,17 +30,17 @@ public class Composed extends Type {
 
   @Override
   public String id() {
-    final Schema schema = getSchema();
-    final String refs = getChildren().stream().map(Type::id).collect(Collectors.joining(" + "));
+//    final Schema schema = getSchema();
+//    final String refs = getChildren().stream().map(Type::id).collect(Collectors.joining(" + "));
+//
+//    if (schema.getAllOf() != null) {
+//      return "comp:all-of:" + refs;
+//    }
+//    else if (schema.getOneOf() != null) {
+//      return "comp:one-of:" + refs;
+//    }
 
-    if (schema.getAllOf() != null) {
-      return "comp:all-of:" + refs;
-    }
-    else if (schema.getOneOf() != null) {
-      return "comp:one-of:" + refs;
-    }
-
-    return "comp:" + refs;
+    return "comp:" + getName();
   }
 
   @Override

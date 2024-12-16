@@ -1,9 +1,6 @@
 package com.apollographql.oas.gen;
 
-import com.apollographql.oas.gen.nodes.GetOp;
-import com.apollographql.oas.gen.nodes.Obj;
-import com.apollographql.oas.gen.nodes.Ref;
-import com.apollographql.oas.gen.nodes.Type;
+import com.apollographql.oas.gen.nodes.*;
 import com.apollographql.oas.gen.nodes.props.Prop;
 import com.apollographql.oas.gen.nodes.props.PropArray;
 import com.apollographql.oas.gen.nodes.props.PropScalar;
@@ -19,9 +16,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.LogManager;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -181,6 +176,34 @@ public class ConnectorGenTests {
 
     assertNotNull(sought);
     assertEquals(sought.path(), p);
+  }
+
+  @Test
+  void test_004_Customer360_ScalarsOnly() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("TMF717_Customer360-v5.0.0.oas.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_004_Customer360_ScalarsOnly.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+    assertEquals(collected.size(), 1);
+
+    final Ref ref = (Ref) ((GetOp) collected.toArray()[0]).getResultType();
+    assertNotNull(ref);
+
+    final Composed composed = (Composed) ((List) ref.getChildren()).get(0);
+    assertEquals(composed.getName(), "#/components/schemas/Customer360");
+    assertNotNull(composed);
+
+    final Map<String, Prop> props = composed.getProps();
+    assertEquals(props.size(), 1);
+
+    final Prop id = props.get("id");
+    assertNotNull(id);
+    assertInstanceOf(PropScalar.class, id);
   }
 
   @Test

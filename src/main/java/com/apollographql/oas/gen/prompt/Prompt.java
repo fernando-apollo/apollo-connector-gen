@@ -94,7 +94,7 @@ public class Prompt {
       }
 
       final boolean response = next.equalsIgnoreCase("y");
-      System.out.println(prompt + " 'y': Yes, 'n': No" + " -> " + next + ", response? " + response);
+      System.out.println("[" + id + "]: " + prompt + " 'y': Yes, 'n': No" + " -> " + next + ", response? " + response);
       return response;
     }
 
@@ -105,7 +105,7 @@ public class Prompt {
         throw new IllegalArgumentException("Could not find response for '" + id + "'");
       }
 
-      System.out.println(prompt + " 'y': Yes, 'n': Skip, 's': Select" + " -> " + next);
+      System.out.println("[" + id + "]: " + prompt + " 'y': Yes, 'n': Skip, 's': Select" + " -> " + next);
       if (next.equalsIgnoreCase("y")) return 'y';
       else if (next.equalsIgnoreCase("s")) return 's';
       else return 'n';
@@ -144,7 +144,8 @@ public class Prompt {
 
     @Override
     public boolean yesNo(final String id, final String prompt) {
-      System.out.println(prompt + " 'y': Yes, 'n': No");
+//      System.out.println(prompt + " 'y': Yes, 'n': No");
+      System.out.println("[" + id + "]: " + prompt + " 'y': Yes, 'n': No");
       final String answer = scanner.nextLine();
       records.add(new ImmutablePair<>(id, answer));
       return answer.equals("") || answer.equalsIgnoreCase("y");
@@ -152,7 +153,8 @@ public class Prompt {
 
     @Override
     public char yesNoSelect(final String id, final String prompt) {
-      System.out.println(prompt + " 'y': Yes, 'n': Skip, 's': Select");
+//      System.out.println(prompt + " 'y': Yes, 'n': Skip, 's': Select");
+      System.out.println("[" + id + "]: " + prompt + " 'y': Yes, 'n': Skip, 's': Select");
       final String answer = scanner.nextLine();
       records.add(new ImmutablePair<>(id, answer));
 
