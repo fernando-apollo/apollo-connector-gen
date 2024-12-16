@@ -1,13 +1,45 @@
-"/consumer/{id}" /* y */
-"obj:#/components/schemas/Consumer" /* s */
-"prop:array:prop:ref:#/components/schemas/Account" /* n */
-"prop:scalar:birthDate" /* y */
-"prop:array:prop:ref:#/components/schemas/ContactMedium" /* n */
-"prop:scalar:firstName" /* y */
-"prop:scalar:gender" /* y */
-"prop:scalar:lastName" /* y */
-"prop:scalar:me" /* y */
-"prop:array:prop:ref:#/components/schemas/Characteristic" /* n */
-"prop:array:prop:ref:#/components/schemas/RelatedParty" /* n */
-"prop:scalar:taxIdentifier" /* y */
-"prop:scalar:title" /* y */
+get:/consumer/{id} -> y
+get:/consumer/{id}>ref:#/c/s/Consumer -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer -> s
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account -> s
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:city -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:contactType -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:country -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:emailAddress -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:faxNumber -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:phoneNumber -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:postCode -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:socialNetworkId -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:stateOrProvince -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:street1 -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended>comp:#/c/s/MediumCharacteristicExtended>ref:#/c/s/MediumCharacteristic>obj:#/c/s/MediumCharacteristic>prop:scalar:street2 -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:scalar:mediumType -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:scalar:preferred -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#contact>prop:ref:#/c/s/Contact>obj:#/c/s/Contact>prop:scalar:contactType -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:scalar:id -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:scalar:isPrimary -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#relatedParty -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:array:#role -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:ref:#/c/s/SegmentCharacteristic -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:scalar:state -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#accounts>prop:ref:#/c/s/Account>obj:#/c/s/Account>prop:scalar:stateReason -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:birthDate -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:firstName -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:gender -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:lastName -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:me -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#partyCharacteristic -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#relatedParty -> n
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:taxIdentifier -> y
+get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:title -> y

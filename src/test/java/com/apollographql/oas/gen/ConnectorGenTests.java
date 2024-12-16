@@ -1,6 +1,7 @@
 package com.apollographql.oas.gen;
 
 import com.apollographql.oas.gen.nodes.*;
+import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.nodes.props.Prop;
 import com.apollographql.oas.gen.nodes.props.PropArray;
 import com.apollographql.oas.gen.nodes.props.PropScalar;
@@ -76,7 +77,7 @@ public class ConnectorGenTests {
 
   @Test
   void test_002_testFullPetStoreSchema() throws URISyntaxException, IOException {
-    final Prompt prompt = loadRecording("test_001_FullPetstoreSchema.txt");
+    final Prompt prompt = loadMapRecording("test_001_FullPetstoreSchema.txt");
 
     final OpenAPI parser = createParser(loadSpec("petstore.yaml"));
     assertNotNull(parser);
@@ -84,10 +85,10 @@ public class ConnectorGenTests {
     final ConnectorGen generator = new ConnectorGen(parser, prompt);
     generator.visit();
     assertNotNull(generator.getCollected());
-    assertEquals(3, generator.getCollected().size(), "Should have collected 3 paths: " + generator.getCollected());
+    assertEquals(5, generator.getCollected().size(), "Should have collected 3 paths: " + generator.getCollected());
 
     final Map<String, Type> types = generator.getContext().getTypes();
-    assertEquals(3, types.size());
+    assertEquals(5, types.size());
     assertTrue(types.containsKey("#/components/schemas/Pet"), "Should contain definition for Pet");
     assertTrue(types.containsKey("#/components/schemas/Category"), "Should contain definition for Category");
     assertTrue(types.containsKey("#/components/schemas/Tag"), "Should contain definition for Tag");
@@ -107,7 +108,7 @@ public class ConnectorGenTests {
     final OpenAPI parser = createParser(loadSpec("js-mva-consumer-info_v1.yaml"));
     assertNotNull(parser);
 
-    final Prompt prompt = loadRecording("test_001_ConsumerJourney.txt");
+    final Prompt prompt = loadMapRecording("test_001_ConsumerJourney.txt");
 
     final ConnectorGen generator = new ConnectorGen(parser, prompt);
     generator.visit();
@@ -121,6 +122,12 @@ public class ConnectorGenTests {
 //    counter.addAll(collected);
 //    printRefs(counter.getCount());
 //
+    assertInstanceOf(GetOp.class, type);
+
+    final GetOp op = (GetOp) type;
+    final List<Param> parameters = op.getParameters();
+    assertEquals(3, parameters.size());
+
     System.out.println(" ----------- schema -------------- ");
     printSchema(generator);
   }

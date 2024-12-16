@@ -145,7 +145,7 @@ public class Prompt {
     @Override
     public boolean yesNo(final String id, final String prompt) {
 //      System.out.println(prompt + " 'y': Yes, 'n': No");
-      System.out.println("[" + id + "]: " + prompt + " 'y': Yes, 'n': No");
+      System.out.println("[" + id + "]: \n" + prompt + " 'y': Yes, 'n': No");
       final String answer = scanner.nextLine();
       records.add(new ImmutablePair<>(id, answer));
       return answer.equals("") || answer.equalsIgnoreCase("y");
@@ -154,7 +154,7 @@ public class Prompt {
     @Override
     public char yesNoSelect(final String id, final String prompt) {
 //      System.out.println(prompt + " 'y': Yes, 'n': Skip, 's': Select");
-      System.out.println("[" + id + "]: " + prompt + " 'y': Yes, 'n': Skip, 's': Select");
+      System.out.println("[" + id + "]: \n" + prompt + " 'y': Yes, 'n': Skip, 's': Select");
       final String answer = scanner.nextLine();
       records.add(new ImmutablePair<>(id, answer));
 

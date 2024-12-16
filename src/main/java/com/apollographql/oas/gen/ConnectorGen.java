@@ -63,8 +63,13 @@ public class ConnectorGen {
     final Input recorder = Prompt.Factory.mapRecorder();
     final Prompt prompt = Prompt.create(recorder);
 
-    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis/tmf-specs";
-    final String source = String.format("%s/TMF717_Customer360-v5.0.0.oas.yaml", baseURL);
+//    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis/tmf-specs";
+//    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis/sample-oas";
+//    final String source = String.format("%s/TMF717_Customer360-v5.0.0.oas.yaml", baseURL);
+//    final String source = String.format("%s/petstore.yaml", baseURL);
+
+    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
+    final String source = String.format("%s/js-mva-consumer-info_v1.yaml", baseURL);
 
     final ConnectorGen generator = fromFile(source, prompt);
     generator.visit();

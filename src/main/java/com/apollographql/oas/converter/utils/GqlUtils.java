@@ -2,7 +2,6 @@ package com.apollographql.oas.converter.utils;
 
 import io.swagger.v3.oas.models.media.Schema;
 
-@Deprecated
 public class GqlUtils {
   public static String getGQLScalarType(Schema schema) {
     switch (schema.getType()) {

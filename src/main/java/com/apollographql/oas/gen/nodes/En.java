@@ -1,5 +1,6 @@
 package com.apollographql.oas.gen.nodes;
 
+import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.nodes.props.Prop;
@@ -64,6 +65,12 @@ public class En extends Type {
 
       writer.write(builder);
     }
+    else if (!context.inContextOf(Union.class, this)) {
+      // this is a very weird combination of a
+      // #union:String + Enum.'me'
+      writer.write(GqlUtils.getGQLScalarType(getSchema()));
+    }
+    // else do nothing
 
     trace(context, "<- [enum::generate]", String.format("-> out: %s", this.getSimpleName()));
     context.leave();
