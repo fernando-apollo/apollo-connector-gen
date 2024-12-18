@@ -73,16 +73,14 @@ public class PropRef extends Prop implements Cloneable {
   }
 
   /* Unfortunately we cannot delegate this to the subtype, otherwise the entire type would
-  * be generated. Therefore we only have the option to generate it ourselves  */
+   * be generated. Therefore we only have the option to generate it ourselves  */
   protected void generateValue(final Context context, final Writer writer) throws IOException {
     final Type type = getRefType();
-    if (type != null) {
-      if (type instanceof Array) {
-        writer.append("[");
-        Type items = ((Array) type).getItemsType();
-        writer.append(items.getName());
-        writer.append("]");
-      }
+    if (type instanceof Array) {
+      writer.append("[");
+      Type items = ((Array) type).getItemsType();
+      writer.append(items.getName());
+      writer.append("]");
     }
     else {
       writer.append(getValue(context));

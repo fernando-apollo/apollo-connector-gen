@@ -184,6 +184,19 @@ public class ConnectorGenTests {
     assertNotNull(sought);
     assertEquals(sought.path(), p);
   }
+  @Test
+  void test_004_testAccountSegment() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("js-mva-consumer-info_v1.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_004_testAccountSegment.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+    printSchema(generator);
+  }
 
   @Test
   void test_001_testHomepageProductSelector() throws IOException {
