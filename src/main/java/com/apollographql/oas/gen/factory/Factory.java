@@ -4,10 +4,7 @@ import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.nodes.*;
 import com.apollographql.oas.gen.nodes.params.Param;
-import com.apollographql.oas.gen.nodes.props.Prop;
-import com.apollographql.oas.gen.nodes.props.PropArray;
-import com.apollographql.oas.gen.nodes.props.PropRef;
-import com.apollographql.oas.gen.nodes.props.PropScalar;
+import com.apollographql.oas.gen.nodes.props.*;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -70,7 +67,7 @@ public class Factory {
     return result;
   }
 
-  public static Prop fromProperty(Type parent, String propertyName, Schema propertySchema) {
+  public static Prop fromProperty(Context context, Type parent, String propertyName, Schema propertySchema) {
     final String type = propertySchema.getType();
 
     Prop prop;
@@ -80,9 +77,13 @@ public class Factory {
     else if (type != null) {
       if (type.equals("array")) {
         final PropArray array = new PropArray(parent, propertyName, propertySchema);
-        final Prop items = fromProperty(array, "items", propertySchema.getItems());
+        final Prop items = fromProperty(context, array, "items", propertySchema.getItems());
         array.setItems(items);
         prop = array;
+      }
+      else if (type.equals("object")) {
+        final Obj result = new Obj(parent, null, propertySchema);
+        prop = new PropObj(parent, propertySchema, result);
       }
       else if (GqlUtils.gqlScalar(type) != null) { // scalar includes object => JSON
         prop = new PropScalar(parent, propertyName, GqlUtils.gqlScalar(type), propertySchema);
@@ -90,6 +91,11 @@ public class Factory {
       else {
         throw new IllegalArgumentException("Cannot handle property type " + type);
       }
+    }
+    else if (propertySchema.getProperties() != null) {
+      // we'll assume we are in an Obj
+      final Obj result = new Obj(parent, null, propertySchema);
+      prop = new PropObj(parent, propertySchema, result);
     }
     else {
       // we'll assume the type has no type, and we'll use the JSON scalar instead

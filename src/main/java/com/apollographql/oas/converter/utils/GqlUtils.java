@@ -16,11 +16,11 @@ public class GqlUtils {
         return "Float";
       }
       case "boolean" -> {
-        return"Boolean";
+        return "Boolean";
       }
-      case "object" -> {
-        return"JSON";
-      }
+//      case "object" -> {
+//        return "JSON";
+//      }
       default -> throw new IllegalStateException("[getGQLScalarType] Cannot generate type = " + schema);
     }
   }
@@ -40,9 +40,9 @@ public class GqlUtils {
       case "boolean" -> {
         return "Boolean";
       }
-      case "object" -> {
-        return"JSON";
-      }
+//      case "object" -> {
+//        return "JSON";
+//      }
       default -> {
         return null;
       }

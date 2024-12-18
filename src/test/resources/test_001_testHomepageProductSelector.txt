@@ -22,3 +22,4 @@ get:/productSelectorItems>res:r>ref:#/c/s/productSelectorItems>array:productSele
 get:/productSelectorItems>res:r>ref:#/c/s/productSelectorItems>array:productSelectorItemsItem>obj:productSelectorItemsItem>prop:scalar:speed -> y
 get:/productSelectorItems>res:r>ref:#/c/s/productSelectorItems>array:productSelectorItemsItem>obj:productSelectorItemsItem>prop:scalar:status -> y
 get:/productSelectorItems>res:r>ref:#/c/s/productSelectorItems>array:productSelectorItemsItem>obj:productSelectorItemsItem>prop:scalar:type -> y
+

@@ -3,10 +3,7 @@ package com.apollographql.oas.gen.nodes.props;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
-import com.apollographql.oas.gen.nodes.Composed;
-import com.apollographql.oas.gen.nodes.Obj;
-import com.apollographql.oas.gen.nodes.Type;
-import com.apollographql.oas.gen.nodes.Union;
+import com.apollographql.oas.gen.nodes.*;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
@@ -56,8 +53,6 @@ public class PropRef extends Prop implements Cloneable {
     context.enter(this);
     trace(context, "-> [prop-ref]", "in " + getName() + ", ref: " + getRef());
 
-//    final Type cached = context.get(getRef());
-//    if (cached == null) {
     final Schema schema = context.lookupRef(getRef());
     assert schema != null;
 
@@ -66,11 +61,6 @@ public class PropRef extends Prop implements Cloneable {
 
     type.setName(getRef());
     type.visit(context);
-//    }
-//    else {
-//      final Type clone = cached.clone();
-//      this.refType = adopt(clone);
-//    }
 
     if (!this.getChildren().contains(getRefType())) {
       this.add(getRefType());
@@ -82,10 +72,21 @@ public class PropRef extends Prop implements Cloneable {
     context.leave();
   }
 
-  // TODO
-  private Type adopt(final Type clone) {
-    // this would mean we would need to "re-parent" the children as well?
-    return null;
+  /* Unfortunately we cannot delegate this to the subtype, otherwise the entire type would
+  * be generated. Therefore we only have the option to generate it ourselves  */
+  protected void generateValue(final Context context, final Writer writer) throws IOException {
+    final Type type = getRefType();
+    if (type != null) {
+      if (type instanceof Array) {
+        writer.append("[");
+        Type items = ((Array) type).getItemsType();
+        writer.append(items.getName());
+        writer.append("]");
+      }
+    }
+    else {
+      writer.append(getValue(context));
+    }
   }
 
   @Override
@@ -117,6 +118,11 @@ public class PropRef extends Prop implements Cloneable {
   }
 
   private boolean needsBrackets(Type child) {
+    if (child instanceof Array) {
+      final Array array = (Array) child;
+      return needsBrackets(array.getItemsType());
+    }
+
     return child instanceof Obj || child instanceof Union || child instanceof Composed;
   }
 

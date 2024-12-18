@@ -46,7 +46,8 @@ public abstract class Prop extends Type {
     writer.append("  ")
       .append(NameUtils.sanitiseField(getName()))
       .append(": ");
-    writer.append(getValue(context));
+
+    generateValue(context, writer);
 
     if (isRequired())
       writer.append("!");
@@ -55,6 +56,10 @@ public abstract class Prop extends Type {
 //    writer.append(" # ").append(parent);
 
     writer.append("\n");
+  }
+
+  protected void generateValue(final Context context, final Writer writer) throws IOException {
+    writer.append(getValue(context));
   }
 
   @Override

@@ -44,7 +44,7 @@ public class Obj extends Type {
       if (parent instanceof Ref) {
         this.name = parentName.replace("ref:", "obj:");
       }
-      else if (parent instanceof Array) {
+      else if (parent instanceof Array || parent instanceof PropArray) {
         this.name = NameUtils.getRefName(parentName) + "Item";
       }
       else if (parent instanceof Response) {
@@ -176,7 +176,7 @@ public class Obj extends Type {
       .collect(Collectors.toCollection(LinkedHashSet::new));
 
     final Map<String, Prop> collected = sorted.stream()
-      .map(e -> Factory.fromProperty(this, e.getKey(), e.getValue()))
+      .map(e -> Factory.fromProperty(context, this, e.getKey(), e.getValue()))
       .collect(Collectors.toMap(Prop::getName, prop -> prop));
 
     final String propertiesNames = collected.values().stream()
@@ -198,7 +198,7 @@ public class Obj extends Type {
         final String propertyName = entry.getKey();
         final Schema propertySchema = entry.getValue();
 
-        final Prop prop = Factory.fromProperty(this, propertyName, propertySchema);
+        final Prop prop = Factory.fromProperty(context, this, propertyName, propertySchema);
 
         if (addAll == 'y' || context.getPrompt().yesNo(prop.path(), "Add field '" + prop.forPrompt(context) + "'?")) {
           trace(context, "   [obj::props]", "prop: " + prop);

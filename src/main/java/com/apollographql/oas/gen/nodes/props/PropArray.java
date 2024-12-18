@@ -19,19 +19,6 @@ public class PropArray extends Prop {
   public PropArray(Type parent, String name, Schema schema) {
     super(parent, name, schema);
   }
-/*
-  public PropArray(Type parent, String name, Schema schema, Prop items) {
-    super(parent, name, schema);
-    this.items = items;
-
-    if (items == null) {
-      throw new IllegalArgumentException("Items type cannot be null for array!");
-    }
-
-    // re-check this
-    add(items);
-  }
-*/
 
   @Override
   public String id() {
@@ -114,7 +101,7 @@ public class PropArray extends Prop {
   public String toString() {
     return "PropArray {" +
       "name='" + getName() + '\'' +
-      ", items='" + getItems().getName() + '\'' +
+      ", items='" + (getItems() != null ? getItems().getName() + '\'' : "[not-set]") +
       ", parent='" + getParent() + '\'' +
       '}';
   }
@@ -125,7 +112,7 @@ public class PropArray extends Prop {
   }
 
   private boolean needsBrackets(Type child) {
-    return child instanceof PropRef;
+    return child instanceof PropRef || child instanceof PropObj;
   }
 
   @Override
