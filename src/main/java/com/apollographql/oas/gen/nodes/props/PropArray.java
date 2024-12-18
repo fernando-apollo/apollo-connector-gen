@@ -1,5 +1,6 @@
 package com.apollographql.oas.gen.nodes.props;
 
+import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.nodes.Type;
 import io.swagger.v3.oas.models.media.Schema;
@@ -51,22 +52,25 @@ public class PropArray extends Prop {
   @Override
   public void visit(final Context context) {
     context.enter(this);
-    trace(context,"-> [prop-array]", "in");
+    trace(context, "-> [prop-array]", "in");
 
-    trace(context,"   [array]", "type: " + getItems());
+    trace(context, "   [array]", "type: " + getItems());
     getItems().visit(context);
     setVisited(true);
 
-    trace(context,"<- [array]", "out");
+    trace(context, "<- [array]", "out");
     context.leave();
   }
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+//    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+    final String fieldName = getName();
+    final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
+
     writer
       .append(" ".repeat(context.getStack().size()))
-      .append(fieldName);
+      .append(sanitised);
 
     if (needsBrackets(getItems())) {
       writer.append(" {");

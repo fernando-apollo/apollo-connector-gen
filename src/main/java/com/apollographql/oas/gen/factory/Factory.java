@@ -110,7 +110,7 @@ public class Factory {
     return new Param(parent, p.getName(), schema, required, schema.getDefault());
   }
 
-  public static Type fromResponse(final Context context, final Type parent, final ApiResponse response) {
+  public static Type fromResponseRef(final Context context, final Type parent, final ApiResponse response) {
     return new ResponseRef(parent, response.get$ref());
   }
 
@@ -119,5 +119,14 @@ public class Factory {
     parent.add(union);
 
     return union;
+  }
+
+  public static Type fromResponse(final Context context, final Type parent, final Schema mediaSchema) {
+    final Response response = new Response(parent, "r", mediaSchema, null);
+
+    final Type type = fromSchema(response, mediaSchema);
+    response.setResponseType(type);
+
+    return response;
   }
 }

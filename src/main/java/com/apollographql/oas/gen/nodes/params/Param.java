@@ -74,13 +74,25 @@ public class Param extends Type {
     }
 
     if (getDefaultValue() != null) { // best effort here..
-      writer.write(" = \"");
-      writer.write(getDefaultValue().toString());
-      writer.write("\"");
+      writeDefaultValue(writer);
     }
 
     trace(context, "<- [param::generate]", String.format("-> out: %s", this.getSimpleName()));
     context.leave();
+  }
+
+  private void writeDefaultValue(final Writer writer) throws IOException {
+    writer.write(" = ");
+    final Object value = getDefaultValue();
+
+    if (value instanceof Number)
+      writer.write(value.toString());
+
+    if (value instanceof String) {
+      writer.write('"');
+      writer.write(String.valueOf(value));
+      writer.write('"');
+    }
   }
 
   @Override

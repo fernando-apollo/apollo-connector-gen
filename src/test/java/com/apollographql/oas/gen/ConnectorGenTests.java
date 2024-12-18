@@ -186,6 +186,31 @@ public class ConnectorGenTests {
   }
 
   @Test
+  void test_001_testHomepageProductSelector() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("js-mva-homepage-product-selector_v3.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_001_testHomepageProductSelector.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    assertInstanceOf(GetOp.class, type);
+
+//    final GetOp op = (GetOp) type;
+//    final List<Param> parameters = op.getParameters();
+//    assertEquals(3, parameters.size());
+
+    System.out.println(" ----------- schema -------------- ");
+    printSchema(generator);
+  }
+
+  @Test
   void test_004_Customer360_ScalarsOnly() throws IOException {
     final OpenAPI parser = createParser(loadSpec("TMF717_Customer360-v5.0.0.oas.yaml"));
     assertNotNull(parser);
@@ -198,7 +223,14 @@ public class ConnectorGenTests {
     assertNotNull(collected);
     assertEquals(collected.size(), 1);
 
-    final Ref ref = (Ref) ((GetOp) collected.toArray()[0]).getResultType();
+    final Type resultType = ((GetOp) collected.toArray()[0]).getResultType();
+    assertInstanceOf(Response.class, resultType);
+    final Response response = (Response) resultType;
+
+    final Type responseType = response.getResponseType();
+    assertInstanceOf(Ref.class, responseType);
+
+    final Ref ref = (Ref) responseType;
     assertNotNull(ref);
 
     final Composed composed = (Composed) ((List) ref.getChildren()).get(0);
@@ -211,6 +243,8 @@ public class ConnectorGenTests {
     final Prop id = props.get("id");
     assertNotNull(id);
     assertInstanceOf(PropScalar.class, id);
+
+    printSchema(generator);
   }
 
   @Test
@@ -280,6 +314,40 @@ public class ConnectorGenTests {
 //    printRefs(values);
 
     System.out.println("ConnectorGenTests.test_003_testTMF637_Full ----------- schema -------------- \n");
+    printSchema(generator);
+  }
+
+  @Test
+  void test_001_testMostPopularProductScalarsOnly() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("most-popular-product.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_001_testMostPopularProductScalarsOnly.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+      assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+
+    printSchema(generator);
+  }
+
+  @Test
+  void test_002_testMostPopularProduct() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("most-popular-product.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_001_testMostPopularProduct.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+      assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+
     printSchema(generator);
   }
 

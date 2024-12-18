@@ -4,6 +4,8 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.params.Param;
+import com.apollographql.oas.gen.nodes.props.PropArray;
+import com.apollographql.oas.gen.nodes.props.PropRef;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -110,6 +112,12 @@ public class GetOp extends Type {
       .filter(e -> e.getKey().equals("200")) // || e.getKey().equals("default"))
       .toList();
 
+    if (filtered.size() > 1) {
+      throw new IllegalStateException("Found more than one 200 response? + " + filtered);
+    }
+
+    if (filtered.isEmpty()) throw new IllegalStateException("Could not find a valid 200 response");
+
     for (Map.Entry<String, ApiResponse> e : filtered) {
       visitResponse(context, e.getKey(), e.getValue());
     }
@@ -141,7 +149,8 @@ public class GetOp extends Type {
     final Content content = response.getContent();
     final MediaType mediaType = findJsonContent(content).get().getValue();
 
-    this.resultType = Factory.fromSchema(this, mediaType.getSchema());
+//    this.resultType = Factory.fromSchema(this, mediaType.getSchema());
+    this.resultType = Factory.fromResponse(context, this, mediaType.getSchema());
     this.resultType.visit(context);
 
     trace(context, "<- [get::responses::content]", "out " + getName());
@@ -183,11 +192,12 @@ public class GetOp extends Type {
       writer.append("\n  \"\"\"\n");
     }
 
-    writer.append("  ").append(NameUtils.genOperationName(getOriginalPath(), getGet()));
+    writer.append("  ").append(getGqlOpName());
 
     // TODO: gen parameters
     generateParameters(context, writer);
 
+    // TODO: we need a proper GetOpResponse to have a context that we can generate
     if (getResultType() != null) {
       writer.append(": ");
       getResultType().generate(context, writer);
@@ -198,6 +208,16 @@ public class GetOp extends Type {
 
     trace(context, "<- [get::generate]", String.format("-> out: %s", this.getName()));
     context.leave();
+  }
+
+  public String getGqlOpName() {
+    return NameUtils.genOperationName(getOriginalPath(), getGet());
+  }
+
+  @Override
+  public Set<Type> dependencies(final Context context) {
+    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies!");
+    return Set.of(getResultType());
   }
 
   private void generateParameters(Context context, Writer writer) throws IOException {

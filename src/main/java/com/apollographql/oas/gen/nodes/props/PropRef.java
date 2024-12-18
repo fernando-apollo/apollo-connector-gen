@@ -58,14 +58,14 @@ public class PropRef extends Prop implements Cloneable {
 
 //    final Type cached = context.get(getRef());
 //    if (cached == null) {
-      final Schema schema = context.lookupRef(getRef());
-      assert schema != null;
+    final Schema schema = context.lookupRef(getRef());
+    assert schema != null;
 
-      final Type type = Factory.fromSchema(this, schema);
-      this.refType = type;
+    final Type type = Factory.fromSchema(this, schema);
+    this.refType = type;
 
-      type.setName(getRef());
-      type.visit(context);
+    type.setName(getRef());
+    type.visit(context);
 //    }
 //    else {
 //      final Type clone = cached.clone();
@@ -90,10 +90,13 @@ public class PropRef extends Prop implements Cloneable {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+//    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+    final String fieldName = getName();
+    final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
+
     writer
       .append(" ".repeat(context.getStack().size()))
-      .append(fieldName);
+      .append(sanitised);
 
     if (needsBrackets(getRefType())) {
       writer.append(" {");

@@ -68,8 +68,11 @@ public class ConnectorGen {
 //    final String source = String.format("%s/TMF717_Customer360-v5.0.0.oas.yaml", baseURL);
 //    final String source = String.format("%s/petstore.yaml", baseURL);
 
-    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
-    final String source = String.format("%s/js-mva-consumer-info_v1.yaml", baseURL);
+//    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
+    final String baseURL = "/Users/fernando/Downloads";
+//    final String source = String.format("%s/js-mva-consumer-info_v1.yaml", baseURL);
+//    final String source = String.format("%s/js-mva-homepage-product-selector_v3.yaml", baseURL);
+    final String source = String.format("%s/most-popular-product.yaml", baseURL);
 
     final ConnectorGen generator = fromFile(source, prompt);
     generator.visit();

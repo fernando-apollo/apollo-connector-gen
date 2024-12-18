@@ -1,5 +1,6 @@
 package com.apollographql.oas.gen.nodes.props;
 
+import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.nodes.Type;
 import io.swagger.v3.oas.models.media.Schema;
@@ -42,10 +43,9 @@ public abstract class Prop extends Type {
       }
     }
 
-    // some fields start with '@' like '@type' -- need to remove the '@' for GQL
-    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
-    writer.append("  ").append(fieldName).append(": ");//.append(NameUtils.getRefName(type));
-
+    writer.append("  ")
+      .append(NameUtils.sanitiseField(getName()))
+      .append(": ");
     writer.append(getValue(context));
 
     if (isRequired())
@@ -59,11 +59,12 @@ public abstract class Prop extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+//    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+    final String fieldName = getName();
+    final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
     writer
       .append(" ".repeat(context.getStack().size()))
-      .append(fieldName)
-//      .append(" # ").append(getClass().getSimpleName())
+      .append(sanitised)
       .append("\n");
 
     for (Type child : getChildren()) {

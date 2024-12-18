@@ -37,7 +37,26 @@ public class Obj extends Type {
 
   @Override
   public String getName() {
-    if (this.name == null) return "[anonymous:" + hashCode() + "]";
+    if (this.name == null) {
+      final Type parent = getParent();
+      final String parentName = parent.getName();
+
+      if (parent instanceof Ref) {
+        this.name = parentName.replace("ref:", "obj:");
+      }
+      else if (parent instanceof Array) {
+        this.name = NameUtils.getRefName(parentName) + "Item";
+      }
+      else if (parent instanceof Response) {
+        GetOp op = (GetOp) parent.getParent();
+        // happens when the response is inlined
+        this.name = op.getGqlOpName() + "Response";
+      }
+      else {
+        this.name = "[anonymous:" + hashCode() + "]";
+      }
+    }
+
     return this.name;
   }
 
@@ -89,6 +108,11 @@ public class Obj extends Type {
   @Override
   public void generate(final Context context, final Writer writer) throws IOException {
     if (getProps().isEmpty()) {
+      return;
+    }
+
+    if (context.inContextOf(Response.class, this)) {
+      writer.append(NameUtils.getRefName(getName()));
       return;
     }
 

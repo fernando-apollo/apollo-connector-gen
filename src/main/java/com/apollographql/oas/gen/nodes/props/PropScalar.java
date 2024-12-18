@@ -45,11 +45,6 @@ public class PropScalar extends Prop {
   }
 
   @Override
-  public void select(final Context context, final Writer writer) throws IOException {
-    super.select(context, writer);
-  }
-
-  @Override
   public String toString() {
     return "PropScalar {" +
       "name='" + getName() + '\'' +

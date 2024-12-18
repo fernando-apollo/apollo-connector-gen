@@ -1,0 +1,9 @@
+get:/emailed/{period}.json -> y
+get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse -> s
+get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:scalar:copyright -> y
+get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:scalar:num_results -> y
+get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:array:#results -> n
+get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:scalar:status -> y
+get:/shared/{period}.json -> n
+get:/shared/{period}/{share_type}.json -> n
+get:/viewed/{period}.json -> n

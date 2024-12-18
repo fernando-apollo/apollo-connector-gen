@@ -41,12 +41,12 @@ public class Ref extends Type {
 
 //    final Type cached = context.get(getRef());
 //    if (cached == null) {
-      final Schema schema = context.lookupRef(getRef());
-      assert schema != null;
+    final Schema schema = context.lookupRef(getRef());
+    assert schema != null;
 
-      final Type type = Factory.fromSchema(this, schema);
-      assert type != null;
-      this.refType = type;
+    final Type type = Factory.fromSchema(this, schema);
+    assert type != null;
+    this.refType = type;
 //    }
 //    else {
 //      this.refType = cached;
@@ -66,10 +66,19 @@ public class Ref extends Type {
     context.enter(this);
     trace(context, "-> [ref::generate]", String.format("-> in: %s", this.getSimpleName()));
 
-    writer.write(NameUtils.getRefName(getRef()));
+    if (context.inContextOf(Response.class, this) && getRefType() instanceof Array) {
+      writer.append("[").append(getFirstChild().getName()).append("]");
+    }
+    else {
+      writer.write(NameUtils.getRefName(getRef()));
+    }
 
     trace(context, "<- [ref::generate]", String.format("-> out: %s", this.getSimpleName()));
     context.leave();
+  }
+
+  private Type getFirstChild() {
+    return getRefType().getChildren().get(0);
   }
 
   @Override
