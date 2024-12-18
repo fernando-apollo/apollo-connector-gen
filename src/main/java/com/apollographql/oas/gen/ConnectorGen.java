@@ -11,15 +11,13 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.*;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.LogManager;
 
 import static com.apollographql.oas.gen.log.Trace.trace;
@@ -242,13 +240,19 @@ public class ConnectorGen {
   }
 
   private void writeDirectives(Writer writer) throws IOException {
+    final OpenAPI api = getParser();
+    final Optional<Server> server = api.getServers().stream().findFirst();
+    final String host = server.isPresent() ? server.get().getUrl() : "http://localhost:4010";
+
     writer.append("extend schema\n")
       .append("  @link(url: \"https://specs.apollo.dev/federation/v2.10\", import: [\"@key\"])\n")
       .append("  @link(\n")
       .append("    url: \"https://specs.apollo.dev/connect/v0.1\"\n")
       .append("    import: [\"@connect\", \"@source\"]\n")
       .append("  )\n")
-      .append("  @source(name: \"api\", http: { baseURL: \"http://localhost:4010\" })\n\n");
+      .append("  @source(name: \"api\", http: { baseURL: \"")
+      .append(host)
+      .append("\" })\n\n");
   }
 
   private static void printRefs(final Map<String, Integer> values) {
