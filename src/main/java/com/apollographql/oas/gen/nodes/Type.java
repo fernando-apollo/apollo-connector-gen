@@ -194,7 +194,8 @@ public abstract class Type implements Cloneable {
     // search children
     if (found == null) {
       for (Type type : collection) {
-        found = findTypeIn(path, type.getChildren());
+        final List<Type> children = type.getChildren();
+        found = findTypeIn(path, children);
         if (found != null) {
           break;
         };

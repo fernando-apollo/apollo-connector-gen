@@ -153,6 +153,10 @@ public class GetOp extends Type {
     this.resultType = Factory.fromResponse(context, this, mediaType.getSchema());
     this.resultType.visit(context);
 
+    final List<Type> children = getChildren();
+    if (!children.contains(this.resultType))
+      children.add(getResultType());
+
     trace(context, "<- [get::responses::content]", "out " + getName());
   }
 
