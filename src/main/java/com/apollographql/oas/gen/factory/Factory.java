@@ -82,8 +82,8 @@ public class Factory {
         prop = array;
       }
       else if (type.equals("object")) {
-        final Obj result = new Obj(parent, null, propertySchema);
-        prop = new PropObj(parent, propertySchema, result);
+        final Obj result = new Obj(parent, propertyName, propertySchema);
+        prop = new PropObj(parent, propertyName, propertySchema, result);
       }
       else if (GqlUtils.gqlScalar(type) != null) { // scalar includes object => JSON
         prop = new PropScalar(parent, propertyName, GqlUtils.gqlScalar(type), propertySchema);
@@ -94,8 +94,8 @@ public class Factory {
     }
     else if (propertySchema.getProperties() != null) {
       // we'll assume we are in an Obj
-      final Obj result = new Obj(parent, null, propertySchema);
-      prop = new PropObj(parent, propertySchema, result);
+      final Obj result = new Obj(parent, propertyName, propertySchema);
+      prop = new PropObj(parent, propertyName, propertySchema, result);
     }
     else {
       // we'll assume the type has no type, and we'll use the JSON scalar instead

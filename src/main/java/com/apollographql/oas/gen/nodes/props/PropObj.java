@@ -15,8 +15,8 @@ import static com.apollographql.oas.gen.log.Trace.trace;
 public class PropObj extends Prop implements Cloneable {
   private final Type obj;
 
-  public PropObj(final Type parent, final Schema schema, final Type obj) {
-    super(parent, null, schema);
+  public PropObj(final Type parent, final String propertyName, final Schema schema, final Type obj) {
+    super(parent, propertyName, schema);
     this.obj = obj;
   }
 
@@ -38,11 +38,8 @@ public class PropObj extends Prop implements Cloneable {
       if (parent instanceof PropRef) {
         this.name = parentName.replace("ref:", "obj:");
       }
-      else if (parent instanceof PropArray) {
-        this.name = NameUtils.getRefName(parentName) + "Item";
-      }
       else {
-        this.name = "[anonymous:" + hashCode() + "]";
+        this.name = "[prop:obj:" + hashCode() + "]";
       }
     }
 
@@ -59,25 +56,25 @@ public class PropObj extends Prop implements Cloneable {
     return Set.of(getObj());
   }
 
-  @Override
-  public void generate(final Context context, final Writer writer) throws IOException {
-    context.enter(this);
-    trace(context, "-> [prop:obj::generate]", String.format("-> in: %s", this.getName()));
-
-    writer.append("type ")
-      .append(NameUtils.getRefName(getName()))
-      .append(" {\n");
-
-    for (Prop prop : this.getProps().values()) {
-      trace(context, "-> [prop:obj::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
-      prop.generate(context, writer);
-    }
-
-    writer.append("}\n\n");
-
-    trace(context, "<- [prop:obj::generate]", String.format("-> out: %s", this.getName()));
-    context.leave();
-  }
+//  @Override
+//  public void generate(final Context context, final Writer writer) throws IOException {
+//    context.enter(this);
+//    trace(context, "-> [prop:obj::generate]", String.format("-> in: %s", this.getName()));
+//
+//    writer.append("type ")
+//      .append(NameUtils.getRefName(getName()))
+//      .append(" {\n");
+//
+//    for (Prop prop : this.getProps().values()) {
+//      trace(context, "-> [prop:obj::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
+//      prop.generate(context, writer);
+//    }
+//
+//    writer.append("}\n\n");
+//
+//    trace(context, "<- [prop:obj::generate]", String.format("-> out: %s", this.getName()));
+//    context.leave();
+//  }
 
   @Override
   public void visit(final Context context) {

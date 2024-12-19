@@ -24,7 +24,12 @@ public class Recordings {
 //        linesList.add(line);
 //        System.out.println("line = " + line);
         final String[] split = line.split("->");
-        entries.put(split[0].trim(), split[1].trim());
+        try {
+          entries.put(split[0].trim(), split[1].trim());
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+          throw new RuntimeException("Could not parse line: " + line);
+        }
       }
     } catch (Exception e) {
       e.printStackTrace();

@@ -5,6 +5,7 @@ import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.props.Prop;
 import com.apollographql.oas.gen.nodes.props.PropArray;
+import com.apollographql.oas.gen.nodes.props.PropObj;
 import com.apollographql.oas.gen.nodes.props.PropRef;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -52,6 +53,9 @@ public class Obj extends Type {
         // happens when the response is inlined
         this.name = op.getGqlOpName() + "Response";
       }
+      else if (parent instanceof Obj) {
+        this.name = parentName + "Obj";
+      }
       else {
         this.name = "[anonymous:" + hashCode() + "]";
       }
@@ -97,7 +101,8 @@ public class Obj extends Type {
 
     final Set<Type> set = new HashSet<>();
 
-    for (Type p : getProps().values().stream().filter(p -> p instanceof PropRef || p instanceof PropArray).toList()) {
+    for (Type p : getProps().values().stream()
+      .filter(p -> p instanceof PropRef || p instanceof PropArray || p instanceof PropObj).toList()) {
       final Set<Type> dependencies = p.dependencies(context);
       set.addAll(dependencies);
     }
@@ -228,7 +233,7 @@ public class Obj extends Type {
       final List<Prop> dependencies = getProps().values().stream()
         .filter(p -> {
           trace(context, "-> [obj]", "visitProperties - NOT inCompose, in " + id());
-          return p instanceof PropRef || p instanceof PropArray;
+          return p instanceof PropRef || p instanceof PropArray || p instanceof PropObj;
         })
         .toList();
 

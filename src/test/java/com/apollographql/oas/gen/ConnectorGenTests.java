@@ -247,6 +247,56 @@ public class ConnectorGenTests {
     System.out.println(" ----------- schema -------------- ");
     printSchema(generator);
   }
+  @Test
+  void test_002_testHomepageProductSelectorRecursion() throws IOException {
+    // TODO: pending
+    final OpenAPI parser = createParser(loadSpec("js-mva-homepage-product-selector_v3.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_002_testHomepageProductSelectorInlineArray.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    assertInstanceOf(GetOp.class, type);
+
+//    final GetOp op = (GetOp) type;
+//    final List<Param> parameters = op.getParameters();
+//    assertEquals(3, parameters.size());
+
+    System.out.println(" ----------- schema -------------- ");
+    printSchema(generator);
+  }
+
+  @Test
+  void test_003_testHomepageProductSelectorAnonymousObject() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("js-mva-homepage-product-selector_v3.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_003_testHomepageProductSelectorAnonymousObject.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    assertInstanceOf(GetOp.class, type);
+
+//    final GetOp op = (GetOp) type;
+//    final List<Param> parameters = op.getParameters();
+//    assertEquals(3, parameters.size());
+
+    System.out.println(" ----------- schema -------------- ");
+    printSchema(generator);
+  }
 
   @Test
   void test_004_Customer360_ScalarsOnly() throws IOException {
