@@ -4,15 +4,12 @@ import com.apollographql.oas.gen.WebGenerator;
 import com.apollographql.oas.gen.nodes.Composed;
 import com.apollographql.oas.gen.nodes.GetOp;
 import com.apollographql.oas.gen.nodes.Type;
-import com.apollographql.oas.gen.nodes.props.Prop;
 import com.apollographql.oas.gen.nodes.props.PropScalar;
-import com.apollographql.oas.gen.prompt.Input;
 import com.apollographql.oas.gen.prompt.Prompt;
 import com.apollographql.oas.web.storage.StorageService;
 import jakarta.websocket.server.PathParam;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -96,11 +93,11 @@ public class ConnectorGenController {
       result.put("parent", found.getName());
 
       Collection<? extends Type> values;
-      if (found instanceof Composed) {
-         values = found.getProps().values();
+      if (found instanceof Composed && !found.getProps().isEmpty()) {
+        values = found.getProps().values();
       }
       else {
-        values  = found.getChildren();
+        values = found.getChildren();
       }
 
       result.put("result", values.stream().map(t -> Map.<String, Object>of(
@@ -108,7 +105,7 @@ public class ConnectorGenController {
         "path", t.path(),
         "name", t.getName(),
         "value", t.forPrompt(generator.getContext())
-      )));
+      )).toList());
 
       System.out.println("ConnectorGenController.visitType [out] \n" + result);
       return result;

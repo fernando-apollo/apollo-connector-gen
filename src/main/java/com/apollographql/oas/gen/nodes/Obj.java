@@ -76,8 +76,8 @@ public class Obj extends Type {
   public void visit(final Context context) {
     if (isVisited()) return;
 
-    context.enter(this);
-    trace(context, "-> [obj]", "in " + getName());
+    if (!context.enter(this) || isVisited()) return;
+    trace(context, "-> [obj:visit]", "in " + getName());
 
     if (!context.inContextOf(Composed.class, this))
       print(null, "In object: " + (getName() != null ? getName() : getOwner()));
@@ -89,24 +89,30 @@ public class Obj extends Type {
     if (getName() != null)
       context.store(getName(), this);
 
-    trace(context, "<- [obj]", "out " + getName());
-    context.leave();
+    trace(context, "<- [obj:visit]", "out " + getName());
+    context.leave(this);
   }
 
   @Override
   public Set<Type> dependencies(final Context context) {
+    if (!context.enter(this)) {
+      return Collections.emptySet();
+    }
+
+    trace(context, "-> [obj:dependencies]", "in " + getName());
     if (!isVisited()) {
       this.visit(context);
     }
 
     final Set<Type> set = new HashSet<>();
-
     for (Type p : getProps().values().stream()
       .filter(p -> p instanceof PropRef || p instanceof PropArray || p instanceof PropObj).toList()) {
       final Set<Type> dependencies = p.dependencies(context);
       set.addAll(dependencies);
     }
 
+    trace(context, "<- [obj:dependencies]", "out " + getName());
+    context.leave(this);
     return set;
   }
 
@@ -136,7 +142,7 @@ public class Obj extends Type {
     writer.append("}\n\n");
 
     trace(context, "<- [obj::generate]", String.format("-> out: %s", this.getName()));
-    context.leave();
+    context.leave(this);
   }
 
   @Override
@@ -153,7 +159,7 @@ public class Obj extends Type {
     }
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave();
+    context.leave(this);
   }
 
   @Override

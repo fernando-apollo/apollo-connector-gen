@@ -48,15 +48,15 @@ public class Param extends Type {
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [param]", "in: " + getName());
+    if (!context.enter(this) || isVisited()) return;
+    trace(context, "-> [param:visit]", "in: " + getName());
 
     this.resultType = Factory.fromSchema(this, getSchema());
-    trace(context, "   [param]", "type: " + resultType);
+    trace(context, "   [param:visit]", "type: " + resultType);
     this.resultType.visit(context);
 
-    trace(context, "<- [param]", "out: " + getName());
-    context.leave();
+    trace(context, "<- [param:visit]", "out: " + getName());
+    context.leave(this);
   }
 
   @Override
@@ -78,7 +78,7 @@ public class Param extends Type {
     }
 
     trace(context, "<- [param::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave();
+    context.leave(this);
   }
 
   private void writeDefaultValue(final Writer writer) throws IOException {

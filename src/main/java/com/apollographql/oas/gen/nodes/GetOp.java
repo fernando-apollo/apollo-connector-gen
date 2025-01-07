@@ -4,8 +4,6 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.params.Param;
-import com.apollographql.oas.gen.nodes.props.PropArray;
-import com.apollographql.oas.gen.nodes.props.PropRef;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -69,8 +67,16 @@ public class GetOp extends Type {
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [get]", "in " + getName());
+    if (!context.enter(this)) {
+      return;
+    }
+
+    if (isVisited()) {
+      trace(context, "-> [get:visit]", getName() + " already visited.");
+      return;
+    }
+
+    trace(context, "-> [get:visit]", "in " + getName());
 
     // 1. visit parameters
     visitParameters(context);
@@ -79,8 +85,8 @@ public class GetOp extends Type {
     visitResponses(context);
 
     setVisited(true);
-    trace(context, "<- [get]", "out " + getName());
-    context.leave();
+    trace(context, "<- [get:visit]", "out " + getName());
+    context.leave(this);
   }
 
   @Override
@@ -211,7 +217,7 @@ public class GetOp extends Type {
 //    writer.write(writer.toString());
 
     trace(context, "<- [get::generate]", String.format("-> out: %s", this.getName()));
-    context.leave();
+    context.leave(this);
   }
 
   public String getGqlOpName() {
@@ -221,7 +227,15 @@ public class GetOp extends Type {
   @Override
   public Set<Type> dependencies(final Context context) {
     if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies!");
-    return Set.of(getResultType());
+
+    context.enter(this);
+    trace(context, "-> [get::dependencies]", String.format("-> in: %s", this.getName()));
+
+    final Set<Type> set = Set.of(getResultType());
+
+    trace(context, "<- [get::dependencies]", String.format("-> out: %s", this.getName()));
+    context.leave(this);
+    return set;
   }
 
   private void generateParameters(Context context, Writer writer) throws IOException {

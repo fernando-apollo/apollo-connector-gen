@@ -44,12 +44,6 @@ public class NameUtils {
     return StringUtils.uncapitalize(capitaliseParts(param, "[-_\\.]"));
   }
 
-//  public static void main(String[] args) {
-//    String oasPath = "/users/{userId}/orders/{orderId}";
-//    String formattedPath = formatPath(oasPath);
-//    System.out.println(formattedPath); // Output: /Users/Orders
-//  }
-
   @Deprecated
   public static String genResponseType(final String path, final Operation operation) {
     if (operation == null)
@@ -102,10 +96,6 @@ public class NameUtils {
 
     // TODO: should be use the operationId instead?
     result = formatPath(path, parameters);
-
-//    if (parameters.size() > 0) {
-//      result = result + String.join("", parameters);
-//    }
 
     return StringUtils.uncapitalize(result);
   }

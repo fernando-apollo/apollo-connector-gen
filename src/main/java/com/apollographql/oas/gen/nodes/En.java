@@ -42,13 +42,13 @@ public class En extends Type {
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [enum]", "in: " + getItems());
+    if (!context.enter(this) || isVisited()) return;
+    trace(context, "-> [enum:visit]", "in: " + getItems());
 
     setVisited(true);
 
-    trace(context, "<- [enum]", "out: " + getItems());
-    context.leave();
+    trace(context, "<- [enum:visit]", "out: " + getItems());
+    context.leave(this);
   }
 
   @Override
@@ -73,13 +73,13 @@ public class En extends Type {
     // else do nothing
 
     trace(context, "<- [enum::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave();
+    context.leave(this);
   }
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
     context.enter(this);
-    trace(context, "-> [ref::select]", String.format("-> in: %s", this.getSimpleName()));
+    trace(context, "-> [enum::select]", String.format("-> in: %s", this.getSimpleName()));
 
     Set<Type> dependencies = dependencies(context);
 
@@ -87,12 +87,13 @@ public class En extends Type {
       dependency.select(context, writer);
     }
 
-    trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave();
+    trace(context, "<- [enum::select]", String.format("-> out: %s", this.getSimpleName()));
+    context.leave(this);
   }
 
   @Override
   public Set<Type> dependencies(final Context context) {
+    // do nothing
     return Collections.emptySet();
   }
 

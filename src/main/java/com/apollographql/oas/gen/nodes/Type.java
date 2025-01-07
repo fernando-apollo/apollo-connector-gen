@@ -3,13 +3,13 @@ package com.apollographql.oas.gen.nodes;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.nodes.props.Prop;
-import com.apollographql.oas.gen.nodes.props.PropRef;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.apollographql.oas.gen.log.Trace.trace;
 import static com.apollographql.oas.gen.log.Trace.warn;
 
 public abstract class Type implements Cloneable {
@@ -24,6 +24,12 @@ public abstract class Type implements Cloneable {
   public Type(final Type parent, final String name) {
     this.parent = parent;
     this.name = name;
+  }
+
+  protected static Type findAncestor(final Type type) {
+    final List<Type> ancestors = getPaths(type.getParent());
+    final int indexOf = ancestors.indexOf(type);
+    return indexOf > -1 ? (Ref) ancestors.get(indexOf) : null;
   }
 
   public String id() {
@@ -120,13 +126,27 @@ public abstract class Type implements Cloneable {
       visit(context);
     }
 
+    if (!context.enter(this)) {
+      return Collections.emptySet();
+    }
+
+    trace(context, "-> [type:dependencies]", String.format("-> in: %s", getSimpleName()));
     final Set<Type> set = new HashSet<>(getChildren());
 
     // by default dependencies will be children, except in objects and composed types
-    for (Type t : getChildren()) {
-      set.addAll(t.dependencies(context));
+    for (Type child : getChildren()) {
+      if (context.isVisiting(child)) {
+        continue;
+      }
+
+      trace(context, "  [type:dependencies]", "checking child " + child.getSimpleName());
+      final Set<Type> dependencies = child.dependencies(context);
+      trace(context, "  [type:dependencies]", "dependencies = " + dependencies);
+      set.addAll(dependencies);
     }
 
+    trace(context, "<- [type:dependencies]", String.format("<- out: %s", getSimpleName()));
+    context.leave(this);
     return set;
   }
 

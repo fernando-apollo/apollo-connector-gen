@@ -8,10 +8,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.apollographql.oas.gen.log.Trace.trace;
 
@@ -44,14 +41,9 @@ public class PropRef extends Prop implements Cloneable {
   }
 
   @Override
-  public Set<Type> dependencies(final Context context) {
-    return super.dependencies(context);
-  }
-
-  @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [prop-ref]", "in " + getName() + ", ref: " + getRef());
+    if (!context.enter(this) || isVisited()) return;
+    trace(context, "-> [prop-ref:visit]", "in " + getName() + ", ref: " + getRef());
 
     final Schema schema = context.lookupRef(getRef());
     assert schema != null;
@@ -60,7 +52,12 @@ public class PropRef extends Prop implements Cloneable {
     this.refType = type;
 
     type.setName(getRef());
-    type.visit(context);
+    if (!context.isVisiting(type)) {
+      type.visit(context);
+    }
+    else {
+      trace(context, "-> [prop-ref:visit]", "cannot revisit " + type.getName() + " twice!");
+    }
 
     if (!this.getChildren().contains(getRefType())) {
       this.add(getRefType());
@@ -68,8 +65,8 @@ public class PropRef extends Prop implements Cloneable {
 
     setVisited(true);
 
-    trace(context, "<- [prop-ref]", "out " + getName() + ", ref: " + getRef());
-    context.leave();
+    trace(context, "<- [prop-ref:visit]", "out " + getName() + ", ref: " + getRef());
+    context.leave(this);
   }
 
   /* Unfortunately we cannot delegate this to the subtype, otherwise the entire type would
@@ -89,7 +86,9 @@ public class PropRef extends Prop implements Cloneable {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+    context.enter(this);
+    trace(context, "-> [prop-ref:select]", "in " + getName() + ", ref: " + getRef());
+
     final String fieldName = getName();
     final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
 
@@ -113,6 +112,9 @@ public class PropRef extends Prop implements Cloneable {
 
       writer.append("\n");
     }
+
+    context.leave(this);
+    trace(context, "<- [prop-ref:select]", "out " + getName() + ", ref: " + getRef());
   }
 
   private boolean needsBrackets(Type child) {

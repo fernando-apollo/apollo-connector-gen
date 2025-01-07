@@ -5,7 +5,6 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Set;
 
 import static com.apollographql.oas.gen.log.Trace.trace;
 
@@ -40,40 +39,35 @@ public class Response extends Type {
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [get::responses::content]", "in " + getName());
+    if (!context.enter(this) || isVisited()) return;
+    trace(context, "-> [response:visit]", "in " + getName());
 
     getResponseType().visit(context);
     setVisited(true);
 
-    trace(context, "<- [get::responses::content]", "out " + getName());
-    context.leave();
+    trace(context, "<- [response:visit]", "out " + getName());
+    context.leave(this);
   }
 
   @Override
   public void generate(final Context context, final Writer writer) throws IOException {
     context.enter(this);
-    trace(context, "-> [response::generate]", String.format("-> in: %s", getParent().getName()));
+    trace(context, "-> [response:generate]", String.format("-> in: %s", getParent().getName()));
 
     getResponseType().generate(context, writer);
 
-    trace(context, "<- [response::generate]", String.format("-> out: %s", getParent().getName()));
-    context.leave();
+    trace(context, "<- [response:generate]", String.format("-> out: %s", getParent().getName()));
+    context.leave(this);
   }
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
     context.enter(this);
-    trace(context, "-> [response::select]", String.format("-> in: %s", getParent().getName()));
+    trace(context, "-> [response:select]", String.format("-> in: %s", getParent().getName()));
 
     getResponseType().select(context, writer);
 
-    trace(context, "<- [response::select]", String.format("-> out: %s", getParent().getName()));
-    context.leave();
-  }
-
-  @Override
-  public Set<Type> dependencies(final Context context) {
-    return super.dependencies(context);
+    trace(context, "<- [response:select]", String.format("-> out: %s", getParent().getName()));
+    context.leave(this);
   }
 }

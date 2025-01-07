@@ -9,14 +9,16 @@ import com.apollographql.oas.gen.prompt.Prompt;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.LogManager;
 
@@ -40,12 +42,18 @@ public class ConnectorGenTests {
     this.writer = new StringWriter();
   }
 
+  @AfterEach
+  void testWithRover() throws IOException, InterruptedException {
+    final String schema = getWriter().toString();
+    RoverWrapper.compose(schema);
+  }
+
   private StringWriter getWriter() {
     return writer;
   }
 
   @Test
-  void test_001_testMinimalPetstore() throws IOException {
+  void test_001_testMinimalPetstore() throws IOException, InterruptedException {
     final Prompt prompt = loadRecording("test_001_testMinimalPetstore.txt");
 
     final OpenAPI parser = createParser(loadSpec("petstore.yaml"));
@@ -65,18 +73,18 @@ public class ConnectorGenTests {
     findAllChildren(type, childrenSet);
 
     assertFalse(childrenSet.isEmpty(), "Should have found many children");
-    assertEquals(9, childrenSet.size());
+    assertEquals(10, childrenSet.size());
 
     final Map<String, Type> types = generator.getContext().getTypes();
     assertEquals(1, types.size());
     assertTrue(types.containsKey("#/components/schemas/Pet"), "Should contain definition for Pet");
     assertInstanceOf(Obj.class, types.get("#/components/schemas/Pet"));
 
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
-  void test_002_testFullPetStoreSchema() throws URISyntaxException, IOException {
+  void test_002_testFullPetStoreSchema() throws URISyntaxException, IOException, InterruptedException {
     final Prompt prompt = loadMapRecording("test_001_FullPetstoreSchema.txt");
 
     final OpenAPI parser = createParser(loadSpec("petstore.yaml"));
@@ -85,7 +93,7 @@ public class ConnectorGenTests {
     final ConnectorGen generator = new ConnectorGen(parser, prompt);
     generator.visit();
     assertNotNull(generator.getCollected());
-    assertEquals(5, generator.getCollected().size(), "Should have collected 3 paths: " + generator.getCollected());
+    assertEquals(5, generator.getCollected().size(), "Should have collected 5 paths: " + generator.getCollected());
 
     final Map<String, Type> types = generator.getContext().getTypes();
     assertEquals(5, types.size());
@@ -100,7 +108,7 @@ public class ConnectorGenTests {
     final Prop tags = types.get("#/components/schemas/Pet").getProps().get("tags");
     assertInstanceOf(PropArray.class, tags);
 
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -129,7 +137,7 @@ public class ConnectorGenTests {
     assertEquals(3, parameters.size());
 
     System.out.println(" ----------- schema -------------- ");
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -150,7 +158,11 @@ public class ConnectorGenTests {
     assertInstanceOf(GetOp.class, type);
     assertEquals(type.getChildren().size(), 1);
 
-    Type ref = type.getChildren().get(0); // ref to Consumer
+    Type res = type.getChildren().get(0); // res
+    assertInstanceOf(Response.class, res);
+    assertEquals(res.getChildren().size(), 1);
+
+    Type ref = res.getChildren().get(0); // ref to Consumer
     assertInstanceOf(Ref.class, ref);
     assertEquals(ref.getChildren().size(), 1);
 
@@ -163,7 +175,7 @@ public class ConnectorGenTests {
     }
 
     System.out.println(" ----------- schema -------------- ");
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -178,12 +190,15 @@ public class ConnectorGenTests {
     final Set<Type> collected = generator.getCollected();
     assertNotNull(collected);
 
-    final String p = "get:/consumer/{id}>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium";
+    final String p = "get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium";
     final Type sought = Type.findTypeIn(p, collected);
 
     assertNotNull(sought);
     assertEquals(sought.path(), p);
+
+    generator.writeSchema(getWriter());
   }
+
   @Test
   void test_004_testAccountSegment() throws IOException {
     final OpenAPI parser = createParser(loadSpec("js-mva-consumer-info_v1.yaml"));
@@ -194,8 +209,9 @@ public class ConnectorGenTests {
     final ConnectorGen generator = new ConnectorGen(parser, prompt);
     generator.visit();
     final Set<Type> collected = generator.getCollected();
+
     assertNotNull(collected);
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -215,12 +231,8 @@ public class ConnectorGenTests {
 
     assertInstanceOf(GetOp.class, type);
 
-//    final GetOp op = (GetOp) type;
-//    final List<Param> parameters = op.getParameters();
-//    assertEquals(3, parameters.size());
-
     System.out.println(" ----------- schema -------------- ");
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -245,8 +257,9 @@ public class ConnectorGenTests {
 //    assertEquals(3, parameters.size());
 
     System.out.println(" ----------- schema -------------- ");
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
+
   @Test
   void test_002_testHomepageProductSelectorRecursion() throws IOException {
     // TODO: pending
@@ -270,7 +283,7 @@ public class ConnectorGenTests {
 //    assertEquals(3, parameters.size());
 
     System.out.println(" ----------- schema -------------- ");
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -295,7 +308,7 @@ public class ConnectorGenTests {
 //    assertEquals(3, parameters.size());
 
     System.out.println(" ----------- schema -------------- ");
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -332,7 +345,7 @@ public class ConnectorGenTests {
     assertNotNull(id);
     assertInstanceOf(PropScalar.class, id);
 
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -356,7 +369,7 @@ public class ConnectorGenTests {
 //    printRefs(counter.getCount());
 
     System.out.println(" ----------- schema -------------- ");
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -378,7 +391,69 @@ public class ConnectorGenTests {
     assertTrue(types.containsKey("#/components/schemas/Product"));
 
     System.out.println(" ----------- schema -------------- ");
-    printSchema(generator);
+    generator.writeSchema(getWriter());
+  }
+
+  @Test
+  void test_TMF633_Attachment() throws IOException {
+    final Prompt prompt = loadMapRecording("test_TMF633_Attachment.txt");
+
+    final OpenAPI parser = createParser(loadSpec("TMF637-ProductInventory-v5.0.0.oas.yaml"));
+    assertNotNull(parser);
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    // TODO: add assertions
+//    final RefCounter counter = new RefCounter();
+//    counter.addAll(collected);
+//    printRefs(counter.getCount());
+
+    System.out.println(" ----------- schema -------------- ");
+    generator.writeSchema(getWriter());
+  }
+
+  @Test
+  void test_004_testTMF637_TestSimpleRecursion() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("TMF637-002-SimpleRecursionTest.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = Prompt.create(Prompt.Factory.yes());
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+
+    System.out.println("ConnectorGenTests.test_004_testTMF637_TestSimpleRecursion ----------- schema -------------- \n");
+    generator.writeSchema(getWriter());
+  }
+
+  @Test
+  void test_004_testTMF637_TestRecursion() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("TMF637-002-RecursionTest.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = Prompt.create(Prompt.Factory.yes());
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+
+    System.out.println("ConnectorGenTests.test_004_testTMF637_TestRecursion ----------- schema -------------- \n");
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -391,7 +466,7 @@ public class ConnectorGenTests {
     final ConnectorGen generator = new ConnectorGen(parser, prompt);
     generator.visit();
     final Set<Type> collected = generator.getCollected();
-      assertNotNull(collected);
+    assertNotNull(collected);
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
 
@@ -402,7 +477,7 @@ public class ConnectorGenTests {
 //    printRefs(values);
 
     System.out.println("ConnectorGenTests.test_003_testTMF637_Full ----------- schema -------------- \n");
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -415,11 +490,11 @@ public class ConnectorGenTests {
     final ConnectorGen generator = new ConnectorGen(parser, prompt);
     generator.visit();
     final Set<Type> collected = generator.getCollected();
-      assertNotNull(collected);
+    assertNotNull(collected);
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
 
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   @Test
@@ -432,11 +507,11 @@ public class ConnectorGenTests {
     final ConnectorGen generator = new ConnectorGen(parser, prompt);
     generator.visit();
     final Set<Type> collected = generator.getCollected();
-      assertNotNull(collected);
+    assertNotNull(collected);
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
 
-    printSchema(generator);
+    generator.writeSchema(getWriter());
   }
 
   private static OpenAPI createParser(String source) {
@@ -452,13 +527,6 @@ public class ConnectorGenTests {
     for (Type child : type.getChildren()) {
       findAllChildren(child, childrenSet);
     }
-  }
-
-  private static void printSchema(final ConnectorGen generator) throws IOException {
-    final StringWriter writer = new StringWriter();
-    generator.writeSchema(writer);
-    System.out.println(" ----------- schema -------------- ");
-    System.out.println(writer);
   }
 
   private static String loadSpec(final String resource) {
@@ -493,4 +561,46 @@ public class ConnectorGenTests {
     return Prompt.create(Prompt.Factory.mapPlayer(recording));
   }
 
+  static class RoverWrapper {
+    public static void main(String[] args) throws IOException, InterruptedException {
+      compose("nothing");
+    }
+
+    public static void compose(final String schema) throws IOException, InterruptedException {
+      final String basePath = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis/supergraph";
+      final Path path = Paths.get(basePath + "/test-spec.graphql");
+      Files.write(path, schema.getBytes());
+
+      final String command = String.format("rover supergraph compose --config %s/supergraph.yaml", basePath); // Replace with your desired command
+      System.out.println("command = " + command);
+
+      // Run the command
+      ProcessBuilder processBuilder = new ProcessBuilder(command.split(" "));
+      Process process = processBuilder.start();
+
+      // Read the command output
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//        String line;
+//        while ((line = reader.readLine()) != null) {
+//          System.out.println(line);
+//        }
+
+      // Read the command output
+      BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+      String e;
+      while ((e = error.readLine()) != null) {
+        System.err.println(e);
+      }
+
+      // Wait for the process to finish and get the exit code
+      int exitCode = process.waitFor();
+      if (exitCode == 0) {
+        System.out.println("Command executed successfully.");
+      }
+      else {
+        System.out.println("Command failed with exit code: " + exitCode);
+        throw new RuntimeException("rover compose failed -- check schema");
+      }
+    }
+  }
 }

@@ -5,14 +5,12 @@ import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.nodes.props.Prop;
-import com.apollographql.oas.gen.prompt.Prompt;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.apollographql.oas.gen.log.Trace.*;
 
@@ -30,29 +28,44 @@ public class Composed extends Type {
 
   @Override
   public String id() {
-//    final Schema schema = getSchema();
-//    final String refs = getChildren().stream().map(Type::id).collect(Collectors.joining(" + "));
-//
-//    if (schema.getAllOf() != null) {
-//      return "comp:all-of:" + refs;
-//    }
-//    else if (schema.getOneOf() != null) {
-//      return "comp:one-of:" + refs;
-//    }
-
     return "comp:" + getName();
   }
 
   @Override
   public Set<Type> dependencies(final Context context) {
-    if (!isVisited()) throw new IllegalStateException("Type should have been visited before asking for dependencies!");
-
-    final Set<Type> set = new HashSet<>();
-
-    for (Type p : getProps().values()) {
-      set.addAll(p.dependencies(context));
+    if (!context.enter(this)) {
+      return Collections.emptySet();
     }
 
+    if (!isVisited()) {
+//      throw new IllegalStateException("Type should have been visited before asking for dependencies!");
+      this.visit(context);
+    }
+
+    trace(context, "-> [comp::dependencies]", String.format("-> in: %s", this.getName()));
+
+    final Set<Type> set = new HashSet<>();
+    if (getSchema().getAllOf() != null) {
+      for (Type p : getProps().values()) {
+        trace(context, "  [comp:all-of::dependencies]", "checking prop " + p.getName());
+        final Set<Type> dependencies = p.dependencies(context);
+        trace(context, "  [comp:all-of::dependencies]", dependencies.toString());
+        set.addAll(dependencies);
+      }
+    }
+
+    if (getSchema().getOneOf() != null) {
+      // by default dependencies will be children, except in objects and composed types
+      for (Type t : getChildren()) {
+        trace(context, "  [comp:one-of::dependencies]", "checking child " + t.getName());
+        final Set<Type> dependencies = t.dependencies(context);
+        trace(context, "  [comp:one-of::dependencies]", dependencies.toString());
+        set.addAll(dependencies);
+      }
+    }
+
+    trace(context, "<- [comp::dependencies]", String.format("-> out: %s", this.getName()));
+    context.leave(this);
     return set;
   }
 
@@ -80,16 +93,16 @@ public class Composed extends Type {
     }
 
     trace(context, "<- [comp::generate]", String.format("-> out: %s", this.getName()));
-    context.leave();
+    context.leave(this);
   }
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    if (context.getStack().contains(this)) {
-      warn(context, "[comp::select]", "Possible recursion! Stack should not already contain " + this);
+    if (!context.enter(this)) {
+      writer.write(indent(context) + "# Circular reference to '" + getSimpleName() + "' detected! skipping.\n");
       return;
     }
-    context.enter(this);
+
     trace(context, "-> [comp::select]", String.format("-> in: %s", this.getSimpleName()));
 
     final Schema schema = getSchema();
@@ -105,13 +118,13 @@ public class Composed extends Type {
     }
 
     trace(context, "<- [comp::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave();
+    context.leave(this);
   }
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [composed]", "in: " + (getName() == null ? "[object]" : getName()));
+    if (!context.enter(this) || isVisited()) return;
+    trace(context, "-> [composed:visit]", "in: " + (getName() == null ? "[object]" : getName()));
 
     if (!context.inContextOf(Composed.class, this) && !context.inContextOf(Param.class, this)) print(null, "In composed schema: " + getName());
 
@@ -130,8 +143,8 @@ public class Composed extends Type {
 
     setVisited(true);
 
-    trace(context, "<- [composed]", "out: " + getName());
-    context.leave();
+    trace(context, "<- [composed:visit]", "out: " + getName());
+    context.leave(this);
   }
 
   /* we are collecting all nodes to combine them into a single object -- therefore we must 'silence' the prompt for

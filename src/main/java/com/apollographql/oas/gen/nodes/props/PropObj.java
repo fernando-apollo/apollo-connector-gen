@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -53,33 +54,26 @@ public class PropObj extends Prop implements Cloneable {
 
   @Override
   public Set<Type> dependencies(final Context context) {
-    return Set.of(getObj());
-  }
+    if (!isVisited()) {
+      this.visit(context);
+    }
 
-//  @Override
-//  public void generate(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
-//    trace(context, "-> [prop:obj::generate]", String.format("-> in: %s", this.getName()));
-//
-//    writer.append("type ")
-//      .append(NameUtils.getRefName(getName()))
-//      .append(" {\n");
-//
-//    for (Prop prop : this.getProps().values()) {
-//      trace(context, "-> [prop:obj::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
-//      prop.generate(context, writer);
-//    }
-//
-//    writer.append("}\n\n");
-//
-//    trace(context, "<- [prop:obj::generate]", String.format("-> out: %s", this.getName()));
-//    context.leave();
-//  }
+    if (!context.enter(this)) {
+      return Collections.emptySet();
+    }
+
+    trace(context, "-> [prop-obj:dependencies]", "in: " + getName());
+    var result = Set.of(getObj());
+
+    trace(context, "<- [prop-obj:dependencies]", "out: " + getName());
+    context.leave(this);
+    return result;
+  }
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [prop-obj]", "in " + getName() + ", obj: " + getObj().getSimpleName());
+    if (!context.enter(this) || isVisited()) return;
+    trace(context, "-> [prop-obj:visit]", "in " + getName() + ", obj: " + getObj().getSimpleName());
 
     getObj().visit(context);
     if (!this.getChildren().contains(getObj())) {
@@ -88,13 +82,15 @@ public class PropObj extends Prop implements Cloneable {
 
     setVisited(true);
 
-    trace(context, "<- [prop-obj]", "out " + getName() + ", obj: " + getObj().getSimpleName());
-    context.leave();
+    trace(context, "<- [prop-obj:visit]", "out " + getName() + ", obj: " + getObj().getSimpleName());
+    context.leave(this);
   }
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
     context.enter(this);
+    trace(context, "-> [prop-obj:select]", "in " + getName() + ", obj: " + getObj().getSimpleName());
+
     final String fieldName = getName();
     final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
 
@@ -118,7 +114,9 @@ public class PropObj extends Prop implements Cloneable {
 
       writer.append("\n");
     }
-    context.leave();
+
+    trace(context, "<- [prop-obj:select]", "out " + getName() + ", obj: " + getObj().getSimpleName());
+    context.leave(this);
   }
 
   private boolean needsBrackets(Type child) {

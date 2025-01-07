@@ -36,29 +36,39 @@ public class Ref extends Type {
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [ref]", "in: " + getRef());
+    if (isVisited()) return;
 
-//    final Type cached = context.get(getRef());
-//    if (cached == null) {
+    if (!context.enter(this)) {
+      final Ref original = (Ref) findAncestor(this);
+
+      if (original != null) {
+        setName(original.getName());
+        setRefType(original.getRefType());
+        setVisited(original.isVisited());
+        return;
+      }
+    }
+
+    trace(context, "-> [ref:visit]", "in: " + getRef());
+
     final Schema schema = context.lookupRef(getRef());
     assert schema != null;
 
     final Type type = Factory.fromSchema(this, schema);
     assert type != null;
     this.refType = type;
-//    }
-//    else {
-//      this.refType = cached;
-//    }
 
     this.refType.setName(getRef());
     this.refType.visit(context);
 
     setVisited(true);
 
-    trace(context, "<- [ref]", "out: " + getRef());
-    context.leave();
+    trace(context, "<- [ref:visit]", "out: " + getRef());
+    context.leave(this);
+  }
+
+  private void setRefType(final Type refType) {
+    this.refType = refType;
   }
 
   @Override
@@ -74,7 +84,7 @@ public class Ref extends Type {
     }
 
     trace(context, "<- [ref::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave();
+    context.leave(this);
   }
 
   private Type getFirstChild() {
@@ -89,7 +99,7 @@ public class Ref extends Type {
     getRefType().select(context, writer);
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave();
+    context.leave(this);
   }
 
   @Override

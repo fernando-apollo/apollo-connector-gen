@@ -4,7 +4,9 @@ import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.nodes.props.Prop;
-import com.apollographql.oas.gen.prompt.Prompt;
+import com.apollographql.oas.gen.nodes.props.PropArray;
+import com.apollographql.oas.gen.nodes.props.PropObj;
+import com.apollographql.oas.gen.nodes.props.PropRef;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
@@ -33,8 +35,9 @@ public class Union extends Type {
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [union]", "in: " + getSchemas().stream().map(Schema::get$ref).toList());
+    if (!context.enter(this) || isVisited()) return;
+
+    trace(context, "-> [union:visit]", "in: " + getSchemas().stream().map(Schema::get$ref).toList());
 
     if (!context.inContextOf(Composed.class, this))
       print(null, "In union: " + getOwner());
@@ -43,7 +46,7 @@ public class Union extends Type {
 
     for (final Schema<?> refSchema : getSchemas()) {
       final Type type = Factory.fromSchema(this, refSchema);
-      trace(context, "union", "of type: " + type);
+      trace(context, " [union:visit]", "of type: " + type);
 
       type.visit(context);
       collected.putAll(type.getProps());
@@ -58,8 +61,8 @@ public class Union extends Type {
 
     setVisited(true);
 
-    trace(context, "<- [union]", "out: " + getSchemas().stream().map(Schema::get$ref).toList());
-    context.leave();
+    trace(context, "<- [union:visit]", "out: " + getSchemas().stream().map(Schema::get$ref).toList());
+    context.leave(this);
   }
 
   private void visitProperties(final Context context, final Map<String, Prop> collected) {
@@ -125,12 +128,31 @@ public class Union extends Type {
     }
 
     trace(context, "<- [union::generate]", "out: " + getSchemas().stream().map(Schema::get$ref).toList());
-    context.leave();
+    context.leave(this);
   }
 
   @Override
   public Set<Type> dependencies(final Context context) {
-    return Collections.emptySet();
+    if (!isVisited()) {
+      this.visit(context);
+    }
+
+    if (!context.enter(this)) {
+      return Collections.emptySet();
+    }
+
+    trace(context, "-> [union:dependencies]", "in: " + getSchemas().stream().map(Schema::get$ref).toList());
+
+    final Set<Type> set = new HashSet<>();
+    for (Type p : getProps().values().stream()
+      .filter(p -> p instanceof PropRef || p instanceof PropArray || p instanceof PropObj).toList()) {
+      final Set<Type> dependencies = p.dependencies(context);
+      set.addAll(dependencies);
+    }
+
+    trace(context, "<- [union::dependencies]", "out: " + getSchemas().stream().map(Schema::get$ref).toList());
+    context.leave(this);
+    return set;
   }
 
   @Override

@@ -5,8 +5,6 @@ import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.Type;
 import io.swagger.v3.oas.models.media.Schema;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
 
@@ -26,7 +24,7 @@ public class PropScalar extends Prop {
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
+    if (!context.enter(this) || isVisited()) return;
 //    trace(context, "-> [prop-scalar]", "in " + getName() + ", type: " + getType());
 
     if (this.propType == null) {
@@ -36,7 +34,7 @@ public class PropScalar extends Prop {
     }
 
 //    trace(context, "<- [prop-scalar]", "out " + getName() + ", type: " + getType());
-    context.leave();
+    context.leave(this);
   }
 
   @Override

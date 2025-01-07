@@ -28,25 +28,25 @@ public class Array extends Type {
 
   @Override
   public String id() {
-    return "array:" + getItemsType().getName();
+    return "array:" + (getItemsType() != null ? getItemsType().getName() : "unknown-yet");
   }
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context,"-> [array]", "in");
+    if (!context.enter(this) || isVisited()) return;
+    trace(context,"-> [array:visit]", "in");
 
     if (itemsType == null) {
       itemsType = Factory.fromSchema(this, getItems());
       assert itemsType != null;
 
-      trace(context, "   [array]", "type: " + itemsType);
+      trace(context, "   [array:visit]", "type: " + itemsType);
       itemsType.visit(context);
       setVisited(true);
     }
 
-    trace(context,"-> [array]", "out");
-    context.leave();
+    trace(context,"-> [array:visit]", "out");
+    context.leave(this);
   }
 
   @Override
@@ -59,7 +59,7 @@ public class Array extends Type {
     writer.append("]");
 
     trace(context, "<- [array::generate]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave();
+    context.leave(this);
   }
 
   @Override
@@ -70,7 +70,7 @@ public class Array extends Type {
     getItemsType().select(context, writer);
 
     trace(context, "<- [array::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave();
+    context.leave(this);
   }
 
   @Override

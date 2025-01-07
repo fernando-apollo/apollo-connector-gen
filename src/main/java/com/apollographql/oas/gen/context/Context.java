@@ -41,14 +41,25 @@ public class Context {
     return generatedSet;
   }
 
-  public void enter(final Type type) {
-    if (this.stack.contains((type))) {
-      warn(this, "[context]", "Possible recursion? We have entered this type more than once! " + Type.getRootPathFor(type));
+  public boolean enter(final Type type) {
+    if (type.getParent() != null) {
+      if (Type.getPaths(type.getParent()).contains(type)) {
+        warn(this, "[context]", "Recursion? Ancestors contain this type already: \n" + Type.getRootPathFor(type));
+        return false;
+      }
     }
+
+    if (getStack().size() > 1 && getStack().peek() == type) {
+      throw new IllegalStateException("Possibly added this type twice?! \n" + Type.getRootPathFor(type));
+    }
+
     this.stack.push(type);
+    warn(this, ">>> [context::enter(" + getStack().size() + ")]",  "in: " + type.id());
+    return true;
   }
 
-  public void leave() {
+  public void leave(final Type type) {
+    warn(this, "<<< [context::leave(" + getStack().size() + ")]", "out: " + type.id());
     this.stack.pop();
   }
 
@@ -98,4 +109,11 @@ public class Context {
       .anyMatch(t -> t != type && t.getClass().isAssignableFrom(clazz));
   }
 
+  public boolean isVisiting(final Type type) {
+    if (type.getParent() != null) {
+      return Type.getPaths(type.getParent()).contains(type);
+    }
+
+    return false;
+  }
 }

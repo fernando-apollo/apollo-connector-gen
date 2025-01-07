@@ -12,6 +12,7 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import org.apache.commons.lang3.tuple.Pair;
@@ -61,15 +62,16 @@ public class ConnectorGen {
     final Input recorder = Prompt.Factory.mapRecorder();
     final Prompt prompt = Prompt.create(recorder);
 
-//    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis/tmf-specs";
+    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis/tmf-specs";
 //    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis/sample-oas";
 //    final String source = String.format("%s/TMF717_Customer360-v5.0.0.oas.yaml", baseURL);
+    final String source = String.format("%s/TMF637-ProductInventory-v5.0.0.oas.yaml", baseURL);
 //    final String source = String.format("%s/petstore.yaml", baseURL);
 
-    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
+//    final String baseURL = "/Users/fernando/Documents/Opportunities/Vodafone/poc/services";
 //    final String baseURL = "/Users/fernando/Downloads";
 //    final String source = String.format("%s/js-mva-consumer-info_v1.yaml", baseURL);
-    final String source = String.format("%s/js-mva-homepage-product-selector_v3.yaml", baseURL);
+//    final String source = String.format("%s/js-mva-homepage-product-selector_v3.yaml", baseURL);
 //    final String source = String.format("%s/most-popular-product.yaml", baseURL);
 
     final ConnectorGen generator = fromFile(source, prompt);
@@ -241,8 +243,7 @@ public class ConnectorGen {
 
   private void writeDirectives(Writer writer) throws IOException {
     final OpenAPI api = getParser();
-    final Optional<Server> server = api.getServers().stream().findFirst();
-    final String host = server.isPresent() ? server.get().getUrl() : "http://localhost:4010";
+    final String host = getServerUrl(api.getServers().stream().findFirst());
 
     writer.append("extend schema\n")
       .append("  @link(url: \"https://specs.apollo.dev/federation/v2.10\", import: [\"@key\"])\n")
@@ -253,6 +254,21 @@ public class ConnectorGen {
       .append("  @source(name: \"api\", http: { baseURL: \"")
       .append(host)
       .append("\" })\n\n");
+  }
+
+  private static String getServerUrl(final Optional<Server> server) {
+    if (server.isEmpty()) return "http://localhost:4010";
+
+    final Server value = server.get();
+    String url = value.getUrl();
+
+    if (value.getVariables() != null) {
+      for (Map.Entry<String, ServerVariable> variable : value.getVariables().entrySet()) {
+        url = url.replace("{" + variable.getKey() + "}", variable.getValue().getDefault());
+      }
+    }
+
+    return url;
   }
 
   private static void printRefs(final Map<String, Integer> values) {

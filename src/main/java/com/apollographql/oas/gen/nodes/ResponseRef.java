@@ -23,8 +23,8 @@ public class ResponseRef extends Type {
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [ref]", "in");
+    if (!context.enter(this) || isVisited()) return;
+    trace(context, "-> [response-ref:visit]", "in");
 
     final Type cached = context.get(getRef());
     if (cached == null) {
@@ -42,8 +42,8 @@ public class ResponseRef extends Type {
       this.refType = cached;
     }
 
-    trace(context, "-> [ref]", "out");
-    context.leave();
+    trace(context, "-> [response-ref:visit]", "out");
+    context.leave(this);
   }
 
   public Type getRefType() {

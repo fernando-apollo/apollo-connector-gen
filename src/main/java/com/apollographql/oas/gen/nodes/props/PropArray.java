@@ -7,10 +7,12 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.apollographql.oas.gen.log.Trace.indent;
 import static com.apollographql.oas.gen.log.Trace.trace;
 
 public class PropArray extends Prop {
@@ -38,20 +40,27 @@ public class PropArray extends Prop {
 
   @Override
   public void visit(final Context context) {
-    context.enter(this);
-    trace(context, "-> [prop-array]", "in");
+    if (!context.enter(this) || isVisited()) return;
+    trace(context, "-> [prop-array:visit]", "in");
 
-    trace(context, "   [array]", "type: " + getItems());
+    trace(context, "   [prop-array:visit]", "type: " + getItems());
     getItems().visit(context);
     setVisited(true);
 
-    trace(context, "<- [array]", "out");
-    context.leave();
+    trace(context, "<- [prop:array:visit]", "out");
+    context.leave(this);
   }
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+    final boolean inRecursion = !context.enter(this);
+    if (inRecursion) {
+      writer.write(indent(context) + "#Circular reference to '" + getName() + "' detected! skipping.\n");
+      return;
+    }
+
+    trace(context, "-> [prop-array:select]", "in");
+
     final String fieldName = getName();
     final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
 
@@ -64,10 +73,14 @@ public class PropArray extends Prop {
       writer.append("\n");
     }
 
-    // the array is a bit special because we add an intermediate "items" type, therefore we
-    // need to fetch the type of that one directly
-    for (Type child : getItems().getChildren()) {
-      child.select(context, writer);
+    if (inRecursion) {
+      writer.write(indent(context) + "  ### Circular reference detected!\n");
+    }
+    else {    // the array is a bit special because we add an intermediate "items" type, therefore we
+      // need to fetch the type of that one directly
+      for (Type child : getItems().getChildren()) {
+        child.select(context, writer);
+      }
     }
 
     if (needsBrackets(getItems())) {
@@ -76,6 +89,9 @@ public class PropArray extends Prop {
         .append("}");
     }
     writer.append("\n");
+
+    trace(context, "<- [prop:array:select]", "out");
+    context.leave(this);
   }
 
   public Set<Type> dependencies(final Context context) {
@@ -83,8 +99,17 @@ public class PropArray extends Prop {
       this.visit(context);
     }
 
+    if (!context.enter(this)) {
+      return Collections.emptySet();
+    }
+
+    trace(context, "-> [prop-array:dependencies]", "in: " + path());
+
     final Set<Type> set = new HashSet<>();
     set.add(getItems());
+
+    trace(context, "<- [prop:array:dependencies]", "out: " + path());
+    context.leave(this);
     return set;
   }
 

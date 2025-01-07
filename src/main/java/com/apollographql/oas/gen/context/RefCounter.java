@@ -4,14 +4,15 @@ import com.apollographql.oas.gen.nodes.Scalar;
 import com.apollographql.oas.gen.nodes.Type;
 import com.apollographql.oas.gen.nodes.props.Prop;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class RefCounter {
+  private final Stack<Type> stack;
+
   public RefCounter(final Context context) {
     this.count = new LinkedHashMap<>();
     this.context = context;
+    this.stack = new Stack<Type>();
   }
 
   private final Context context;
@@ -29,21 +30,30 @@ public class RefCounter {
   private void inc(Type type) {
     if (type instanceof Prop || type instanceof Scalar) return;
 
-    if (type.getName() == null) return;
+    final String name = type.getName();
+    if (name == null) return;
 
-    Integer value = count.get(type.getName());
+    Integer value = count.get(name);
     if (value != null) {
-      count.put(type.getName(), ++value);
+      count.put(name, ++value);
     }
     else {
-      count.put(type.getName(), 1);
+      count.put(name, 1);
     }
   }
 
   public void count(final Type type) {
     add(type);
 
-    for (final Type child : type.dependencies(getContext())) {
+//    if (this.stack.contains(type)) {
+//      // Circular reference
+//      return;
+//    }
+
+    this.stack.push(type);
+
+    final Set<Type> dependencies = type.dependencies(getContext());
+    for (final Type child : dependencies) {
       count(child);
     }
   }
