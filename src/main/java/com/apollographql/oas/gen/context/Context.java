@@ -9,7 +9,6 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 
 import java.util.*;
 
-import static com.apollographql.oas.gen.log.Trace.warn;
 import static com.apollographql.oas.gen.log.Trace.trace;
 
 public class Context {
@@ -52,24 +51,23 @@ public class Context {
   }
 
   public boolean enter(final Type type) {
-    /* if (type.getParent() != null) {
-      if (Type.getPaths(type.getParent()).contains(type)) {
-        warn(this, "[context]", "Recursion? Ancestors contain this type already: \n" + Type.getRootPathFor(type));
-        return false;
+   if (type.getParent() != null) {
+      if (Type.getAncestors(type.getParent()).contains(type)) {
+        throw new IllegalStateException("Recursion? Ancestors contain this type already: \n" + Type.getRootPathFor(type));
       }
     }
 
     if (getStack().size() > 1 && getStack().peek() == type) {
       throw new IllegalStateException("Possibly added this type twice?! \n" + Type.getRootPathFor(type));
-    }*/
+    }
 
     this.stack.push(type);
-    warn(this, ">>> [context::enter(" + getStack().size() + ")]",  "in: " + type.id());
+//    trace(this, ">>> [context::enter(" + getStack().size() + ")]",  "in: " + type.id());
     return true;
   }
 
   public void leave(final Type type) {
-    warn(this, "<<< [context::leave(" + getStack().size() + ")]", "out: " + type.id());
+//    trace(this, "<<< [context::leave(" + getStack().size() + ")]", "out: " + type.id());
     this.stack.pop();
   }
 
@@ -120,6 +118,6 @@ public class Context {
   }
 
   public boolean isVisiting(final Type type) {
-    return type.getParent() != null && Type.getPaths(type.getParent()).contains(type);
+    return type.getParent() != null && Type.getAncestors(type.getParent()).contains(type);
   }
 }

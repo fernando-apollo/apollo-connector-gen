@@ -23,7 +23,9 @@ public class ResponseRef extends Type {
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
+
+    context.enter(this);
     trace(context, "-> [response-ref:visit]", "in");
 
     final Type cached = context.get(getRef());
@@ -32,7 +34,6 @@ public class ResponseRef extends Type {
       assert schema != null;
 
       final Type type = Factory.fromSchema(this, schema);
-      assert type != null;
       this.refType = type;
 
       type.setName(getRef());

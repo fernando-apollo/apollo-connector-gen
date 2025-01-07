@@ -67,15 +67,12 @@ public class GetOp extends Type {
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this)) {
-      return;
-    }
-
     if (isVisited()) {
       trace(context, "-> [get:visit]", getName() + " already visited.");
       return;
     }
 
+    context.enter(this);
     trace(context, "-> [get:visit]", "in " + getName());
 
     // 1. visit parameters
@@ -214,7 +211,6 @@ public class GetOp extends Type {
     }
 
     writer.append("\n");
-//    writer.write(writer.toString());
 
     trace(context, "<- [get::generate]", String.format("-> out: %s", this.getName()));
     context.leave(this);
@@ -259,8 +255,6 @@ public class GetOp extends Type {
     trace(context, "->[visitParameter]", "begin: " + p.getName());
 
     final Param param = Factory.fromParam(context, parent, p);
-    assert param != null;
-
     param.visit(context);
 
     trace(context, "<-[visitParameter]", "end: " + p.getName());

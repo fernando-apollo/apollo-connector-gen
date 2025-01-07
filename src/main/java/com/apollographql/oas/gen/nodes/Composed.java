@@ -33,14 +33,11 @@ public class Composed extends Type {
 
   @Override
   public Set<Type> dependencies(final Context context) {
-    if (!context.enter(this)) {
-      return Collections.emptySet();
-    }
-
     if (!isVisited()) {
       this.visit(context);
     }
 
+    context.enter(this);
     trace(context, "-> [comp::dependencies]", String.format("-> in: %s", this.getName()));
 
     final Set<Type> set = new HashSet<>();
@@ -97,7 +94,6 @@ public class Composed extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
     trace(context, "-> [comp::select]", String.format("-> in: %s", this.getSimpleName()));
 
     final Schema schema = getSchema();
@@ -113,15 +109,17 @@ public class Composed extends Type {
     }
 
     trace(context, "<- [comp::select]", String.format("-> out: %s", this.getSimpleName()));
-//    context.leave(this);
   }
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
+
+    context.enter(this);
     trace(context, "-> [composed:visit]", "in: " + (getName() == null ? "[object]" : getName()));
 
-    if (!context.inContextOf(Composed.class, this) && !context.inContextOf(Param.class, this)) print(null, "In composed schema: " + getName());
+    if (!context.inContextOf(Composed.class, this) && !context.inContextOf(Param.class, this))
+      print(null, "In composed schema: " + getName());
 
     final ComposedSchema schema = (ComposedSchema) getSchema();
     if (schema.getAllOf() != null) {

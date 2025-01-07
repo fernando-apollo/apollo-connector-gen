@@ -42,11 +42,11 @@ public class En extends Type {
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
+
+    context.enter(this);
     trace(context, "-> [enum:visit]", "in: " + getItems());
-
     setVisited(true);
-
     trace(context, "<- [enum:visit]", "out: " + getItems());
     context.leave(this);
   }
@@ -78,17 +78,15 @@ public class En extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
     trace(context, "-> [enum::select]", String.format("-> in: %s", this.getSimpleName()));
 
-    Set<Type> dependencies = dependencies(context);
+    final Set<Type> dependencies = dependencies(context);
 
     for (Type dependency : dependencies) {
       dependency.select(context, writer);
     }
 
     trace(context, "<- [enum::select]", String.format("-> out: %s", this.getSimpleName()));
-//    context.leave(this);
   }
 
   @Override

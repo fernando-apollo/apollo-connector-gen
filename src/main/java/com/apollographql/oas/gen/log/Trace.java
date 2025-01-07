@@ -12,8 +12,8 @@ public class Trace {
 
   public static void trace(final Context ctx, final String context, final String message) {
     final int count = ctx != null ? ctx.size() : 0;
-//    logger.log(FINE, " ".repeat(count) + ("(" + count + ")") + context + " " + message);
-    System.out.println(" ".repeat(count) + ("(" + count + ")") + context + " " + message);
+    logger.log(FINE, " ".repeat(count) + ("(" + count + ")") + context + " " + message);
+//    System.out.println(" ".repeat(count) + ("(" + count + ")") + context + " " + message);
   }
 
   public static void print(final Context ctx, final String message) {
@@ -25,9 +25,8 @@ public class Trace {
   }
 
   public static void warn(final Context ctx, final String context, final String message) {
-//    logger.log(WARNING, " ".repeat(ctx != null ? ctx.size() : 0) + context + " " + message);
-//    logger.log(WARNING, context + " " + message);
     final int count = ctx != null ? ctx.size() : 0;
-    System.out.println(" ".repeat(count) + ("(" + count + ")") + context + " " + message);
+    logger.log(WARNING, " ".repeat(count) + context + " " + message);
+//    System.out.println(" ".repeat(count) + ("(" + count + ")") + context + " " + message);
   }
 }

@@ -42,13 +42,11 @@ public class Param extends Type {
     return resultType;
   }
 
-  public void setResultType(Type resultType) {
-    this.resultType = resultType;
-  }
-
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
+
+    context.enter(this);
     trace(context, "-> [param:visit]", "in: " + getName());
 
     this.resultType = Factory.fromSchema(this, getSchema());

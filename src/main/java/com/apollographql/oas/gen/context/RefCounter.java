@@ -45,10 +45,9 @@ public class RefCounter {
   public void count(final Type type) {
     add(type);
 
-//    if (this.stack.contains(type)) {
-//      // Circular reference
-//      return;
-//    }
+    if (this.stack.contains(type)) {
+      throw new IllegalStateException("Recursion detected! Stack already contains type: \n" + Type.getRootPathFor(type));
+    }
 
     this.stack.push(type);
 

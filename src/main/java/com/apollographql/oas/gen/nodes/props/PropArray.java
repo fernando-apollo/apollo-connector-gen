@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
 
-import static com.apollographql.oas.gen.log.Trace.indent;
 import static com.apollographql.oas.gen.log.Trace.trace;
 
 public class PropArray extends Prop {
@@ -22,7 +21,7 @@ public class PropArray extends Prop {
 
   @Override
   public String id() {
-    return "prop:array:#" + getName();// + ">" + getItems().id();
+    return "prop:array:#" + getName();
   }
 
   public void setItems(final Prop items) {
@@ -39,7 +38,7 @@ public class PropArray extends Prop {
 
   @Override
   public void add(final Type child) {
-    final List<Type> paths = Type.getPaths(this);
+    final List<Type> paths = Type.getAncestors(this);
     final boolean contains = paths.contains(child);
     trace(null, "-> [prop-array:add]", "contains child? " + contains);
 
@@ -49,17 +48,17 @@ public class PropArray extends Prop {
       super.add(wrapper);
 
       setVisited(true);
-//      setRefType(wrapper);
     }
     else {
       super.add(child);
     }
-//    super.add(child);
   }
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
+
+    context.enter(this);
     trace(context, "-> [prop-array:visit]", "in");
 
     trace(context, "   [prop-array:visit]", "type: " + getItems());
@@ -109,10 +108,7 @@ public class PropArray extends Prop {
       this.visit(context);
     }
 
-    if (!context.enter(this)) {
-      return Collections.emptySet();
-    }
-
+    context.enter(this);
     trace(context, "-> [prop-array:dependencies]", "in: " + path());
 
     final Set<Type> set = new HashSet<>();

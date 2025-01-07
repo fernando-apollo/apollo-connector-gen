@@ -49,7 +49,7 @@ public class PropRef extends Prop implements Cloneable {
   public void add(final Type child) {
     child.setName(getRef());
 
-    final List<Type> paths = Type.getPaths(this);
+    final List<Type> paths = Type.getAncestors(this);
     final boolean contains = paths.contains(child);
     trace(null, "-> [prop-ref:add]", "contains child? " + contains);
 
@@ -68,7 +68,9 @@ public class PropRef extends Prop implements Cloneable {
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
+
+    context.enter(this);
     trace(context, "-> [prop-ref:visit]", "in " + getName() + ", ref: " + getRef());
 
     final Schema schema = context.lookupRef(getRef());
@@ -79,12 +81,7 @@ public class PropRef extends Prop implements Cloneable {
     if (refType == null) {
       this.refType = type;
       type.setName(getRef());
-//      if (!context.isVisiting(type)) {
       type.visit(context);
-//      }
-//      else {
-//        trace(context, "-> [prop-ref:visit]", "cannot revisit " + type.getName() + " twice!");
-//      }
 
       if (!this.getChildren().contains(getRefType())) {
         this.add(getRefType());
@@ -114,7 +111,6 @@ public class PropRef extends Prop implements Cloneable {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
     trace(context, "-> [prop-ref:select]", "in " + getName() + ", ref: " + getRef());
 
     final String fieldName = getName();
@@ -143,7 +139,6 @@ public class PropRef extends Prop implements Cloneable {
       writer.append("\n");
     }
 
-//    context.leave(this);
     trace(context, "<- [prop-ref:select]", "out " + getName() + ", ref: " + getRef());
   }
 

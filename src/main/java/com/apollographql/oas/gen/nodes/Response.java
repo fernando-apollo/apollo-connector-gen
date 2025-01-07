@@ -39,7 +39,9 @@ public class Response extends Type {
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
+
+    context.enter(this);
     trace(context, "-> [response:visit]", "in " + getName());
 
     getResponseType().visit(context);
@@ -62,12 +64,8 @@ public class Response extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
     trace(context, "-> [response:select]", String.format("-> in: %s", getParent().getName()));
-
     getResponseType().select(context, writer);
-
     trace(context, "<- [response:select]", String.format("-> out: %s", getParent().getName()));
-//    context.leave(this);
   }
 }

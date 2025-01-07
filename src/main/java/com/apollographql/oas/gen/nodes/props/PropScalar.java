@@ -24,8 +24,9 @@ public class PropScalar extends Prop {
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
 
+    context.enter(this);
     if (this.propType == null) {
       this.propType = Factory.fromSchema(this, getSchema());
       this.propType.visit(context);

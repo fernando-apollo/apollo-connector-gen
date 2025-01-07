@@ -45,7 +45,6 @@ public class CircularRef extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
     trace(context, "-> [circular-ref:select]", String.format("-> in: %s", getSimpleName()));
 
     // do nothing, we can't really select a circular reference
@@ -56,24 +55,5 @@ public class CircularRef extends Type {
       .append("' detected! Please re-visit the schema and remove the reference.\n");
 
     trace(context, "<- [circular-ref:select]", String.format("-> out: %s", getSimpleName()));
-//    context.leave(this);
-  }
-
-  private String getParentName() {
-    Type type = this;
-    do {
-      type = type.getParent();
-      if (type instanceof Obj || type instanceof Union || type instanceof Composed) {
-        final String name = type.getName();
-        if (name.startsWith("[anonymous:")) {
-          continue;
-        }
-
-        return name;
-      }
-
-    } while (type != null);
-
-    return getParent().getSimpleName();
   }
 }

@@ -76,7 +76,7 @@ public class Obj extends Type {
   public void visit(final Context context) {
     if (isVisited()) return;
 
-    if (!context.enter(this) || isVisited()) return;
+    context.enter(this);
     trace(context, "-> [obj:visit]", "in " + getName());
 
     if (!context.inContextOf(Composed.class, this))
@@ -95,14 +95,12 @@ public class Obj extends Type {
 
   @Override
   public Set<Type> dependencies(final Context context) {
-    if (!context.enter(this)) {
-      return Collections.emptySet();
-    }
-
-    trace(context, "-> [obj:dependencies]", "in " + getName());
     if (!isVisited()) {
       this.visit(context);
     }
+
+    context.enter(this);
+    trace(context, "-> [obj:dependencies]", "in " + getName());
 
     final Set<Type> set = new HashSet<>();
     for (Type p : getProps().values().stream()
@@ -147,11 +145,6 @@ public class Obj extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    if (context.getStack().contains(this)) {
-//      warn(context, "[obj::select]", "Possible recursion! Stack should not already contain " + this);
-//      return;
-//    }
-//    context.enter(this);
     trace(context, "-> [ref::select]", String.format("-> in: %s", this.getSimpleName()));
 
     for (Prop prop : this.getProps().values()) {
@@ -159,7 +152,6 @@ public class Obj extends Type {
     }
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-//    context.leave(this);
   }
 
   @Override

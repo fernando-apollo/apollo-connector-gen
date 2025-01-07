@@ -27,7 +27,7 @@ public abstract class Type implements Cloneable {
   }
 
   protected static Type findAncestor(final Type type) {
-    final List<Type> ancestors = getPaths(type.getParent());
+    final List<Type> ancestors = getAncestors(type.getParent());
     final int indexOf = ancestors.indexOf(type);
     return indexOf > -1 ? (Ref) ancestors.get(indexOf) : null;
   }
@@ -37,7 +37,7 @@ public abstract class Type implements Cloneable {
   }
 
   public String path() {
-    final List<Type> ancestors = getPaths(this);
+    final List<Type> ancestors = getAncestors(this);
     return ancestors.stream().map(t -> t.id())
       .collect(Collectors.joining(">"))
       .replaceAll("#/components/schemas", "#/c/s")
@@ -68,7 +68,7 @@ public abstract class Type implements Cloneable {
       return;
     }
 
-    if (getPaths(this).contains(child)) {
+    if (getAncestors(this).contains(child)) {
       warn(null, "[context]", "Recursion? Ancestors contain this type already: \n" + Type.getRootPathFor(child));
       return;
     }
@@ -131,10 +131,7 @@ public abstract class Type implements Cloneable {
       visit(context);
     }
 
-    if (!context.enter(this)) {
-      return Collections.emptySet();
-    }
-
+    context.enter(this);
     trace(context, "-> [type:dependencies]", String.format("-> in: %s", getSimpleName()));
     final Set<Type> set = new HashSet<>(getChildren());
 
@@ -173,7 +170,7 @@ public abstract class Type implements Cloneable {
     return builder.toString();
   }
 
-  public static List<Type> getPaths(Type type) {
+  public static List<Type> getAncestors(Type type) {
     List<Type> result = new LinkedList<>();
     result.add(type);
 

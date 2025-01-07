@@ -35,8 +35,9 @@ public class Union extends Type {
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
 
+    context.enter(this);
     trace(context, "-> [union:visit]", "in: " + getSchemas().stream().map(Schema::get$ref).toList());
 
     if (!context.inContextOf(Composed.class, this))
@@ -137,10 +138,7 @@ public class Union extends Type {
       this.visit(context);
     }
 
-    if (!context.enter(this)) {
-      return Collections.emptySet();
-    }
-
+    context.enter(this);
     trace(context, "-> [union:dependencies]", "in: " + getSchemas().stream().map(Schema::get$ref).toList());
 
     final Set<Type> set = new HashSet<>();

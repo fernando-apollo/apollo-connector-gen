@@ -2,7 +2,6 @@ package com.apollographql.oas.gen.factory;
 
 import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.gen.context.Context;
-import com.apollographql.oas.gen.log.Trace;
 import com.apollographql.oas.gen.nodes.*;
 import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.nodes.props.*;
@@ -105,10 +104,9 @@ public class Factory {
       prop = new PropScalar(parent, propertyName, "JSON", propertySchema);
     }
 
-    if (Type.getPaths(parent).contains(prop)) {
-        warn(context, "[factory]", "Recursion? Ancestors contain this type already: \n" + Type.getRootPathFor(prop));
-//        return false;
-//      throw new IllegalArgumentException("Circular reference detected: " + Type.getRootPathFor(prop));
+    if (Type.getAncestors(parent).contains(prop)) {
+      warn(context, "[factory]", "Recursion detected! Ancestors already contain this type: \n" +
+        Type.getRootPathFor(prop));
     }
 
     return prop;

@@ -58,11 +58,9 @@ public class PropObj extends Prop implements Cloneable {
       this.visit(context);
     }
 
-    if (!context.enter(this)) {
-      return Collections.emptySet();
-    }
-
+    context.enter(this);
     trace(context, "-> [prop-obj:dependencies]", "in: " + getName());
+
     var result = Set.of(getObj());
 
     trace(context, "<- [prop-obj:dependencies]", "out: " + getName());
@@ -72,7 +70,9 @@ public class PropObj extends Prop implements Cloneable {
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
+
+    context.enter(this);
     trace(context, "-> [prop-obj:visit]", "in " + getName() + ", obj: " + getObj().getSimpleName());
 
     getObj().visit(context);
@@ -88,7 +88,6 @@ public class PropObj extends Prop implements Cloneable {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
     trace(context, "-> [prop-obj:select]", "in " + getName() + ", obj: " + getObj().getSimpleName());
 
     final String fieldName = getName();
@@ -118,7 +117,6 @@ public class PropObj extends Prop implements Cloneable {
     }
 
     trace(context, "<- [prop-obj:select]", "out " + getName() + ", obj: " + getObj().getSimpleName());
-//    context.leave(this);
   }
 
   private boolean needsBrackets(Type child) {

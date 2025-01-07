@@ -33,13 +33,13 @@ public class Array extends Type {
 
   @Override
   public void visit(final Context context) {
-    if (!context.enter(this) || isVisited()) return;
+    if (isVisited()) return;
+
+    context.enter(this);
     trace(context,"-> [array:visit]", "in");
 
     if (itemsType == null) {
       itemsType = Factory.fromSchema(this, getItems());
-      assert itemsType != null;
-
       trace(context, "   [array:visit]", "type: " + itemsType);
       itemsType.visit(context);
       setVisited(true);
@@ -64,13 +64,9 @@ public class Array extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
     trace(context, "-> [array::select]", String.format("-> in: %s", this.getSimpleName()));
-
     getItemsType().select(context, writer);
-
     trace(context, "<- [array::select]", String.format("-> out: %s", this.getSimpleName()));
-//    context.leave(this);
   }
 
   @Override

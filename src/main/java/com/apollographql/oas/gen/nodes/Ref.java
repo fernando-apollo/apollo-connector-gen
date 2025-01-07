@@ -38,26 +38,13 @@ public class Ref extends Type {
   public void visit(final Context context) {
     if (isVisited()) return;
 
-    if (!context.enter(this)) {
-      final Ref original = (Ref) findAncestor(this);
-
-      if (original != null) {
-        setName(original.getName());
-        setRefType(original.getRefType());
-        setVisited(original.isVisited());
-        return;
-      }
-    }
-
+    context.enter(this);
     trace(context, "-> [ref:visit]", "in: " + getRef());
 
     final Schema schema = context.lookupRef(getRef());
     assert schema != null;
 
-    final Type type = Factory.fromSchema(this, schema);
-    assert type != null;
-    this.refType = type;
-
+    this.refType = Factory.fromSchema(this, schema);
     this.refType.setName(getRef());
     this.refType.visit(context);
 
@@ -93,13 +80,9 @@ public class Ref extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    context.enter(this);
     trace(context, "-> [ref::select]", String.format("-> in: %s", this.getSimpleName()));
-
     getRefType().select(context, writer);
-
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-//    context.leave(this);
   }
 
   @Override
