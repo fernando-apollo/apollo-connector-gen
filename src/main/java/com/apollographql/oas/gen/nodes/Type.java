@@ -68,6 +68,11 @@ public abstract class Type implements Cloneable {
       return;
     }
 
+    if (getPaths(this).contains(child)) {
+      warn(null, "[context]", "Recursion? Ancestors contain this type already: \n" + Type.getRootPathFor(child));
+      return;
+    }
+
     this.children.add(child);
   }
 
@@ -135,9 +140,10 @@ public abstract class Type implements Cloneable {
 
     // by default dependencies will be children, except in objects and composed types
     for (Type child : getChildren()) {
-      if (context.isVisiting(child)) {
+      if (child instanceof CircularRef) continue;
+      /*if (context.isVisiting(child)) {
         continue;
-      }
+      }*/
 
       trace(context, "  [type:dependencies]", "checking child " + child.getSimpleName());
       final Set<Type> dependencies = child.dependencies(context);

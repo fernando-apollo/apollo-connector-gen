@@ -118,11 +118,11 @@ public class Union extends Type {
         .append("\n");
 
       for (Prop prop : this.getProps().values()) {
-        trace(context, "-> [union::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
+        trace(context, "   [union::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
         prop.generate(context, writer);
       }
 
-      writer.append("} ### End replacement for ")
+      writer.append("} \n### End replacement for ")
         .append(getSimpleName())
         .append("\n\n");
     }

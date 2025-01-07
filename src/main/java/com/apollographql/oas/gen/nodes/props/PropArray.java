@@ -2,15 +2,13 @@ package com.apollographql.oas.gen.nodes.props;
 
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
+import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.Type;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.apollographql.oas.gen.log.Trace.indent;
 import static com.apollographql.oas.gen.log.Trace.trace;
@@ -29,13 +27,34 @@ public class PropArray extends Prop {
 
   public void setItems(final Prop items) {
     if (!this.getChildren().contains(items)) {
-      this.add(items);
       this.items = items;
+      this.add(items);
     }
   }
 
   public Prop getItems() {
     return items;
+  }
+
+
+  @Override
+  public void add(final Type child) {
+    final List<Type> paths = Type.getPaths(this);
+    final boolean contains = paths.contains(child);
+    trace(null, "-> [prop-array:add]", "contains child? " + contains);
+
+    if (contains) {
+      final Type ancestor = paths.get(paths.indexOf(child));
+      final Type wrapper = Factory.fromCircularRef(this, ancestor);
+      super.add(wrapper);
+
+      setVisited(true);
+//      setRefType(wrapper);
+    }
+    else {
+      super.add(child);
+    }
+//    super.add(child);
   }
 
   @Override
@@ -53,45 +72,36 @@ public class PropArray extends Prop {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    final boolean inRecursion = !context.enter(this);
-    if (inRecursion) {
-      writer.write(indent(context) + "#Circular reference to '" + getName() + "' detected! skipping.\n");
-      return;
-    }
-
-    trace(context, "-> [prop-array:select]", "in");
+    trace(context, "-> [prop-array:select]", "in: " + getName());
 
     final String fieldName = getName();
     final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
 
     writer
-      .append(" ".repeat(context.getStack().size()))
+      .append(" ".repeat(context.getIndent() + context.getStack().size()))
       .append(sanitised);
 
     if (needsBrackets(getItems())) {
       writer.append(" {");
       writer.append("\n");
+      context.enter(this);
     }
 
-    if (inRecursion) {
-      writer.write(indent(context) + "  ### Circular reference detected!\n");
-    }
-    else {    // the array is a bit special because we add an intermediate "items" type, therefore we
+      // the array is a bit special because we add an intermediate "items" type, therefore we
       // need to fetch the type of that one directly
       for (Type child : getItems().getChildren()) {
         child.select(context, writer);
       }
-    }
 
     if (needsBrackets(getItems())) {
+      context.leave(this);
       writer
-        .append(" ".repeat(context.getStack().size()))
+        .append(" ".repeat(context.getIndent() + context.getStack().size()))
         .append("}");
     }
     writer.append("\n");
 
     trace(context, "<- [prop:array:select]", "out");
-    context.leave(this);
   }
 
   public Set<Type> dependencies(final Context context) {

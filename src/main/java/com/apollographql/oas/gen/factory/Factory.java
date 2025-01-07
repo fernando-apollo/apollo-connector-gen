@@ -2,6 +2,7 @@ package com.apollographql.oas.gen.factory;
 
 import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.gen.context.Context;
+import com.apollographql.oas.gen.log.Trace;
 import com.apollographql.oas.gen.nodes.*;
 import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.nodes.props.*;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
 import java.util.List;
+
+import static com.apollographql.oas.gen.log.Trace.warn;
 
 @SuppressWarnings({"ALL", "unchecked"})
 public class Factory {
@@ -102,6 +105,12 @@ public class Factory {
       prop = new PropScalar(parent, propertyName, "JSON", propertySchema);
     }
 
+    if (Type.getPaths(parent).contains(prop)) {
+        warn(context, "[factory]", "Recursion? Ancestors contain this type already: \n" + Type.getRootPathFor(prop));
+//        return false;
+//      throw new IllegalArgumentException("Circular reference detected: " + Type.getRootPathFor(prop));
+    }
+
     return prop;
   }
 
@@ -134,5 +143,9 @@ public class Factory {
     response.setResponseType(type);
 
     return response;
+  }
+
+  public static Type fromCircularRef(final Type parent, final Type child) {
+    return new CircularRef(parent, child);
   }
 }

@@ -88,19 +88,20 @@ public class PropObj extends Prop implements Cloneable {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    context.enter(this);
+//    context.enter(this);
     trace(context, "-> [prop-obj:select]", "in " + getName() + ", obj: " + getObj().getSimpleName());
 
     final String fieldName = getName();
     final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
 
     writer
-      .append(" ".repeat(context.getStack().size()))
+      .append(" ".repeat(context.getIndent() + context.getStack().size()))
       .append(sanitised);
 
     if (needsBrackets(getObj())) {
       writer.append(" {");
       writer.append("\n");
+      context.enter(this);;
     }
 
     for (Type child : getChildren()) {
@@ -108,15 +109,16 @@ public class PropObj extends Prop implements Cloneable {
     }
 
     if (needsBrackets(getObj())) {
+      context.leave(this);
       writer
-        .append(" ".repeat(context.getStack().size()))
+        .append(" ".repeat(context.getIndent() + context.getStack().size()))
         .append("}");
 
       writer.append("\n");
     }
 
     trace(context, "<- [prop-obj:select]", "out " + getName() + ", obj: " + getObj().getSimpleName());
-    context.leave(this);
+//    context.leave(this);
   }
 
   private boolean needsBrackets(Type child) {

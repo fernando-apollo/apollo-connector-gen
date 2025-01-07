@@ -24,9 +24,19 @@ public class Context {
   private final Stack<Type> stack = new Stack<>();
   private Prompt prompt;
 
+  public int indent = 0;
+
   public Context(final OpenAPI parser, final Prompt prompt) {
     this.parser = parser;
     this.prompt = prompt;
+  }
+
+  public int getIndent() {
+    return indent;
+  }
+
+  public void setIndent(final int indent) {
+    this.indent = indent;
   }
 
   public Map<String, Type> getTypes() {
@@ -42,7 +52,7 @@ public class Context {
   }
 
   public boolean enter(final Type type) {
-    if (type.getParent() != null) {
+    /* if (type.getParent() != null) {
       if (Type.getPaths(type.getParent()).contains(type)) {
         warn(this, "[context]", "Recursion? Ancestors contain this type already: \n" + Type.getRootPathFor(type));
         return false;
@@ -51,7 +61,7 @@ public class Context {
 
     if (getStack().size() > 1 && getStack().peek() == type) {
       throw new IllegalStateException("Possibly added this type twice?! \n" + Type.getRootPathFor(type));
-    }
+    }*/
 
     this.stack.push(type);
     warn(this, ">>> [context::enter(" + getStack().size() + ")]",  "in: " + type.id());
@@ -110,10 +120,6 @@ public class Context {
   }
 
   public boolean isVisiting(final Type type) {
-    if (type.getParent() != null) {
-      return Type.getPaths(type.getParent()).contains(type);
-    }
-
-    return false;
+    return type.getParent() != null && Type.getPaths(type.getParent()).contains(type);
   }
 }

@@ -78,7 +78,7 @@ public class En extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    context.enter(this);
+//    context.enter(this);
     trace(context, "-> [enum::select]", String.format("-> in: %s", this.getSimpleName()));
 
     Set<Type> dependencies = dependencies(context);
@@ -88,7 +88,7 @@ public class En extends Type {
     }
 
     trace(context, "<- [enum::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+//    context.leave(this);
   }
 
   @Override

@@ -62,12 +62,12 @@ public class Response extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    context.enter(this);
+//    context.enter(this);
     trace(context, "-> [response:select]", String.format("-> in: %s", getParent().getName()));
 
     getResponseType().select(context, writer);
 
     trace(context, "<- [response:select]", String.format("-> out: %s", getParent().getName()));
-    context.leave(this);
+//    context.leave(this);
   }
 }

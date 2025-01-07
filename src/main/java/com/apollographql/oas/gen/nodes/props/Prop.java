@@ -8,6 +8,8 @@ import io.swagger.v3.oas.models.media.Schema;
 import java.io.IOException;
 import java.io.Writer;
 
+import static com.apollographql.oas.gen.log.Trace.trace;
+
 public abstract class Prop extends Type {
   protected final Schema schema;
   protected boolean required;
@@ -64,11 +66,11 @@ public abstract class Prop extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-//    final String fieldName = getName().startsWith("@") ? getName().substring(1) : getName();
+    trace(context, "   [prop:select]", getName());
     final String fieldName = getName();
     final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
     writer
-      .append(" ".repeat(context.getStack().size()))
+      .append(" ".repeat(context.getIndent() + context.getStack().size()))
       .append(sanitised)
       .append("\n");
 

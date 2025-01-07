@@ -28,6 +28,6 @@ public class Trace {
 //    logger.log(WARNING, " ".repeat(ctx != null ? ctx.size() : 0) + context + " " + message);
 //    logger.log(WARNING, context + " " + message);
     final int count = ctx != null ? ctx.size() : 0;
-    System.err.println(" ".repeat(count) + ("(" + count + ")") + context + " " + message);
+    System.out.println(" ".repeat(count) + ("(" + count + ")") + context + " " + message);
   }
 }

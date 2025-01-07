@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Objects;
 
 import static com.apollographql.oas.gen.log.Trace.trace;
@@ -34,10 +35,35 @@ public class PropRef extends Prop implements Cloneable {
     return refType;
   }
 
+  private void setRefType(final Type type) {
+    this.refType = type;
+  }
+
   @Override
   public String getValue(Context context) {
     final Type type = getRefType();
     return type != null ? type.getSimpleName() : NameUtils.getRefName(getRef());
+  }
+
+  @Override
+  public void add(final Type child) {
+    child.setName(getRef());
+
+    final List<Type> paths = Type.getPaths(this);
+    final boolean contains = paths.contains(child);
+    trace(null, "-> [prop-ref:add]", "contains child? " + contains);
+
+    if (contains) {
+      final Type ancestor = paths.get(paths.indexOf(child));
+      final Type wrapper = Factory.fromCircularRef(this, ancestor);
+      super.add(wrapper);
+
+      setVisited(true);
+      setRefType(wrapper);
+    }
+    else {
+      super.add(child);
+    }
   }
 
   @Override
@@ -49,28 +75,30 @@ public class PropRef extends Prop implements Cloneable {
     assert schema != null;
 
     final Type type = Factory.fromSchema(this, schema);
-    this.refType = type;
 
-    type.setName(getRef());
-    if (!context.isVisiting(type)) {
+    if (refType == null) {
+      this.refType = type;
+      type.setName(getRef());
+//      if (!context.isVisiting(type)) {
       type.visit(context);
-    }
-    else {
-      trace(context, "-> [prop-ref:visit]", "cannot revisit " + type.getName() + " twice!");
-    }
+//      }
+//      else {
+//        trace(context, "-> [prop-ref:visit]", "cannot revisit " + type.getName() + " twice!");
+//      }
 
-    if (!this.getChildren().contains(getRefType())) {
-      this.add(getRefType());
-    }
+      if (!this.getChildren().contains(getRefType())) {
+        this.add(getRefType());
+      }
 
-    setVisited(true);
+      setVisited(true);
+    }
 
     trace(context, "<- [prop-ref:visit]", "out " + getName() + ", ref: " + getRef());
     context.leave(this);
   }
 
   /* Unfortunately we cannot delegate this to the subtype, otherwise the entire type would
-   * be generated. Therefore we only have the option to generate it ourselves  */
+   * be generated. Therefore, we only have the option to generate it ourselves  */
   protected void generateValue(final Context context, final Writer writer) throws IOException {
     final Type type = getRefType();
     if (type instanceof Array) {
@@ -86,19 +114,20 @@ public class PropRef extends Prop implements Cloneable {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    context.enter(this);
+//    context.enter(this);
     trace(context, "-> [prop-ref:select]", "in " + getName() + ", ref: " + getRef());
 
     final String fieldName = getName();
     final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
 
     writer
-      .append(" ".repeat(context.getStack().size()))
+      .append(" ".repeat(context.getIndent() + context.getStack().size()))
       .append(sanitised);
 
     if (needsBrackets(getRefType())) {
       writer.append(" {");
       writer.append("\n");
+      context.enter(this);
     }
 
     for (Type child : getChildren()) {
@@ -106,14 +135,15 @@ public class PropRef extends Prop implements Cloneable {
     }
 
     if (needsBrackets(getRefType())) {
+      context.leave(this);
       writer
-        .append(" ".repeat(context.getStack().size()))
+        .append(" ".repeat(context.getIndent() + context.getStack().size()))
         .append("}");
 
       writer.append("\n");
     }
 
-    context.leave(this);
+//    context.leave(this);
     trace(context, "<- [prop-ref:select]", "out " + getName() + ", ref: " + getRef());
   }
 
@@ -123,7 +153,7 @@ public class PropRef extends Prop implements Cloneable {
       return needsBrackets(array.getItemsType());
     }
 
-    return child instanceof Obj || child instanceof Union || child instanceof Composed;
+    return child instanceof Obj || child instanceof Union || child instanceof Composed || child instanceof CircularRef;
   }
 
   public String forPrompt(final Context context) {

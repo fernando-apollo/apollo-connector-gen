@@ -147,11 +147,11 @@ public class Obj extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    if (context.getStack().contains(this)) {
-      warn(context, "[obj::select]", "Possible recursion! Stack should not already contain " + this);
-      return;
-    }
-    context.enter(this);
+//    if (context.getStack().contains(this)) {
+//      warn(context, "[obj::select]", "Possible recursion! Stack should not already contain " + this);
+//      return;
+//    }
+//    context.enter(this);
     trace(context, "-> [ref::select]", String.format("-> in: %s", this.getSimpleName()));
 
     for (Prop prop : this.getProps().values()) {
@@ -159,7 +159,7 @@ public class Obj extends Type {
     }
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+//    context.leave(this);
   }
 
   @Override

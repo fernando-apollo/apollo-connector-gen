@@ -64,13 +64,13 @@ public class Array extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    context.enter(this);
+//    context.enter(this);
     trace(context, "-> [array::select]", String.format("-> in: %s", this.getSimpleName()));
 
     getItemsType().select(context, writer);
 
     trace(context, "<- [array::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+//    context.leave(this);
   }
 
   @Override

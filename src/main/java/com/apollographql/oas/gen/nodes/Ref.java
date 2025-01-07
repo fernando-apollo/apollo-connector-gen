@@ -93,13 +93,13 @@ public class Ref extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    context.enter(this);
+//    context.enter(this);
     trace(context, "-> [ref::select]", String.format("-> in: %s", this.getSimpleName()));
 
     getRefType().select(context, writer);
 
     trace(context, "<- [ref::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+//    context.leave(this);
   }
 
   @Override

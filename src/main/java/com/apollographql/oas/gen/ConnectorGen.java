@@ -238,6 +238,7 @@ public class ConnectorGen {
 
   private void writeSelection(final Context context, final Writer writer, final Type type)
     throws IOException {
+    context.setIndent(6);
     type.select(context, writer);
   }
 

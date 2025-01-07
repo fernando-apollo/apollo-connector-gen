@@ -38,7 +38,6 @@ public class Composed extends Type {
     }
 
     if (!isVisited()) {
-//      throw new IllegalStateException("Type should have been visited before asking for dependencies!");
       this.visit(context);
     }
 
@@ -84,7 +83,7 @@ public class Composed extends Type {
           .append(" {\n");
 
         for (Prop prop : this.getProps().values()) {
-          trace(context, "-> [comp::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
+          trace(context, "   [comp::generate]", String.format("-> property: %s (parent: %s)", prop.getName(), prop.getParent().getSimpleName()));
           prop.generate(context, writer);
         }
 
@@ -98,11 +97,7 @@ public class Composed extends Type {
 
   @Override
   public void select(final Context context, final Writer writer) throws IOException {
-    if (!context.enter(this)) {
-      writer.write(indent(context) + "# Circular reference to '" + getSimpleName() + "' detected! skipping.\n");
-      return;
-    }
-
+//    context.enter(this);
     trace(context, "-> [comp::select]", String.format("-> in: %s", this.getSimpleName()));
 
     final Schema schema = getSchema();
@@ -118,7 +113,7 @@ public class Composed extends Type {
     }
 
     trace(context, "<- [comp::select]", String.format("-> out: %s", this.getSimpleName()));
-    context.leave(this);
+//    context.leave(this);
   }
 
   @Override
