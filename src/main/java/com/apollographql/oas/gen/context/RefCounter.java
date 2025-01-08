@@ -7,12 +7,9 @@ import com.apollographql.oas.gen.nodes.props.Prop;
 import java.util.*;
 
 public class RefCounter {
-  private final Stack<Type> stack;
-
   public RefCounter(final Context context) {
     this.count = new LinkedHashMap<>();
     this.context = context;
-    this.stack = new Stack<Type>();
   }
 
   private final Context context;
@@ -44,12 +41,6 @@ public class RefCounter {
 
   public void count(final Type type) {
     add(type);
-
-    if (this.stack.contains(type)) {
-      throw new IllegalStateException("Recursion detected! Stack already contains type: \n" + Type.getRootPathFor(type));
-    }
-
-    this.stack.push(type);
 
     final Set<Type> dependencies = type.dependencies(getContext());
     for (final Type child : dependencies) {

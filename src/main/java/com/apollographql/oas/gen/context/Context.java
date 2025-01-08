@@ -51,23 +51,17 @@ public class Context {
   }
 
   public boolean enter(final Type type) {
-   if (type.getParent() != null) {
-      if (Type.getAncestors(type.getParent()).contains(type)) {
-        throw new IllegalStateException("Recursion? Ancestors contain this type already: \n" + Type.getRootPathFor(type));
-      }
-    }
-
     if (getStack().size() > 1 && getStack().peek() == type) {
       throw new IllegalStateException("Possibly added this type twice?! \n" + Type.getRootPathFor(type));
     }
 
     this.stack.push(type);
-//    trace(this, ">>> [context::enter(" + getStack().size() + ")]",  "in: " + type.id());
+    // trace(this, ">>> [context::enter(" + getStack().size() + ")]",  "in: " + type.id());
     return true;
   }
 
   public void leave(final Type type) {
-//    trace(this, "<<< [context::leave(" + getStack().size() + ")]", "out: " + type.id());
+    // trace(this, "<<< [context::leave(" + getStack().size() + ")]", "out: " + type.id());
     this.stack.pop();
   }
 

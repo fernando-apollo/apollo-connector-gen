@@ -46,7 +46,15 @@ public class En extends Type {
 
     context.enter(this);
     trace(context, "-> [enum:visit]", "in: " + getItems());
+
+    // we need to store a type when it's not in the context of a Param, pending
+    // to check if a Union is a problem too
+    if (!context.inContextOf(Param.class, this)) {
+      context.store(getName(), this);
+    }
+
     setVisited(true);
+
     trace(context, "<- [enum:visit]", "out: " + getItems());
     context.leave(this);
   }

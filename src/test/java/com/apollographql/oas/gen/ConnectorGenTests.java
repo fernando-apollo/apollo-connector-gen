@@ -9,7 +9,8 @@ import com.apollographql.oas.gen.prompt.Prompt;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
-import org.junit.jupiter.api.AfterEach;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -42,10 +43,10 @@ public class ConnectorGenTests {
     this.writer = new StringWriter();
   }
 
-  @AfterEach
-  void testWithRover() throws IOException, InterruptedException {
+  //  @AfterEach
+  ImmutablePair<Integer, String> checkCompose() throws IOException, InterruptedException {
     final String schema = getWriter().toString();
-    RoverWrapper.compose(schema);
+    return Rover.compose(schema);
   }
 
   private StringWriter getWriter() {
@@ -81,6 +82,8 @@ public class ConnectorGenTests {
     assertInstanceOf(Obj.class, types.get("#/components/schemas/Pet"));
 
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
@@ -109,10 +112,12 @@ public class ConnectorGenTests {
     assertInstanceOf(PropArray.class, tags);
 
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_003_testConsumerJourney() throws IOException {
+  void test_003_testConsumerJourney() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("js-mva-consumer-info_v1.yaml"));
     assertNotNull(parser);
 
@@ -126,10 +131,6 @@ public class ConnectorGenTests {
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
     final Type type = collected.stream().findFirst().get();
 
-//    final RefCounter counter = new RefCounter();
-//    counter.addAll(collected);
-//    printRefs(counter.getCount());
-//
     assertInstanceOf(GetOp.class, type);
 
     final GetOp op = (GetOp) type;
@@ -138,10 +139,12 @@ public class ConnectorGenTests {
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_003_testConsumerJourneyScalarsOnly() throws IOException {
+  void test_004_testConsumerJourneyScalarsOnly() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("js-mva-consumer-info_v1.yaml"));
     assertNotNull(parser);
 
@@ -176,10 +179,12 @@ public class ConnectorGenTests {
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_003_testFindType() throws IOException {
+  void test_003_testFindType() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("js-mva-consumer-info_v1.yaml"));
     assertNotNull(parser);
 
@@ -197,10 +202,12 @@ public class ConnectorGenTests {
     assertEquals(sought.path(), p);
 
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_004_testAccountSegment() throws IOException {
+  void test_004_testAccountSegment() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("js-mva-consumer-info_v1.yaml"));
     assertNotNull(parser);
 
@@ -212,10 +219,12 @@ public class ConnectorGenTests {
 
     assertNotNull(collected);
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_001_testHomepageProductSelector() throws IOException {
+  void test_005_testHomepageProductSelector() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("js-mva-homepage-product-selector_v3.yaml"));
     assertNotNull(parser);
 
@@ -233,10 +242,12 @@ public class ConnectorGenTests {
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_002_testHomepageProductSelectorInlineArray() throws IOException {
+  void test_006_testHomepageProductSelectorInlineArray() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("js-mva-homepage-product-selector_v3.yaml"));
     assertNotNull(parser);
 
@@ -252,16 +263,19 @@ public class ConnectorGenTests {
 
     assertInstanceOf(GetOp.class, type);
 
+    // TODO: add assertions
 //    final GetOp op = (GetOp) type;
 //    final List<Param> parameters = op.getParameters();
 //    assertEquals(3, parameters.size());
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_002_testHomepageProductSelectorRecursion() throws IOException {
+  void test_007_testHomepageProductSelectorRecursion() throws IOException, InterruptedException {
     // TODO: pending
     final OpenAPI parser = createParser(loadSpec("js-mva-homepage-product-selector_v3.yaml"));
     assertNotNull(parser);
@@ -284,10 +298,12 @@ public class ConnectorGenTests {
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_003_testHomepageProductSelectorAnonymousObject() throws IOException {
+  void test_008_testHomepageProductSelectorAnonymousObject() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("js-mva-homepage-product-selector_v3.yaml"));
     assertNotNull(parser);
 
@@ -309,10 +325,12 @@ public class ConnectorGenTests {
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_004_Customer360_ScalarsOnly() throws IOException {
+  void test_009_Customer360_ScalarsOnly() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("TMF717_Customer360-v5.0.0.oas.yaml"));
     assertNotNull(parser);
 
@@ -346,10 +364,12 @@ public class ConnectorGenTests {
     assertInstanceOf(PropScalar.class, id);
 
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_TMF633_IntentOrValue_to_Union() throws IOException {
+  void test_010_TMF633_IntentOrValue_to_Union() throws IOException, InterruptedException {
     final Prompt prompt = loadRecording("TMF633_IntentOrValue_to_Union.txt");
 
     final OpenAPI parser = createParser(loadSpec("TMF637-001-UnionTest.yaml"));
@@ -370,10 +390,12 @@ public class ConnectorGenTests {
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_TMF637_001_ComposedTest() throws IOException {
+  void test_011_TMF637_001_ComposedTest() throws IOException, InterruptedException {
     final Prompt prompt = loadRecording("test_TMF637_001_ComposedTest.txt");
 
     final OpenAPI parser = createParser(loadSpec("TMF637-001-ComposedTest.yaml"));
@@ -392,10 +414,12 @@ public class ConnectorGenTests {
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_TMF633_Attachment() throws IOException {
+  void test_012_TMF633_Attachment() throws IOException, InterruptedException {
     final Prompt prompt = loadMapRecording("test_TMF633_Attachment.txt");
 
     final OpenAPI parser = createParser(loadSpec("TMF637-ProductInventory-v5.0.0.oas.yaml"));
@@ -416,10 +440,12 @@ public class ConnectorGenTests {
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_004_testTMF637_TestSimpleRecursion() throws IOException {
+  void test_013_testTMF637_TestSimpleRecursion() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("TMF637-002-SimpleRecursionTest.yaml"));
     assertNotNull(parser);
 
@@ -435,10 +461,13 @@ public class ConnectorGenTests {
 
     System.out.println("ConnectorGenTests.test_004_testTMF637_TestSimpleRecursion ----------- schema -------------- \n");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(1, result.getLeft());
+    assertTrue(result.getRight().contains("CIRCULAR_REFERENCE:"));
   }
 
   @Test
-  void test_004_testTMF637_TestRecursion() throws IOException {
+  void test_014_testTMF637_TestRecursion() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("TMF637-002-RecursionTest.yaml"));
     assertNotNull(parser);
 
@@ -454,10 +483,77 @@ public class ConnectorGenTests {
 
     System.out.println("ConnectorGenTests.test_004_testTMF637_TestRecursion ----------- schema -------------- \n");
     generator.writeSchema(getWriter());
+
+    // TODO: need to check the output of the compose command to verify there's a circular error
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(1, result.getLeft());
+    assertTrue(result.getRight().contains("CIRCULAR_REFERENCE:"));
   }
 
   @Test
-  void test_003_testTMF637_Full() throws IOException {
+  void test_015_testTMF637_ProductStatusEnum() throws IOException, InterruptedException {
+    final Prompt prompt = loadMapRecording("test_015_testTMF637_ProductStatusEnum.txt");
+
+    final OpenAPI parser = createParser(loadSpec("TMF637-ProductInventory-v5.0.0.oas.yaml"));
+    assertNotNull(parser);
+
+//    final Prompt prompt = Prompt.create(Prompt.Factory.yes());
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+
+//    final RefCounter counter = new RefCounter();
+//    counter.addAll(collected);
+//    System.out.println("ConnectorGenTests.test_003_testTMF637_Full -- \n");
+//    final Map<String, Integer> values = counter.getCount();
+//    printRefs(values);
+
+    System.out.println("ConnectorGenTests.test_003_testTMF637_Full ----------- schema -------------- \n");
+    generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
+  }
+
+  @Test
+  void test_016_testMostPopularProductScalarsOnly() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("most-popular-product.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_001_testMostPopularProductScalarsOnly.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+
+    generator.writeSchema(getWriter());
+  }
+
+  @Test
+  void test_017_testMostPopularProduct() throws IOException {
+    final OpenAPI parser = createParser(loadSpec("most-popular-product.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_001_testMostPopularProduct.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+
+    generator.writeSchema(getWriter());
+  }
+
+  @Test
+  void test_018_testTMF637_Full() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("TMF637-ProductInventory-v5.0.0.oas.yaml"));
     assertNotNull(parser);
 
@@ -478,14 +574,17 @@ public class ConnectorGenTests {
 
     System.out.println("ConnectorGenTests.test_003_testTMF637_Full ----------- schema -------------- \n");
     generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(1, result.getLeft());
+    assertTrue(result.getRight().contains("CIRCULAR_REFERENCE:"));
   }
 
   @Test
-  void test_001_testMostPopularProductScalarsOnly() throws IOException {
-    final OpenAPI parser = createParser(loadSpec("most-popular-product.yaml"));
+  void test_019_testUnionInParam() throws IOException, InterruptedException {
+    final OpenAPI parser = createParser(loadSpec("js-mva-consumer-info_v1.yaml"));
     assertNotNull(parser);
 
-    final Prompt prompt = loadMapRecording("test_001_testMostPopularProductScalarsOnly.txt");
+    final Prompt prompt = loadMapRecording("test_001_ConsumerJourney.txt");
 
     final ConnectorGen generator = new ConnectorGen(parser, prompt);
     generator.visit();
@@ -493,25 +592,18 @@ public class ConnectorGenTests {
     assertNotNull(collected);
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
 
+    assertInstanceOf(GetOp.class, type);
+
+    final GetOp op = (GetOp) type;
+    final List<Param> parameters = op.getParameters();
+    assertEquals(3, parameters.size());
+
+    System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
-  }
-
-  @Test
-  void test_002_testMostPopularProduct() throws IOException {
-    final OpenAPI parser = createParser(loadSpec("most-popular-product.yaml"));
-    assertNotNull(parser);
-
-    final Prompt prompt = loadMapRecording("test_001_testMostPopularProduct.txt");
-
-    final ConnectorGen generator = new ConnectorGen(parser, prompt);
-    generator.visit();
-    final Set<Type> collected = generator.getCollected();
-    assertNotNull(collected);
-
-    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
-
-    generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   private static OpenAPI createParser(String source) {
@@ -561,46 +653,39 @@ public class ConnectorGenTests {
     return Prompt.create(Prompt.Factory.mapPlayer(recording));
   }
 
-  static class RoverWrapper {
+  static class Rover {
     public static void main(String[] args) throws IOException, InterruptedException {
       compose("nothing");
     }
 
-    public static void compose(final String schema) throws IOException, InterruptedException {
+    public static ImmutablePair<Integer, String> compose(final String schema) throws IOException, InterruptedException {
       final String basePath = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis/supergraph";
       final Path path = Paths.get(basePath + "/test-spec.graphql");
       Files.write(path, schema.getBytes());
 
-      final String command = String.format("rover supergraph compose --config %s/supergraph.yaml", basePath); // Replace with your desired command
+      final String command = String.format("/Users/fernando/.rover/bin/rover supergraph compose --config %s/supergraph.yaml", basePath); // Replace with your desired command
       System.out.println("command = " + command);
 
       // Run the command
-      ProcessBuilder processBuilder = new ProcessBuilder(command.split(" "));
-      Process process = processBuilder.start();
+      final ProcessBuilder processBuilder = new ProcessBuilder(command.split(" "));
+      final Process process = processBuilder.start();
 
       // Read the command output
-//        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//        String line;
-//        while ((line = reader.readLine()) != null) {
-//          System.out.println(line);
-//        }
+      final BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+      // also collect the stream
+      final StringWriter writer = new StringWriter();
 
-      // Read the command output
-      BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
       String e;
       while ((e = error.readLine()) != null) {
         System.err.println(e);
+        writer.write(e);
       }
 
       // Wait for the process to finish and get the exit code
-      int exitCode = process.waitFor();
-      if (exitCode == 0) {
-        System.out.println("Command executed successfully.");
-      }
-      else {
-        System.out.println("Command failed with exit code: " + exitCode);
-        throw new RuntimeException("rover compose failed -- check schema");
-      }
+      final int errorCode = process.waitFor();
+
+      return new ImmutablePair<Integer, String>(errorCode, writer.toString());
+//      return errorCode;
     }
   }
 }

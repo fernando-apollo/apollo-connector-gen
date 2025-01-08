@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.apollographql.oas.gen.log.Trace.trace;
 
@@ -94,6 +95,11 @@ public class PropRef extends Prop implements Cloneable {
     context.leave(this);
   }
 
+  @Override
+  public Set<Type> dependencies(final Context context) {
+    return super.dependencies(context);
+  }
+
   /* Unfortunately we cannot delegate this to the subtype, otherwise the entire type would
    * be generated. Therefore, we only have the option to generate it ourselves  */
   protected void generateValue(final Context context, final Writer writer) throws IOException {
@@ -136,8 +142,8 @@ public class PropRef extends Prop implements Cloneable {
         .append(" ".repeat(context.getIndent() + context.getStack().size()))
         .append("}");
 
-      writer.append("\n");
     }
+    writer.append("\n");
 
     trace(context, "<- [prop-ref:select]", "out " + getName() + ", ref: " + getRef());
   }

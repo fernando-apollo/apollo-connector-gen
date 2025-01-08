@@ -201,7 +201,6 @@ public class GetOp extends Type {
 
     writer.append("  ").append(getGqlOpName());
 
-    // TODO: gen parameters
     generateParameters(context, writer);
 
     // TODO: we need a proper GetOpResponse to have a context that we can generate
@@ -235,7 +234,8 @@ public class GetOp extends Type {
   }
 
   private void generateParameters(Context context, Writer writer) throws IOException {
-    final List<? extends Type> parameters = getParameters();
+    final List<? extends Type> parameters = getParameters()
+      .stream().sorted(Comparator.comparing(Param::isRequired).reversed()).toList();
 
     if (parameters.isEmpty()) return;
 
