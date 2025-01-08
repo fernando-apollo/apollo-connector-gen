@@ -30,7 +30,7 @@ get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974
 get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974817174]>prop:array:#realizingResource -> n
 get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974817174]>prop:array:#realizingService -> n
 get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974817174]>prop:array:#relatedParty -> n
-get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974817174]>prop:scalar:startDate -> y
+get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974817174]>prop:scalar:startDate -> n
 get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974817174]>prop:ref:#/c/s/ProductStatusType -> y
-get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974817174]>prop:ref:#/c/s/ProductStatusType>enum:[created, pendingActive, cancelled, active, pendingTerminate, terminated, suspended, aborted ] -> y
+get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974817174]>prop:ref:#/c/s/ProductStatusType>enum:#/c/s/ProductStatusType -> y
 get:/product/{id}>res:r>ref:#/c/s/Product>comp:#/c/s/Product>obj:[anonymous:1974817174]>prop:scalar:terminationDate -> n

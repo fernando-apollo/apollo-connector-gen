@@ -37,7 +37,7 @@ public class En extends Type {
 
   @Override
   public String id() {
-    return "enum:" + getItems();
+    return "enum:" + getName();
   }
 
   @Override

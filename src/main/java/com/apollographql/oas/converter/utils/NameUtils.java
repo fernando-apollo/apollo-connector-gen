@@ -124,11 +124,11 @@ public class NameUtils {
 
     final String sanitised = genParamName(fieldName);
 
-    if (sanitised.equals(fieldName)) {
+    if (sanitised.equals(name)) {
       return sanitised;
     }
     else {
-      final boolean needsQuotes = fieldName.matches(".*[_\\-\\.].*");
+      final boolean needsQuotes = fieldName.matches(".*[_\\-\\.].*") || name.startsWith("@");
       final StringBuilder builder = new StringBuilder();
       builder.append(sanitised)
         .append(": ");
@@ -137,7 +137,7 @@ public class NameUtils {
         builder.append('"');
       }
 
-      builder.append(fieldName);
+      builder.append(name.startsWith("@") ? name : fieldName);
 
       if (needsQuotes) {
         builder.append('"');
