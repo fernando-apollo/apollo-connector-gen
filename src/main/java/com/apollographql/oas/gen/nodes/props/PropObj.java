@@ -2,12 +2,14 @@ package com.apollographql.oas.gen.nodes.props;
 
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
-import com.apollographql.oas.gen.nodes.*;
+import com.apollographql.oas.gen.nodes.Composed;
+import com.apollographql.oas.gen.nodes.Obj;
+import com.apollographql.oas.gen.nodes.Type;
+import com.apollographql.oas.gen.nodes.Union;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,9 +18,10 @@ import static com.apollographql.oas.gen.log.Trace.trace;
 public class PropObj extends Prop implements Cloneable {
   private final Type obj;
 
-  public PropObj(final Type parent, final String propertyName, final Schema schema, final Type obj) {
-    super(parent, propertyName, schema);
+  public PropObj(final Type parent, final String name, final Schema schema, final Type obj) {
+    super(parent, name, schema);
     this.obj = obj;
+    updateName(parent);
   }
 
   public Type getObj() {
@@ -30,21 +33,20 @@ public class PropObj extends Prop implements Cloneable {
     return "prop:obj:" + getName();
   }
 
-  @Override
-  public String getName() {
-    if (this.name == null) {
-      final Type parent = getParent();
+  private void updateName(final Type parent) {
+    if (getName().equals("items")) {
       final String parentName = parent.getName();
 
       if (parent instanceof PropRef) {
         this.name = parentName.replace("ref:", "obj:");
       }
+      else if (parent instanceof PropArray) {
+        this.name = parentName + "Item";
+      }
       else {
         this.name = "[prop:obj:" + hashCode() + "]";
       }
     }
-
-    return this.name;
   }
 
   @Override
@@ -76,8 +78,9 @@ public class PropObj extends Prop implements Cloneable {
     trace(context, "-> [prop-obj:visit]", "in " + getName() + ", obj: " + getObj().getSimpleName());
 
     getObj().visit(context);
-    if (!this.getChildren().contains(getObj())) {
-      this.add(getObj());
+
+    if (!getChildren().contains(getObj())) {
+      add(getObj());
     }
 
     setVisited(true);
@@ -143,7 +146,7 @@ public class PropObj extends Prop implements Cloneable {
 
   @Override
   public String toString() {
-    return "PropRef {" +
+    return "PropObj {" +
       "name='" + getName() + '\'' +
       ", obj='" + getObj() + '\'' +
       ", parent='" + getParent() + '\'' +

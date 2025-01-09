@@ -1,0 +1,13 @@
+get:/productSelectorGroupItems -> n
+get:/productSelectorItemDetails -> y
+get:/productSelectorItemDetails>res:r -> y
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails -> y
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails -> s
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#accumulatedUsageConsumption -> n
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:scalar:serviceId -> n
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption -> y
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>prop:obj:items -> y
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:usageConsumptionItem -> s
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:usageConsumptionItem>prop:scalar:productId -> y
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:usageConsumptionItem>prop:ref:#usageSummary -> n
+get:/productSelectorItems -> n

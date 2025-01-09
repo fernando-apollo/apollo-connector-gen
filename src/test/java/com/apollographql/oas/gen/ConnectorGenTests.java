@@ -615,6 +615,33 @@ public class ConnectorGenTests {
     assertEquals(0, result.getLeft());
   }
 
+  @Test
+  void test_021_testInlineItemsArray() throws IOException, InterruptedException {
+    final OpenAPI parser = createParser(loadSpec("js-mva-homepage-product-selector_v3.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_021_testInlineItemsArray.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    assertInstanceOf(GetOp.class, type);
+
+    final GetOp op = (GetOp) type;
+    final List<Param> parameters = op.getParameters();
+    assertEquals(2, parameters.size());
+
+    System.out.println(" ----------- schema -------------- ");
+    generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
+  }
+
   private static OpenAPI createParser(String source) {
     final ParseOptions options = new ParseOptions();
     options.setResolve(true); // implicit

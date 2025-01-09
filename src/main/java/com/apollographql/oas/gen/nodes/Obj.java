@@ -25,6 +25,9 @@ public class Obj extends Type {
   public Obj(final Type parent, final String name, final Schema schema) {
     super(parent, name);
     this.schema = schema;
+
+    // need to update name depending on the parent
+    updateName();
   }
 
   public Schema getSchema() {
@@ -36,32 +39,35 @@ public class Obj extends Type {
     return "obj:" + getName();
   }
 
-  @Override
-  public String getName() {
-    if (this.name == null) {
+  private void updateName() {
+    String name = getName();
+
+    // if we are an 'items' inline object, we'll try and create a better name for the
+    // items in the array, as it might clash with others
+    if (name == null || (name != null && name.equals("items"))) {
       final Type parent = getParent();
       final String parentName = parent.getName();
 
       if (parent instanceof Ref) {
-        this.name = parentName.replace("ref:", "obj:");
+        name = parentName.replace("ref:", "obj:");
       }
       else if (parent instanceof Array || parent instanceof PropArray) {
-        this.name = NameUtils.getRefName(parentName) + "Item";
+        name = NameUtils.getRefName(parentName) + "Item";
       }
       else if (parent instanceof Response) {
         GetOp op = (GetOp) parent.getParent();
         // happens when the response is inlined
-        this.name = op.getGqlOpName() + "Response";
+        name = op.getGqlOpName() + "Response";
       }
       else if (parent instanceof Obj) {
-        this.name = parentName + "Obj";
+        name = parentName + "Obj";
       }
       else {
-        this.name = "[anonymous:" + hashCode() + "]";
+        name = "[anonymous:" + hashCode() + "]";
       }
     }
 
-    return this.name;
+    this.name = name;
   }
 
   @Override
