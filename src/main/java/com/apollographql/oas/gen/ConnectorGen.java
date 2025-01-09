@@ -1,5 +1,6 @@
 package com.apollographql.oas.gen;
 
+import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.context.RefCounter;
 import com.apollographql.oas.gen.factory.Factory;
@@ -240,8 +241,8 @@ public class ConnectorGen {
 
       if (!queries.isEmpty()) {
         final String queryString = queries.stream()
-          .map(p -> p.getName() + "={$args." + p.getName() + "}")
-          .collect(Collectors.joining(","));
+          .map(p -> p.getName() + "={$args." + NameUtils.genParamName(p.getName()) + "}")
+          .collect(Collectors.joining("&"));
 
         builder
           .append("?")
