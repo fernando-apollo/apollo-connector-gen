@@ -25,7 +25,7 @@ public class PropRef extends Prop implements Cloneable {
 
   @Override
   public String id() {
-    return "prop:ref:" + getRef();
+    return "prop:ref:#" + getName();// + ":" + getRef();
   }
 
   public String getRef() {

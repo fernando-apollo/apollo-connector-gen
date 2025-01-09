@@ -11,7 +11,7 @@ get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#party
 get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#relatedParty -> n
 get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:taxIdentifier -> n
 get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:scalar:title -> n
-get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium -> s
-get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:ref:#/c/s/MediumCharacteristicExtended -> n
-get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:scalar:mediumType -> n
-get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium>obj:#/c/s/ContactMedium>prop:scalar:preferred -> y
+get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#items>obj:#/c/s/ContactMedium -> s
+get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#items>obj:#/c/s/ContactMedium>prop:ref:#characteristic -> n
+get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#items>obj:#/c/s/ContactMedium>prop:scalar:mediumType -> n
+get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#items>obj:#/c/s/ContactMedium>prop:scalar:preferred -> y

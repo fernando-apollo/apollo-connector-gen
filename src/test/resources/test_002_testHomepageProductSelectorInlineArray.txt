@@ -5,5 +5,5 @@ get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#
 get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:scalar:serviceId -> y
 get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption -> y
 get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:items -> y
-get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:items>prop:ref:#/c/s/usageSummary>array:usageSummaryItem>obj:usageSummaryItem -> y
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:items>prop:ref:#usageSummary>array:usageSummaryItem>obj:usageSummaryItem -> y
 get:/productSelectorItems -> n

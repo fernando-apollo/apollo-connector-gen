@@ -195,7 +195,7 @@ public class ConnectorGenTests {
     final Set<Type> collected = generator.getCollected();
     assertNotNull(collected);
 
-    final String p = "get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#/c/s/ContactMedium";
+    final String p = "get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#items";
     final Type sought = Type.findTypeIn(p, collected);
 
     assertNotNull(sought);
@@ -292,10 +292,6 @@ public class ConnectorGenTests {
 
     assertInstanceOf(GetOp.class, type);
 
-//    final GetOp op = (GetOp) type;
-//    final List<Param> parameters = op.getParameters();
-//    assertEquals(3, parameters.size());
-
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
     final Pair<Integer, String> result = checkCompose();
@@ -318,10 +314,6 @@ public class ConnectorGenTests {
     final Type type = collected.stream().findFirst().get();
 
     assertInstanceOf(GetOp.class, type);
-
-//    final GetOp op = (GetOp) type;
-//    final List<Param> parameters = op.getParameters();
-//    assertEquals(3, parameters.size());
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
@@ -383,11 +375,6 @@ public class ConnectorGenTests {
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
     final Type type = collected.stream().findFirst().get();
 
-    // TODO: add assertions
-//    final RefCounter counter = new RefCounter();
-//    counter.addAll(collected);
-//    printRefs(counter.getCount());
-
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
     final Pair<Integer, String> result = checkCompose();
@@ -432,11 +419,6 @@ public class ConnectorGenTests {
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
     final Type type = collected.stream().findFirst().get();
-
-    // TODO: add assertions
-//    final RefCounter counter = new RefCounter();
-//    counter.addAll(collected);
-//    printRefs(counter.getCount());
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());
@@ -599,6 +581,33 @@ public class ConnectorGenTests {
     final GetOp op = (GetOp) type;
     final List<Param> parameters = op.getParameters();
     assertEquals(3, parameters.size());
+
+    System.out.println(" ----------- schema -------------- ");
+    generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
+  }
+
+  @Test
+  void test_020_testDuplicateRefPath() throws IOException, InterruptedException {
+    final OpenAPI parser = createParser(loadSpec("js-mva-homepage-product-selector_v3.yaml"));
+    assertNotNull(parser);
+
+    final Prompt prompt = loadMapRecording("test_020_testDuplicateRefPath.txt");
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    assertInstanceOf(GetOp.class, type);
+
+    final GetOp op = (GetOp) type;
+    final List<Param> parameters = op.getParameters();
+    assertEquals(5, parameters.size());
 
     System.out.println(" ----------- schema -------------- ");
     generator.writeSchema(getWriter());

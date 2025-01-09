@@ -16,7 +16,7 @@ public class Prompt {
     return new Prompt(input);
   }
 
-  private Input getInput() {
+  public Input getInput() {
     return input;
   }
 
