@@ -120,7 +120,7 @@ public class Factory {
     final Schema schema = p.getSchema();
     var required = p.getRequired() != null && p.getRequired().equals(Boolean.TRUE);
 
-    return new Param(parent, p.getName(), schema, required, schema.getDefault());
+    return new Param(parent, p.getName(), schema, required, schema.getDefault(), p);
   }
 
   public static Type fromResponseRef(final Context context, final Type parent, final ApiResponse response) {

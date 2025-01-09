@@ -5,12 +5,14 @@ import com.apollographql.oas.gen.context.RefCounter;
 import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.GetOp;
 import com.apollographql.oas.gen.nodes.Type;
+import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.prompt.Input;
 import com.apollographql.oas.gen.prompt.Prompt;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -20,6 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.*;
 import java.util.*;
 import java.util.logging.LogManager;
+import java.util.stream.Collectors;
 
 import static com.apollographql.oas.gen.log.Trace.trace;
 
@@ -204,14 +207,14 @@ public class ConnectorGen {
     var spacing = " ".repeat(indent + 4);
     writer.append(spacing).append("@connect(\n");
 
-    var newPath = get.getOriginalPath().replaceAll("\\{([a-zA-Z0-9]+)\\}", "{\\$args.$1}");
+    final String request = buildRequestMethodAndArgs(get);
+
     spacing = " ".repeat(indent + 6);
     writer
       .append(spacing).append("source: \"api\"\n")
-      .append(spacing).append("http: { GET: \"").append(newPath).append("\" }\n")
+      .append(spacing).append("http: " + request + "\n")
       .append(spacing).append("selection: \"\"\"\n");
 
-//      writer.append("#### selection goes here\n");
     if (get.getResultType() != null)
       writeSelection(context, writer, get.getResultType());
 
@@ -219,6 +222,76 @@ public class ConnectorGen {
 
     spacing = " ".repeat(indent + 4);
     writer.append(spacing).append(")\n");
+  }
+
+  private static String buildRequestMethodAndArgs(final GetOp get) {
+    StringBuilder builder = new StringBuilder();
+
+    builder
+      .append("\"")
+      .append(get.getOriginalPath().replaceAll("\\{([a-zA-Z0-9]+)\\}", "{\\$args.$1}"));
+
+    // we can potentially the required params here:
+    if (!get.getParameters().isEmpty()) {
+      // add the query params
+      final List<Parameter> queries = get.getGet().getParameters().stream()
+        .filter(p -> p.getRequired() && p.getIn() != null && p.getIn().equalsIgnoreCase("query"))
+        .toList();
+
+      if (!queries.isEmpty()) {
+        final String queryString = queries.stream()
+          .map(p -> p.getName() + "={$args." + p.getName() + "}")
+          .collect(Collectors.joining(","));
+
+        builder
+          .append("?")
+          .append(queryString);
+      }
+
+      // add the headers
+      final List<Parameter> headers = get.getGet().getParameters().stream()
+        .filter(p -> p.getIn() != null && p.getIn().equalsIgnoreCase("header"))
+        .toList();
+
+      builder.append("\"\n");
+
+      if (!headers.isEmpty()) {
+        var spacing = " ".repeat(6);
+        builder
+          .append(spacing)
+          .append("headers: [\n");
+
+        spacing = " ".repeat(8);
+        for (Parameter p : headers) {
+          final String name = p.getName();
+
+          String value = null;
+          if (p.getExample() != null)
+            value = p.getExample().toString();
+
+          if (p.getExamples() != null && p.getExamples().isEmpty())
+            value = String.join(",", p.getExamples().keySet());
+
+          if (value == null)
+              value = "<placeholder>";
+
+          builder
+            .append(spacing)
+            .append("{ ").append("name: \"").append(name).append("\", value: \"").append(value).append("\" }\n");
+        }
+
+        spacing = " ".repeat(6);
+        builder
+          .append(spacing)
+          .append("]");
+      }
+    }
+    else {
+      builder.append("\"");
+    }
+
+    final String request = "{ GET: " + builder + " }";
+    return request;
   }
 
   private Type visitPath(final Context context, final String name, final PathItem path) {

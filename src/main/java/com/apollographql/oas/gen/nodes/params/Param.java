@@ -5,6 +5,7 @@ import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.Type;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -16,14 +17,16 @@ public class Param extends Type {
   private final Schema schema;
   private final boolean required;
   private final Object defaultValue;
+  private final Parameter parameter;
 
   private Type resultType;
 
-  public Param(Type parent, String name, Schema schema, boolean required, Object defaultValue ) {
+  public Param(Type parent, String name, Schema schema, boolean required, Object defaultValue, Parameter parameter) {
     super(parent, name);
     this.schema = schema;
     this.required = required;
     this.defaultValue = defaultValue;
+    this.parameter = parameter;
   }
 
   public Schema getSchema() {
@@ -40,6 +43,10 @@ public class Param extends Type {
 
   public Type getResultType() {
     return resultType;
+  }
+
+  public String getIn() {
+    return parameter.getIn();
   }
 
   @Override
