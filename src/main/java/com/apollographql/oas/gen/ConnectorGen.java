@@ -236,7 +236,7 @@ public class ConnectorGen {
     if (!get.getParameters().isEmpty()) {
       // add the query params
       final List<Parameter> queries = get.getGet().getParameters().stream()
-        .filter(p -> p.getRequired() && p.getIn() != null && p.getIn().equalsIgnoreCase("query"))
+        .filter(p -> Boolean.TRUE.equals(p.getRequired()) && p.getIn() != null && p.getIn().equalsIgnoreCase("query"))
         .toList();
 
       if (!queries.isEmpty()) {

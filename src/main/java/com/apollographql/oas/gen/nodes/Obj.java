@@ -170,6 +170,8 @@ public class Obj extends Type {
   }
 
   private void visitProperties(final Context context) {
+    if (schema.getProperties() == null) return;
+
     //noinspection unchecked
     final Map<String, Schema> properties = schema.getProperties();
     trace(context, "-> [obj::props]", "in props " + (properties.isEmpty() ? "0" : properties.size()));
