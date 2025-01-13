@@ -195,7 +195,7 @@ public class ConnectorGenTests {
     final Set<Type> collected = generator.getCollected();
     assertNotNull(collected);
 
-    final String p = "get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#items";
+    final String p = "get:/consumer/{id}>res:r>ref:#/c/s/Consumer>obj:#/c/s/Consumer>prop:array:#contactMedium>prop:ref:#ContactMediumItem";
     final Type sought = Type.findTypeIn(p, collected);
 
     assertNotNull(sought);
@@ -637,6 +637,71 @@ public class ConnectorGenTests {
     assertEquals(2, parameters.size());
 
     System.out.println(" ----------- schema -------------- ");
+    generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
+  }
+
+//  @Test
+//  void test_022_testTMF680_FulLSchema() throws URISyntaxException, IOException, InterruptedException {
+//    final Prompt prompt = Prompt.create(Prompt.Factory.yes());
+//
+//    final OpenAPI parser = createParser(loadSpec("TMF680-4.0.0-WithExtensions.swagger.yaml"));
+//    assertNotNull(parser);
+//
+//    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+//    generator.visit();
+//    assertNotNull(generator.getCollected());
+//    assertEquals(2, generator.getCollected().size(), "Should have collected 5 paths: " + generator.getCollected());
+//
+//    final Map<String, Type> types = generator.getContext().getTypes();
+//    assertEquals(32, types.size());
+////    assertTrue(types.containsKey("#/components/schemas/Pet"), "Should contain definition for Pet");
+////    assertTrue(types.containsKey("#/components/schemas/Category"), "Should contain definition for Category");
+////    assertTrue(types.containsKey("#/components/schemas/Tag"), "Should contain definition for Tag");
+////
+////    assertInstanceOf(Obj.class, types.get("#/components/schemas/Pet"));
+////    assertInstanceOf(Obj.class, types.get("#/components/schemas/Category"));
+////    assertInstanceOf(Obj.class, types.get("#/components/schemas/Tag"));
+////
+////    final Prop tags = types.get("#/components/schemas/Pet").getProps().get("tags");
+////    assertInstanceOf(PropArray.class, tags);
+//
+//    generator.writeSchema(getWriter());
+//    final Pair<Integer, String> result = checkCompose();
+//    assertEquals(1, result.getLeft());
+//  }
+  @Test
+  void test_023_testCommonRoomCore_FulLSchema() throws URISyntaxException, IOException, InterruptedException {
+    final Prompt prompt = Prompt.create(Prompt.Factory.yes());
+
+    /* I've had to fix the common-room-core.json file to make it pass, as it generates
+      an invalid schema:
+      - one fix adding the 'items -> string' type of the 'member_tags', which had none
+      - removing a nexted 'CommunityMember' node in the #/components/schemas/CommunityMember,
+        which is invalid
+     */
+    final OpenAPI parser = createParser(loadSpec("common-room-core.json"));
+    assertNotNull(parser);
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    assertNotNull(generator.getCollected());
+    assertEquals(9, generator.getCollected().size(), "Should have collected 5 paths: " + generator.getCollected());
+
+    final Map<String, Type> types = generator.getContext().getTypes();
+//    assertEquals(15, types.size());
+    /*assertTrue(types.containsKey("#/components/schemas/Pet"), "Should contain definition for Pet");
+    assertTrue(types.containsKey("#/components/schemas/Category"), "Should contain definition for Category");
+    assertTrue(types.containsKey("#/components/schemas/Tag"), "Should contain definition for Tag");
+
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Pet"));
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Category"));
+    assertInstanceOf(Obj.class, types.get("#/components/schemas/Tag"));
+
+    final Prop tags = types.get("#/components/schemas/Pet").getProps().get("tags");
+    assertInstanceOf(PropArray.class, tags);*/
+
     generator.writeSchema(getWriter());
     final Pair<Integer, String> result = checkCompose();
     assertEquals(0, result.getLeft());

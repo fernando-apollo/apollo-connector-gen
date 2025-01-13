@@ -41,7 +41,7 @@ public class NameUtils {
 
 
   public static String genParamName(final String param) {
-    return StringUtils.uncapitalize(capitaliseParts(param, "[-_\\.]"));
+    return StringUtils.uncapitalize(capitaliseParts(param, "[\\-_\\.]"));
   }
 
   @Deprecated
@@ -87,7 +87,7 @@ public class NameUtils {
     final List<String> parameters = operation.getParameters() != null ? operation.getParameters().stream()
       .filter(parameter -> parameter.getRequired() != null && parameter.getRequired() && !parameter.getIn().equalsIgnoreCase("header"))
       .map(p -> {
-        final String name = capitaliseParts(p.getName(), "[-.]");
+        final String name = capitaliseParts(p.getName(), "[:\\-\\.]");
         return String.format("By%s", StringUtils.capitalize(name));
       })
       .toList() : Collections.emptyList();
@@ -107,7 +107,7 @@ public class NameUtils {
 
     // Step 1: Remove parameters enclosed in `{}`.
     String cleanedPath = path.replaceAll("\\{[^}]*}", String.join("", parameters));
-    cleanedPath = capitaliseParts(cleanedPath, "[-.]");
+    cleanedPath = capitaliseParts(cleanedPath, "[:\\-\\.]+");
 
     // Step 2: Split the path into parts and capitalize each part.
     return capitaliseParts(cleanedPath, "/");
@@ -128,7 +128,7 @@ public class NameUtils {
       return sanitised;
     }
     else {
-      final boolean needsQuotes = fieldName.matches(".*[_\\-\\.].*") || name.startsWith("@");
+      final boolean needsQuotes = fieldName.matches(".*[:_\\-\\.].*") || name.startsWith("@");
       final StringBuilder builder = new StringBuilder();
       builder.append(sanitised)
         .append(": ");
@@ -147,4 +147,7 @@ public class NameUtils {
     }
   }
 
+  public static String genArrayItems(final String name) {
+    return StringUtils.capitalize(NameUtils.genParamName(name)) + "Item";
+  }
 }

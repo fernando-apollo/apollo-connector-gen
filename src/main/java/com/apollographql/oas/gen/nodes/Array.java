@@ -13,8 +13,8 @@ public class Array extends Type {
   private final Schema items;
   private Type itemsType;
 
-  public Array(final Type parent, final Schema items) {
-    super(parent, "items");
+  public Array(final Type parent, final String name, final Schema items) {
+    super(parent, name != null ? name : "items");
     this.items = items;
   }
 

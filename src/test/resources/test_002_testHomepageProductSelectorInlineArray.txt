@@ -4,6 +4,6 @@ get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#
 get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#accumulatedUsageConsumption -> n
 get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:scalar:serviceId -> y
 get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption -> y
-get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:usageConsumptionItem -> y
-get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:usageConsumptionItem>prop:ref:#usageSummary>array:usageSummaryItem>obj:usageSummaryItem -> y
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:UsageConsumptionItem -> y
+get:/productSelectorItemDetails>res:r>ref:#/c/s/productSelectorItemDetails>obj:#/c/s/productSelectorItemDetails>prop:array:#usageConsumption>obj:UsageConsumptionItem>prop:ref:#usageSummary>array:UsageSummaryItem>obj:UsageSummaryItem -> y
 get:/productSelectorItems -> n

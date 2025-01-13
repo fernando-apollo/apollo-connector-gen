@@ -70,6 +70,11 @@ public class PropArray extends Prop {
   }
 
   @Override
+  public void generate(final Context context, final Writer writer) throws IOException {
+    super.generate(context, writer);
+  }
+
+  @Override
   public void select(final Context context, final Writer writer) throws IOException {
     trace(context, "-> [prop-array:select]", "in: " + getName());
 

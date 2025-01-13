@@ -149,6 +149,7 @@ public class ConnectorGen {
     generatedSet.clear();
 
     writeDirectives(writer);
+    writeJSONScalar(writer);
 
     final RefCounter counter = new RefCounter(getContext());
     counter.addAll(collected);
@@ -182,6 +183,10 @@ public class ConnectorGen {
     // 2. now operations
     writeQuery(context, writer, collected);
     writer.flush();
+  }
+
+  private void writeJSONScalar(final Writer writer) throws IOException {
+    writer.write("\nscalar JSON\n\n");
   }
 
   private void writeQuery(final Context context, final Writer writer, final Set<Type> collected)

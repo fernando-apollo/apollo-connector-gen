@@ -1,8 +1,8 @@
 get:/emailed/{period}.json -> y
 get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse -> y
-get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:array:#results>prop:ref:#items>obj:#/c/s/EmailedArticle -> y
-get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:array:#results>prop:ref:#items>obj:#/c/s/EmailedArticle>prop:array:#media>prop:ref:#items>obj:#/c/s/Media -> y
-get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:array:#results>prop:ref:#items>obj:#/c/s/EmailedArticle>prop:array:#media>prop:ref:#items>obj:#/c/s/Media>prop:array:#media-metadata>prop:ref:#items>obj:#/c/s/MediaMetadata -> y
+get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:array:#results>prop:ref:#ResultsItem>obj:#/c/s/EmailedArticle -> y
+get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:array:#results>prop:ref:#ResultsItem>obj:#/c/s/EmailedArticle>prop:array:#media>prop:ref:#MediaItem>obj:#/c/s/Media -> y
+get:/emailed/{period}.json>res:r>obj:emailedByPeriodJsonResponse>prop:array:#results>prop:ref:#ResultsItem>obj:#/c/s/EmailedArticle>prop:array:#media>prop:ref:#MediaItem>obj:#/c/s/Media>prop:array:#media-metadata>prop:ref:#MediaMetadataItem>obj:#/c/s/MediaMetadata -> y
 get:/shared/{period}.json -> n
 get:/shared/{period}/{share_type}.json -> n
 get:/viewed/{period}.json -> n

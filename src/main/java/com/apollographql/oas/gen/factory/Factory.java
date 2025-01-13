@@ -1,6 +1,7 @@
 package com.apollographql.oas.gen.factory;
 
 import com.apollographql.oas.converter.utils.GqlUtils;
+import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.nodes.*;
 import com.apollographql.oas.gen.nodes.params.Param;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -30,7 +32,17 @@ public class Factory {
       result = new Ref(parent, schema.get$ref(), schema.get$ref());
     }
     else if (schema instanceof ArraySchema) {
-      result = new Array(parent, schema.getItems());
+      // we can do something better here than to just name it "items"
+      String parentName = parent.getName();
+      if (parent instanceof Response) {
+        final GetOp get = (GetOp) parent.getParent();
+        parentName = StringUtils.capitalize(get.getGqlOpName());
+      }
+      else {
+        System.out.println("Factory.fromSchema >>> HERE");
+      }
+
+      result = new Array(parent, parentName, schema.getItems());
     }
     else if (schema instanceof ObjectSchema) {
       result = new Obj(parent, schema.getName(), schema);
@@ -55,7 +67,7 @@ public class Factory {
         }
       }
       else {
-        throw new IllegalArgumentException("Cannot handle property with schema: " + schema);
+        throw new IllegalArgumentException("Cannot handle schema " + Type.getRootPathFor(parent) + ", schema: " + schema);
       }
     }
 
@@ -70,6 +82,10 @@ public class Factory {
   }
 
   public static Prop fromProperty(Context context, Type parent, String propertyName, Schema propertySchema) {
+    if (propertySchema == null) {
+      throw new IllegalStateException("Should have a schema defined for property '" + propertyName + "' (parent: '" + parent.getName() + "')");
+    }
+
     final String type = propertySchema.getType();
 
     Prop prop;
@@ -79,7 +95,10 @@ public class Factory {
     else if (type != null) {
       if (type.equals("array")) {
         final PropArray array = new PropArray(parent, propertyName, propertySchema);
-        final Prop items = fromProperty(context, array, "items", propertySchema.getItems());
+
+        final String itemsName = NameUtils.genArrayItems(propertyName);
+        final Prop items = fromProperty(context, array, itemsName, propertySchema.getItems());
+
         array.setItems(items);
         prop = array;
       }

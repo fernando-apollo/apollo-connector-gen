@@ -8,6 +8,7 @@ import com.apollographql.oas.gen.nodes.props.PropArray;
 import com.apollographql.oas.gen.nodes.props.PropObj;
 import com.apollographql.oas.gen.nodes.props.PropRef;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -52,7 +53,7 @@ public class Obj extends Type {
         name = parentName.replace("ref:", "obj:");
       }
       else if (parent instanceof Array || parent instanceof PropArray) {
-        name = NameUtils.getRefName(parentName) + "Item";
+        name = StringUtils.capitalize(NameUtils.genParamName(NameUtils.getRefName(parentName) + "Item"));
       }
       else if (parent instanceof Response) {
         GetOp op = (GetOp) parent.getParent();
