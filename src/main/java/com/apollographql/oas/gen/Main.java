@@ -18,7 +18,7 @@ class VisitorCommand implements Callable<Integer> {
   @Parameters(paramLabel = "<source>>", description = "a Swagger/OAS file")
   File source;
 
-  @Option(names = {"-o", "--output-file"}, paramLabel = "<file>", description = "the output file")
+  @Option(names = {"-o", "--output-file"}, paramLabel = "<file>", description = "the ourtput file")
   File output;
 
   @Option(names = {"-i", "--input-type"}, paramLabel = "<prompt|record|skip>",

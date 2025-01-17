@@ -32,6 +32,19 @@ public abstract class Type implements Cloneable {
     return indexOf > -1 ? (Ref) ancestors.get(indexOf) : null;
   }
 
+  protected static int findAncestorOf(final Type type, final Class clazz) {
+    final List<Type> ancestors = getAncestors(type.getParent());
+
+    for (int i = ancestors.size() - 1; i > -1; i--) {
+      final Type ancestor = ancestors.get(i);
+      if (ancestor.getClass().isAssignableFrom(clazz)) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
   public String id() {
     return getName();
   }
@@ -221,7 +234,8 @@ public abstract class Type implements Cloneable {
         found = findTypeIn(path, children);
         if (found != null) {
           break;
-        };
+        }
+        ;
       }
     }
 

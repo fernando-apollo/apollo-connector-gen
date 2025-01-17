@@ -707,6 +707,27 @@ public class ConnectorGenTests {
     assertEquals(0, result.getLeft());
   }
 
+  @Test
+  void test_024_TMF632_IndividualIdentification() throws IOException, InterruptedException {
+    final Prompt prompt = loadMapRecording("test_024_TMF632_IndividualIdentification.txt");
+
+    final OpenAPI parser = createParser(loadSpec("TMF632-Party_Management-v5.0.0.oas.yaml"));
+    assertNotNull(parser);
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    System.out.println(" ----------- schema -------------- ");
+    generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
+  }
+
   private static OpenAPI createParser(String source) {
     final ParseOptions options = new ParseOptions();
     options.setResolve(true); // implicit

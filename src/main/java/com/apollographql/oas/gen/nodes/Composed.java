@@ -5,6 +5,7 @@ import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
 import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.nodes.props.Prop;
+import com.apollographql.oas.gen.nodes.props.PropArray;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -162,11 +163,15 @@ public class Composed extends Type {
     }
 
     final boolean inCompose = context.inContextOf(Composed.class, this);
-    if (inCompose) {
-      getProps().putAll(collected);
+
+    final int inComposeIdx = findAncestorOf(this, Composed.class);
+    final int inArrayIdx = findAncestorOf(this, PropArray.class);
+
+    if (!inCompose || (inArrayIdx > inComposeIdx)) {
+      promptPropertySelection(context, collected);
     }
     else {
-      promptPropertySelection(context, collected);
+      getProps().putAll(collected);
     }
 
     // we'll store it first, it might avoid recursion

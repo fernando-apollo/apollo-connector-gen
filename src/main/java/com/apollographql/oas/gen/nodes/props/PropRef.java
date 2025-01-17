@@ -84,8 +84,8 @@ public class PropRef extends Prop implements Cloneable {
       type.setName(getRef());
       type.visit(context);
 
-      if (!this.getChildren().contains(getRefType())) {
-        this.add(getRefType());
+      if (!getChildren().contains(getRefType())) {
+        add(getRefType());
       }
 
       setVisited(true);
