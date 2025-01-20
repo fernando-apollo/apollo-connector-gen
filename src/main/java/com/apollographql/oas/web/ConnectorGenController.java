@@ -80,8 +80,8 @@ public class ConnectorGenController {
     return collected;
   }
 
-  @GetMapping("/visit/{md5}/type")
-  public Map<String, Object> visitType(@PathVariable String md5, @RequestParam("id") String path, @RequestParam("p") String parent) throws IOException {
+  @PostMapping("/visit/{md5}/type")
+  public Map<String, Object> visitType(@PathVariable String md5, @RequestBody String path, @RequestParam("p") String parent) throws IOException {
     final WebGenerator generator = this.generatorService.get(md5);
 
     System.out.println("ConnectorGenController.visitType [in]\n" + path);
@@ -117,13 +117,12 @@ public class ConnectorGenController {
 
   @PostMapping("/visit/{md5}/generate")
   public Map<String, String> generate(@PathVariable String md5, @RequestBody Map<String, String> items) throws IOException {
-    final Map<String, String> records = items;
-    System.out.println("records = " + records);
+    System.out.println("records = " + items);
 
     final WebGenerator generator = this.generatorService.get(md5);
 
     final StringWriter writer = new StringWriter();
-    generator.writeSchema(writer, Prompt.create(Prompt.Factory.mapPlayer(records)));
+    generator.writeSchema(writer, Prompt.create(Prompt.Factory.mapPlayer(items)));
 
     return Map.of("result", writer.toString());
   }
