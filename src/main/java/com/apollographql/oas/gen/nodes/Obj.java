@@ -196,10 +196,18 @@ public class Obj extends Type {
       .collect(Collectors.joining(",\n - "));
 
     final boolean inCompose = context.inContextOf(Composed.class, this);
+
+    final int inComposeIdx = findAncestorOf(this, Composed.class);
+    final int inArrayIdx = findAncestorOf(this, PropArray.class);
+
+    if (!inCompose || (inArrayIdx > inComposeIdx)) {
+      System.out.println("Obj.visitProperties HERE");
+    }
+
     trace(context, "   [obj::props]", getSimpleName() + " is within compose context? " + inCompose);
 
-    final char addAll = inCompose ? 'y' : context.getPrompt()
-      .yesNoSelect(path(), " -> Add all properties from [object] " + getOwner() + "?: \n - " + propertiesNames + "\n");
+    final char addAll = (!inCompose || (inArrayIdx > inComposeIdx)) ? context.getPrompt()
+      .yesNoSelect(path(), " -> Add all properties from [object] " + getOwner() + "?: \n - " + propertiesNames + "\n") : 'y';
 
     /* we should only prompt for properties if:
      * 1. we are NOT a comp://all-of
