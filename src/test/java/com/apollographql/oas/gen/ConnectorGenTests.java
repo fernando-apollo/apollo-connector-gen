@@ -777,9 +777,90 @@ public class ConnectorGenTests {
 
   static class Rover {
     public static void main(String[] args) throws IOException, InterruptedException {
-      compose("nothing");
+      compose("""
+        type Root {
+          id: ID!
+        }
+              
+        type Query {
+          root: Root
+        }""");
     }
 
+    public static ImmutablePair<Boolean, String> isCommandAvailable(String command) {
+      String os = System.getProperty("os.name").toLowerCase();
+      String[] checkCommand = os.contains("win") ? new String[]{"where", command} : new String[]{"which", command};
+
+      try {
+        Process process = new ProcessBuilder(checkCommand).start();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+          final String line = reader.readLine();
+          return new ImmutablePair<>(line != null, line);
+        }
+      }
+      catch (IOException e) {
+        e.printStackTrace();
+        return new ImmutablePair<>(false, e.getMessage());
+      }
+    }
+
+    public static ImmutablePair<Integer, String> compose(final String schema) throws IOException, InterruptedException {
+      final Map<String, String> env = System.getenv();
+      final String workdir = env.get("WORKDIR");
+
+      final String basePath = workdir != null ? workdir : System.getProperty("java.io.tmpdir");
+      System.out.println("[compose] temp folder: " + basePath);
+
+      final Path specPath = Files.createTempFile("test-spec", ".graphql");
+      Files.write(specPath, schema.getBytes());
+      System.out.println("[compose] wrote test_spec.graphql to: " + specPath);
+
+      // write supergraph.yaml file
+      String content = """
+        federation_version: =2.10.0-preview.3
+        subgraphs:
+          test_spec:
+            name: test-spec
+            routing_url: http://localhost # this value is ignored
+            schema:     
+        """ + "      file: " + specPath.toAbsolutePath() + " # path to the schema file\n";
+
+      final Path supergraphPath = Files.createTempFile("supergraph", ".yaml");
+      Files.write(supergraphPath, content.getBytes());
+
+      final ImmutablePair<Boolean, String> roverAvailable = isCommandAvailable("rover");
+      if (roverAvailable.getLeft()) {
+        final String rover = roverAvailable.getRight();
+        System.out.println("[compose] rover is available: " + rover);
+
+        final String command = String.format("%s supergraph compose --config %s --elv2-license accept", rover, supergraphPath.toAbsolutePath()); // Replace with your desired command
+        System.out.println("[compose] command = " + command);
+
+        // Run the command
+        final ProcessBuilder processBuilder = new ProcessBuilder(command.split(" "));
+        final Process process = processBuilder.start();
+
+        // Read the command output
+        final BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        // also collect the stream
+        final StringWriter writer = new StringWriter();
+
+        String e;
+        while ((e = error.readLine()) != null) {
+          System.err.println(e);
+          writer.write(e);
+        }
+
+        // Wait for the process to finish and get the exit code
+        final int errorCode = process.waitFor();
+        return new ImmutablePair<>(errorCode, writer.toString());
+      }
+      else {
+        return new ImmutablePair<>(-1, "rover command not found");
+      }
+    }
+
+/*
     public static ImmutablePair<Integer, String> compose(final String schema) throws IOException, InterruptedException {
       final String basePath = "/Users/fernando/Documents/Opportunities/Vodafone/tmf-apis/supergraph";
       final Path path = Paths.get(basePath + "/test-spec.graphql");
@@ -809,5 +890,6 @@ public class ConnectorGenTests {
       return new ImmutablePair<Integer, String>(errorCode, writer.toString());
 //      return errorCode;
     }
+*/
   }
 }
