@@ -1,7 +1,7 @@
 package com.apollographql.oas.gen.nodes.props;
 
-import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.Composed;
 import com.apollographql.oas.gen.nodes.Obj;
 import com.apollographql.oas.gen.nodes.Type;
@@ -51,7 +51,7 @@ public class PropObj extends Prop implements Cloneable {
 
   @Override
   public String getValue(Context context) {
-    return getName();
+    return Naming.genTypeName(getName());
   }
 
   @Override
@@ -94,7 +94,7 @@ public class PropObj extends Prop implements Cloneable {
     trace(context, "-> [prop-obj:select]", "in " + getName() + ", obj: " + getObj().getSimpleName());
 
     final String fieldName = getName();
-    final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
+    final String sanitised = Naming.sanitiseFieldForSelect(fieldName);
 
     writer
       .append(" ".repeat(context.getIndent() + context.getStack().size()))
@@ -127,7 +127,7 @@ public class PropObj extends Prop implements Cloneable {
   }
 
   public String forPrompt(final Context context) {
-    return getName() + ": " + NameUtils.getRefName(getObj().getName());
+    return getName() + ": " + Naming.getRefName(getObj().getName());
   }
 
   @Override

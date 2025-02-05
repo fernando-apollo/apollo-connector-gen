@@ -9,7 +9,7 @@ import com.apollographql.oas.converter.types.props.Prop;
 import com.apollographql.oas.converter.types.props.RefProp;
 import com.apollographql.oas.converter.types.props.ScalarProp;
 import com.apollographql.oas.converter.utils.GqlUtils;
-import com.apollographql.oas.converter.utils.NameUtils;
+import com.apollographql.oas.gen.naming.Naming;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -179,6 +179,6 @@ public abstract class CType {
   }
 
   public String getSimpleName() {
-    return NameUtils.getRefName(getName());
+    return Naming.getRefName(getName());
   }
 }

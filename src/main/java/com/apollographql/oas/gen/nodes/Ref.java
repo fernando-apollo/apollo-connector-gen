@@ -1,8 +1,8 @@
 package com.apollographql.oas.gen.nodes;
 
-import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.props.Prop;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -67,7 +67,12 @@ public class Ref extends Type {
       writer.append("[").append(getFirstChild().getName()).append("]");
     }
     else {
-      writer.write(NameUtils.getRefName(getRef()));
+      // apparently we can have terrible names like 'catalog-data-product-search-results-interface', so let's
+      // rewrite those to something more sensible
+      final String sanitised = Naming.genTypeName(getName());
+      final String refName = Naming.getRefName(getName());
+
+      writer.write(sanitised.equals(refName) ? refName : sanitised);
     }
 
     trace(context, "<- [ref::generate]", String.format("-> out: %s", this.getSimpleName()));

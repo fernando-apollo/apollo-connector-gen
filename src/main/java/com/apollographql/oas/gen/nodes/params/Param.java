@@ -3,6 +3,7 @@ package com.apollographql.oas.gen.nodes.params;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.Type;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -69,7 +70,7 @@ public class Param extends Type {
     context.enter(this);
     trace(context, "-> [param::generate]", String.format("-> in: %s", this.getSimpleName()));
 
-    writer.write(NameUtils.genParamName(getName()));
+    writer.write(Naming.genParamName(getName()));
     writer.write(": ");
 
     getResultType().generate(context, writer);

@@ -1,8 +1,8 @@
 package com.apollographql.oas.gen.nodes.props;
 
-import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.*;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -43,7 +43,11 @@ public class PropRef extends Prop implements Cloneable {
   @Override
   public String getValue(Context context) {
     final Type type = getRefType();
-    return type != null ? type.getSimpleName() : NameUtils.getRefName(getRef());
+
+    String name = type != null ? type.getSimpleName() : getRef();
+
+//    return StringUtils.capitalize(NameUtils.genParamName(name));
+    return Naming.genTypeName(name);
   }
 
   @Override
@@ -120,7 +124,7 @@ public class PropRef extends Prop implements Cloneable {
     trace(context, "-> [prop-ref:select]", "in " + getName() + ", ref: " + getRef());
 
     final String fieldName = getName();
-    final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
+    final String sanitised = Naming.sanitiseFieldForSelect(fieldName);
 
     writer
       .append(" ".repeat(context.getIndent() + context.getStack().size()))
@@ -158,7 +162,7 @@ public class PropRef extends Prop implements Cloneable {
   }
 
   public String forPrompt(final Context context) {
-    return getName() + ": " + NameUtils.getRefName(getRef());
+    return getName() + ": " + Naming.getRefName(getRef());
   }
 
   @Override

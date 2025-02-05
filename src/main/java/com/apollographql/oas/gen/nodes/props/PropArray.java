@@ -1,8 +1,8 @@
 package com.apollographql.oas.gen.nodes.props;
 
-import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.Type;
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -79,7 +79,7 @@ public class PropArray extends Prop {
     trace(context, "-> [prop-array:select]", "in: " + getName());
 
     final String fieldName = getName();
-    final String sanitised = NameUtils.sanitiseFieldForSelect(fieldName);
+    final String sanitised = Naming.sanitiseFieldForSelect(fieldName);
 
     writer
       .append(" ".repeat(context.getIndent() + context.getStack().size()))

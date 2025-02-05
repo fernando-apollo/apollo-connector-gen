@@ -1,7 +1,6 @@
 package com.apollographql.oas.converter.utils;
 
-import com.apollographql.oas.converter.visitor.ComponentResponsesVisitor;
-import com.apollographql.oas.converter.visitor.ComponentSchemasVisitor;
+import com.apollographql.oas.gen.naming.Naming;
 import io.swagger.v3.oas.models.Operation;
 import org.apache.commons.lang3.StringUtils;
 
@@ -70,27 +69,19 @@ public class NameUtils {
     return name + "Response";
   }
 
-  public static String getRefName(final String ref) {
-    if (ref == null) return null;
-
-    if (ref.contains(ComponentSchemasVisitor.PREFIX))
-      return ref.replace(ComponentSchemasVisitor.PREFIX, "");
-
-    if (ref.contains(ComponentResponsesVisitor.PREFIX))
-      return ref.replace(ComponentResponsesVisitor.PREFIX, "");
-
-    return ref;
-  }
-
   public static String genOperationName(String path, Operation operation) {
 
-    final List<String> parameters = operation.getParameters() != null ? operation.getParameters().stream()
-      .filter(parameter -> parameter.getRequired() != null && parameter.getRequired() && !parameter.getIn().equalsIgnoreCase("header"))
-      .map(p -> {
-        final String name = capitaliseParts(p.getName(), "[:\\-\\.]");
-        return String.format("By%s", StringUtils.capitalize(name));
-      })
-      .toList() : Collections.emptyList();
+    final List<String> parameters = operation.getParameters() != null ?
+      operation.getParameters().stream()
+        .filter(parameter -> parameter.getRequired() != null && parameter.getRequired() && !parameter.getIn().equalsIgnoreCase("header"))
+        .map(p -> {
+          final String paramName = Naming.genParamName(p.getName());
+//          final String name = capitaliseParts(paramName, "[:\\-\\.]");
+          return String.format("By%s", StringUtils.capitalize(paramName));
+//          return String.format("By%s", paramName);
+        })
+        .toList()
+      : Collections.emptyList();
 
     String result = "";
 
@@ -113,41 +104,4 @@ public class NameUtils {
     return capitaliseParts(cleanedPath, "/");
   }
 
-  public static String sanitiseField(final String name) {
-    final String fieldName = name.startsWith("@") ? name.substring(1) : name;
-
-    return genParamName(fieldName);
-  }
-
-  public static String sanitiseFieldForSelect(final String name) {
-    final String fieldName = name.startsWith("@") ? name.substring(1) : name;
-
-    final String sanitised = genParamName(fieldName);
-
-    if (sanitised.equals(name)) {
-      return sanitised;
-    }
-    else {
-      final boolean needsQuotes = fieldName.matches(".*[:_\\-\\.].*") || name.startsWith("@");
-      final StringBuilder builder = new StringBuilder();
-      builder.append(sanitised)
-        .append(": ");
-
-      if (needsQuotes) {
-        builder.append('"');
-      }
-
-      builder.append(name.startsWith("@") ? name : fieldName);
-
-      if (needsQuotes) {
-        builder.append('"');
-      }
-
-      return builder.toString();
-    }
-  }
-
-  public static String genArrayItems(final String name) {
-    return StringUtils.capitalize(NameUtils.genParamName(name)) + "Item";
-  }
 }

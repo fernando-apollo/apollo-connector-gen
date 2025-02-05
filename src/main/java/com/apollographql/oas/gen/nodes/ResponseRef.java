@@ -1,8 +1,8 @@
 package com.apollographql.oas.gen.nodes;
 
-import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
+import com.apollographql.oas.gen.naming.Naming;
 import io.swagger.v3.oas.models.media.Schema;
 
 import static com.apollographql.oas.gen.log.Trace.trace;
@@ -13,7 +13,7 @@ public class ResponseRef extends Type {
   private Type refType;
 
   public ResponseRef(final Type parent, final String ref) {
-    super(parent, NameUtils.getRefName(ref));
+    super(parent, Naming.getRefName(ref));
     this.ref = ref;
   }
 

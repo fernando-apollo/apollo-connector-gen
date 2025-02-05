@@ -2,7 +2,7 @@ package com.apollographql.oas.converter.types.props;
 
 import com.apollographql.oas.converter.context.Context;
 import com.apollographql.oas.converter.context.DependencySet;
-import com.apollographql.oas.converter.utils.NameUtils;
+import com.apollographql.oas.gen.naming.Naming;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
@@ -64,7 +64,7 @@ public abstract class Prop {
       writer.append("!");
 
     if (source != null)
-      writer.append(" # ").append(NameUtils.getRefName(source));
+      writer.append(" # ").append(Naming.getRefName(source));
 
     writer.append("\n");
   }

@@ -1,8 +1,8 @@
 package com.apollographql.oas.gen.nodes;
 
-import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.nodes.props.Prop;
 import com.apollographql.oas.gen.nodes.props.PropArray;
@@ -77,7 +77,7 @@ public class Composed extends Type {
     else if (getSchema().getAllOf() != null) {
       if (!getProps().isEmpty()) {
         writer.append("type ")
-          .append(NameUtils.getRefName(getName()))
+          .append(Naming.getRefName(getName()))
           .append(" {\n");
 
         for (Prop prop : this.getProps().values()) {

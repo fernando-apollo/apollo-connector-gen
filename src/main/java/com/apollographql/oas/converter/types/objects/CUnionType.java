@@ -3,10 +3,10 @@ package com.apollographql.oas.converter.types.objects;
 import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CTypeKind;
 import com.apollographql.oas.converter.types.props.Prop;
+import com.apollographql.oas.gen.naming.Naming;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import com.apollographql.oas.converter.context.Context;
 import com.apollographql.oas.converter.types.CType;
-import com.apollographql.oas.converter.utils.NameUtils;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -35,7 +35,7 @@ public class CUnionType extends CType {
     // union MyUnion = Type1 | Type2 | Type3 -> name + "=" + types.join(' | ')
     // and then we pray that the types are defined somewhere else
     writer.append("#### NOT SUPPORTED YET BY CONNECTORS!!! union ").append(getSimpleName()).append(" = ");
-    writer.append(String.join("# | ", types.stream().map(NameUtils::getRefName).toList()));
+    writer.append(String.join("# | ", types.stream().map(Naming::getRefName).toList()));
     writer.append("#\n\n");
 
     logger.log(FINE, String.format("[union] -> object: %s", this.getName()));

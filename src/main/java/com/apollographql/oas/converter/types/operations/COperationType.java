@@ -6,7 +6,7 @@ import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.CTypeKind;
 import com.apollographql.oas.converter.types.responses.CResponseArrayType;
 import com.apollographql.oas.converter.types.responses.CResponseObjectType;
-import com.apollographql.oas.converter.utils.NameUtils;
+import com.apollographql.oas.gen.naming.Naming;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -79,11 +79,11 @@ public class COperationType extends CType {
       switch (lookup.getKind()) {
         case RESPONSE_OBJECT -> {
           final String inlinedType = ((CResponseObjectType) lookup).getTypeRef();
-          builder.append(NameUtils.getRefName(inlinedType));
+          builder.append(Naming.getRefName(inlinedType));
         }
         case RESPONSE_ARRAY -> {
           final String inlinedType = ((CResponseArrayType) lookup).getItemsRef();
-          builder.append("[ ").append(NameUtils.getRefName(inlinedType)).append(" ]");
+          builder.append("[ ").append(Naming.getRefName(inlinedType)).append(" ]");
         }
         default -> throw new IllegalStateException("Looked up response " + resultType + " is neither object nor array");
       }
@@ -92,7 +92,7 @@ public class COperationType extends CType {
       // #/components/responses/ section - so let's start with a lookup
     }
     else if (Context.isSchemaType(resultType)) {
-      builder.append(NameUtils.getRefName(getResult()));
+      builder.append(Naming.getRefName(getResult()));
     }
     else {
       logger.log(FINE, String.format(" [operationType] -> getResultType: %s", getResult()));

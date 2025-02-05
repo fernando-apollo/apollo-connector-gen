@@ -32,6 +32,7 @@ public class GeneratorWebApplication {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("GeneratorWebApplication - rel 05-feb-25");
 		SpringApplication.run(GeneratorWebApplication.class, args);
 	}
 

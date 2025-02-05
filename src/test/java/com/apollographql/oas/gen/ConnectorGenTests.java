@@ -46,6 +46,9 @@ public class ConnectorGenTests {
   //  @AfterEach
   ImmutablePair<Integer, String> checkCompose() throws IOException, InterruptedException {
     final String schema = getWriter().toString();
+    System.out.println(" ---- schema ---- ");
+    System.out.println(schema);
+    System.out.println(" ---- schema ---- ");
     return Rover.compose(schema);
   }
 
@@ -501,7 +504,7 @@ public class ConnectorGenTests {
   }
 
   @Test
-  void test_016_testMostPopularProductScalarsOnly() throws IOException {
+  void test_016_testMostPopularProductScalarsOnly() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("most-popular-product.yaml"));
     assertNotNull(parser);
 
@@ -513,12 +516,14 @@ public class ConnectorGenTests {
     assertNotNull(collected);
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
-
     generator.writeSchema(getWriter());
+
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test
-  void test_017_testMostPopularProduct() throws IOException {
+  void test_017_testMostPopularProduct() throws IOException, InterruptedException {
     final OpenAPI parser = createParser(loadSpec("most-popular-product.yaml"));
     assertNotNull(parser);
 
@@ -530,8 +535,10 @@ public class ConnectorGenTests {
     assertNotNull(collected);
 
     assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
-
     generator.writeSchema(getWriter());
+
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
   }
 
   @Test

@@ -4,6 +4,7 @@ import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.context.RefCounter;
 import com.apollographql.oas.gen.factory.Factory;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.GetOp;
 import com.apollographql.oas.gen.nodes.Type;
 import com.apollographql.oas.gen.nodes.params.Param;
@@ -246,7 +247,7 @@ public class ConnectorGen {
 
       if (!queries.isEmpty()) {
         final String queryString = queries.stream()
-          .map(p -> p.getName() + "={$args." + NameUtils.genParamName(p.getName()) + "}")
+          .map(p -> p.getName() + "={$args." + Naming.genParamName(p.getName()) + "}")
           .collect(Collectors.joining("&"));
 
         builder

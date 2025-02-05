@@ -1,8 +1,8 @@
 package com.apollographql.oas.gen.factory;
 
 import com.apollographql.oas.converter.utils.GqlUtils;
-import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.*;
 import com.apollographql.oas.gen.nodes.params.Param;
 import com.apollographql.oas.gen.nodes.props.*;
@@ -96,7 +96,7 @@ public class Factory {
       if (type.equals("array")) {
         final PropArray array = new PropArray(parent, propertyName, propertySchema);
 
-        final String itemsName = NameUtils.genArrayItems(propertyName);
+        final String itemsName = Naming.genArrayItems(propertyName);
         final Prop items = fromProperty(context, array, itemsName, propertySchema.getItems());
 
         array.setItems(items);

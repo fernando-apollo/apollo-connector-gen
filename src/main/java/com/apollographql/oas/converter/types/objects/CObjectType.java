@@ -5,7 +5,7 @@ import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.CTypeKind;
 import com.apollographql.oas.converter.types.props.Prop;
-import com.apollographql.oas.converter.utils.NameUtils;
+import com.apollographql.oas.gen.naming.Naming;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class CObjectType extends CType {
     logger.log(FINE, String.format("[object] -> object: %s", this.getName()));
 
     writer.append("type ")
-      .append(NameUtils.getRefName(getName()))
+      .append(Naming.getRefName(getName()))
       .append(" {\n");
 
     for (Prop prop : this.getProps().values()) {

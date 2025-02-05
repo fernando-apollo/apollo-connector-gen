@@ -10,6 +10,7 @@ import com.apollographql.oas.converter.types.responses.CResponseArrayType;
 import com.apollographql.oas.converter.types.responses.CResponseObjectType;
 import com.apollographql.oas.converter.utils.GqlUtils;
 import com.apollographql.oas.converter.utils.Trace;
+import com.apollographql.oas.gen.naming.Naming;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
@@ -142,7 +143,7 @@ public class PathsVisitor extends Visitor {
 
           final COperationType opType = new COperationType(
             operation,
-            "[" + NameUtils.getRefName(returnType.getItemsRef()) + "]",
+            "[" + Naming.getRefName(returnType.getItemsRef()) + "]",
             parameters,
             returnType
           );
@@ -268,7 +269,7 @@ public class PathsVisitor extends Visitor {
     //
     final String operation = NameUtils.genOperationName(path, getOp);
     print(indent, "  [" + path + "]", "GQL operation: " +
-      operation + ": " + NameUtils.getRefName(lookup.getName()));
+      operation + ": " + Naming.getRefName(lookup.getName()));
 
     final COperationType opType = new COperationType(operation, lookup.getName(), parameters, lookup);
     opType.setOriginalPath(path);

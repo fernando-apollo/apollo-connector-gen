@@ -4,6 +4,7 @@ import com.apollographql.oas.gen.WebGenerator;
 import com.apollographql.oas.gen.nodes.Composed;
 import com.apollographql.oas.gen.nodes.GetOp;
 import com.apollographql.oas.gen.nodes.Type;
+import com.apollographql.oas.gen.nodes.Union;
 import com.apollographql.oas.gen.nodes.props.PropScalar;
 import com.apollographql.oas.gen.prompt.Prompt;
 import com.apollographql.oas.web.storage.StorageService;
@@ -55,7 +56,7 @@ public class ConnectorGenController {
   }
 
   @GetMapping("/visit/{md5}/path")
-  public Map<String, Object> visitPath(@PathVariable String md5, @PathParam("id") String id) throws IOException {
+  public Map<String, Object> root(@PathVariable String md5, @PathParam("id") String id) throws IOException {
     final WebGenerator generator = this.generatorService.get(md5);
     System.out.println("ConnectorGenController.visitPath for " + md5 + ", path: " + id);
 
@@ -81,7 +82,7 @@ public class ConnectorGenController {
   }
 
   @PostMapping("/visit/{md5}/type")
-  public Map<String, Object> visitType(@PathVariable String md5, @RequestBody String path, @RequestParam("p") String parent) throws IOException {
+  public Map<String, Object> node(@PathVariable String md5, @RequestBody String path, @RequestParam("p") String parent) throws IOException {
     final WebGenerator generator = this.generatorService.get(md5);
 
     System.out.println("ConnectorGenController.visitType [in]\n" + path);
@@ -93,7 +94,7 @@ public class ConnectorGenController {
       result.put("parent", found.getName());
 
       Collection<? extends Type> values;
-      if (found instanceof Composed && !found.getProps().isEmpty()) {
+      if ((found instanceof Composed || found instanceof Union) && !found.getProps().isEmpty()) {
         values = found.getProps().values();
       }
       else {

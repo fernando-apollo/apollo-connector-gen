@@ -3,6 +3,7 @@ package com.apollographql.oas.gen.nodes;
 import com.apollographql.oas.converter.utils.NameUtils;
 import com.apollographql.oas.gen.context.Context;
 import com.apollographql.oas.gen.factory.Factory;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.props.Prop;
 import com.apollographql.oas.gen.nodes.props.PropArray;
 import com.apollographql.oas.gen.nodes.props.PropObj;
@@ -53,7 +54,7 @@ public class Obj extends Type {
         name = parentName.replace("ref:", "obj:");
       }
       else if (parent instanceof Array || parent instanceof PropArray) {
-        name = StringUtils.capitalize(NameUtils.genParamName(NameUtils.getRefName(parentName) + "Item"));
+        name = StringUtils.capitalize(NameUtils.genParamName(Naming.getRefName(parentName) + "Item"));
       }
       else if (parent instanceof Response) {
         GetOp op = (GetOp) parent.getParent();
@@ -128,15 +129,20 @@ public class Obj extends Type {
     }
 
     if (context.inContextOf(Response.class, this)) {
-      writer.append(NameUtils.getRefName(getName()));
+//      writer.append(NameUtils.getRefName(getName()));
+      writer.append(Naming.genTypeName(getName()));
       return;
     }
 
     context.enter(this);
     trace(context, "-> [obj::generate]", String.format("-> in: %s", this.getName()));
 
+//    final String sanitised = StringUtils.capitalize(NameUtils.genParamName(NameUtils.getRefName(getName())));
+    final String sanitised = Naming.genTypeName(getName());
+    final String refName = Naming.getRefName(getName());
+
     writer.append("type ")
-      .append(NameUtils.getRefName(getName()))
+      .append(sanitised.equals(refName) ? refName : sanitised)
       .append(" {\n");
 
     for (Prop prop : this.getProps().values()) {

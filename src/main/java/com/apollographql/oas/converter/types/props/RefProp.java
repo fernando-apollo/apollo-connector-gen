@@ -4,7 +4,7 @@ import com.apollographql.oas.converter.context.Context;
 import com.apollographql.oas.converter.context.DependencySet;
 import com.apollographql.oas.converter.types.CType;
 import com.apollographql.oas.converter.types.CTypeKind;
-import com.apollographql.oas.converter.utils.NameUtils;
+import com.apollographql.oas.gen.naming.Naming;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class RefProp extends Prop {
   @Override
   public String getValue(Context context) {
     assert context.lookup(getRef()) != null : "Could not find ref: " + getRef();
-    return NameUtils.getRefName(getRef());
+    return Naming.getRefName(getRef());
   }
 
   @Override

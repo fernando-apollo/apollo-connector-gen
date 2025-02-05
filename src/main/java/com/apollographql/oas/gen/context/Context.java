@@ -1,6 +1,6 @@
 package com.apollographql.oas.gen.context;
 
-import com.apollographql.oas.converter.utils.NameUtils;
+import com.apollographql.oas.gen.naming.Naming;
 import com.apollographql.oas.gen.nodes.Type;
 import com.apollographql.oas.gen.prompt.Prompt;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -79,7 +79,7 @@ public class Context {
 
   public Schema<?> lookupRef(final String ref) {
     if (ref.startsWith(COMPONENTS_SCHEMAS)) {
-      return parser.getComponents().getSchemas().get(NameUtils.getRefName(ref));
+      return parser.getComponents().getSchemas().get(Naming.getRefName(ref));
     }
 
     return null;
@@ -87,7 +87,7 @@ public class Context {
 
   public ApiResponse lookupResponse(final String ref) {
     if (ref.startsWith(COMPONENTS_RESPONSES)) {
-      return parser.getComponents().getResponses().get(NameUtils.getRefName(ref));
+      return parser.getComponents().getResponses().get(Naming.getRefName(ref));
     }
 
     return null;
