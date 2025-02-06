@@ -43,10 +43,7 @@ public class PropRef extends Prop implements Cloneable {
   @Override
   public String getValue(Context context) {
     final Type type = getRefType();
-
     String name = type != null ? type.getSimpleName() : getRef();
-
-//    return StringUtils.capitalize(NameUtils.genParamName(name));
     return Naming.genTypeName(name);
   }
 

@@ -735,6 +735,27 @@ public class ConnectorGenTests {
     assertEquals(0, result.getLeft());
   }
 
+  @Test
+  void test_025_AdobeCommerce() throws IOException, InterruptedException {
+    final Prompt prompt = loadMapRecording("test_025_adobeCommerceSimple.txt");
+
+    final OpenAPI parser = createParser(loadSpec("adobe-commerce-swagger.json"));
+    assertNotNull(parser);
+
+    final ConnectorGen generator = new ConnectorGen(parser, prompt);
+    generator.visit();
+    final Set<Type> collected = generator.getCollected();
+    assertNotNull(collected);
+
+    assertTrue(collected.stream().findFirst().isPresent(), "First collected should be present");
+    final Type type = collected.stream().findFirst().get();
+
+    System.out.println(" ----------- schema -------------- ");
+    generator.writeSchema(getWriter());
+    final Pair<Integer, String> result = checkCompose();
+    assertEquals(0, result.getLeft());
+  }
+
   private static OpenAPI createParser(String source) {
     final ParseOptions options = new ParseOptions();
     options.setResolve(true); // implicit
