@@ -148,6 +148,7 @@
                 "example": "boolean"
               },
               "value": {
+                "type": "string",
                 "description": "Value of custom field",
                 "example": true
               }
@@ -186,6 +187,7 @@
                   "example": "enum"
                 },
                 "value": {
+                  "type": "string",
                   "description": "Value of custom field",
                   "example": "value1"
                 }
@@ -1703,6 +1705,7 @@
                               "example": "boolean"
                             },
                             "value": {
+                              "type": "string",
                               "description": "Value of custom field",
                               "example": true
                             }

@@ -142,10 +142,6 @@ public class Factory {
     return new Param(parent, p.getName(), schema, required, schema.getDefault(), p);
   }
 
-  public static Type fromResponseRef(final Context context, final Type parent, final ApiResponse response) {
-    return new ResponseRef(parent, response.get$ref());
-  }
-
   public static Type fromUnion(final Context context, final Type parent, final List<Schema> oneOfs) {
     final Union union = new Union(parent, parent.getSimpleName(), oneOfs);
     parent.add(union);

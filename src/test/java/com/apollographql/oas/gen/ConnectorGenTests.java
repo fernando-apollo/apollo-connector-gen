@@ -685,7 +685,7 @@ public class ConnectorGenTests {
     /* I've had to fix the common-room-core.json file to make it pass, as it generates
       an invalid schema:
       - one fix adding the 'items -> string' type of the 'member_tags', which had none
-      - removing a nexted 'CommunityMember' node in the #/components/schemas/CommunityMember,
+      - removing a nested 'CommunityMember' node in the #/components/schemas/CommunityMember,
         which is invalid
      */
     final OpenAPI parser = createParser(loadSpec("common-room-core.json"));
